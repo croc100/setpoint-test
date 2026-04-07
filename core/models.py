@@ -8,9 +8,23 @@
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
 
+import os
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.utils import timezone  # [추가] publish_at 기본값 설정을 위해 필요
+from django.utils import timezone
+
+# ==========================================
+# 0. 공통 선택 사항 (Enums)
+# ==========================================
+
+class Source(models.TextChoices):
+    """데이터 출처 정의"""
+    WEEKUK = "WEEKUK", "위꾹"
+    SPONET = "SPONET", "스포넷"
+    NEARMINTON = "NEARMINTON", "우동배"
+    FACECOK = "FACECOK", "페이스콕"
+    BAEF = "BAEF", "배프"
+
 
 # ==========================================
 # 1. 사용자 및 계정 관련 모델
@@ -36,7 +50,7 @@ class Player(models.Model):
     """선수 마스터 데이터"""
     name = models.CharField(max_length=100)
     club = models.CharField(max_length=100, db_index=True)
-    source = models.CharField(max_length=20) # WEEKUK, SPONET, BAEF 등
+    source = models.CharField(max_length=20, choices=Source.choices) 
     external_uid = models.CharField(max_length=100, unique=True) # 원본 사이트 고유 ID
 
     def __str__(self):
@@ -48,16 +62,12 @@ class PlayerDailyStats(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='daily_stats')
     date = models.DateField(db_index=True)
     
-    # ==========================================
-    # 검색 필터 및 화면 출력을 위한 상세 필드
-    # ==========================================
     tournament = models.ForeignKey('Tournament', on_delete=models.SET_NULL, null=True, blank=True)
     gender = models.CharField(max_length=10, blank=True, null=True)
     category_age_band = models.CharField(max_length=50, blank=True, null=True)
     category_level = models.CharField(max_length=50, blank=True, null=True)
     rank = models.IntegerField(null=True, blank=True, help_text="대회 순위 (예: 1, 2, 3)")
     
-    # 기존 통계 필드
     win_count = models.IntegerField(default=0)
     loss_count = models.IntegerField(default=0)
     win_rate = models.FloatField(default=0.0)
@@ -69,6 +79,7 @@ class PlayerDailyStats(models.Model):
 
     def __str__(self):
         return f"{self.player.name} - {self.date} 통계"
+
 
 # ==========================================
 # 3. 대회 및 운영 관련 모델
@@ -85,10 +96,17 @@ class Tournament(models.Model):
     name = models.CharField(max_length=200)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
-    region = models.CharField(max_length=100, blank=True) # 기존 'city' 통합
+    
+    # [수정] 수집기에서 사용하는 필드명 확보
+    region = models.CharField(max_length=100, blank=True) 
+    region_raw = models.CharField(max_length=255, blank=True, null=True, help_text="수집된 원본 장소 텍스트")
+    
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
-    source = models.CharField(max_length=20) # 출처 사이트명
-    external_url = models.URLField(blank=True) # 대회 상세 페이지 링크
+    source = models.CharField(max_length=20, choices=Source.choices)
+    
+    # [수정] 수집기(update_or_create)에서 식별자로 사용하는 필드 추가
+    external_id = models.CharField(max_length=100, db_index=True, null=True, blank=True)
+    external_url = models.URLField(blank=True, max_length=500) # 원본 링크
     
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -126,14 +144,12 @@ class Notice(models.Model):
     content = models.TextField()
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     
-    # [수정/추가] 작성 폼 UI 요구사항을 반영한 필드들
-    is_pinned = models.BooleanField(default=False) # 상단 고정 여부
-    is_published = models.BooleanField(default=True) # 게시 여부
-    show_as_page = models.BooleanField(default=False) # 메뉴 노출 여부
+    is_pinned = models.BooleanField(default=False)
+    is_published = models.BooleanField(default=True)
+    show_as_page = models.BooleanField(default=False)
     
-    # auto_now_add=True는 폼에서 수정이 불가하므로 default=timezone.now로 변경
     publish_at = models.DateTimeField(default=timezone.now) 
-    expire_at = models.DateTimeField(null=True, blank=True) # 게시 종료일
+    expire_at = models.DateTimeField(null=True, blank=True)
     
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -144,7 +160,7 @@ class Notice(models.Model):
 class News(models.Model):
     """메인 화면 소식 섹션 (외부 뉴스/링크 전용)"""
     title = models.CharField(max_length=255)
-    url = models.URLField(blank=True, null=True)
+    url = models.URLField(blank=True, null=True, max_length=500)
     summary = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -153,10 +169,3 @@ class News(models.Model):
 
     def __str__(self):
         return self.title
-    
-class Source(models.TextChoices):
-    WEEKUK = "WEEKUK", "위꾹"
-    SPONET = "SPONET", "스포넷"
-    NEARMINTON = "NEARMINTON", "우동배"
-    FACECOK = "FACECOK", "페이스콕"
-    BAEF = "BAEF", "배프"

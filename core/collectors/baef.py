@@ -1,161 +1,125 @@
-# core/collectors/baef.py
+import os
+import sys
+import json
 import datetime as dt
 import re
 import time
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Dict
 from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
 import urllib3
 
-from core.models import Tournament, Source
+# [환경 설정]
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if BASE_DIR not in sys.path:
+    sys.path.append(BASE_DIR)
 
-# SSL 경고 무시
+# [경로 설정] 데이터 성격에 따른 저장소 분리
+RAW_TOURNAMENT_DIR = os.path.join(BASE_DIR, "data", "raw", "tournaments")
+RAW_PLAYER_DIR = os.path.join(BASE_DIR, "data", "raw", "players")
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/129.0.0.0 Safari/537.36"
-    ),
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
     "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
     "Referer": "https://www.badmintonfriends.co.kr/",
 }
 
 DATE_YMD_SLASH = re.compile(r"(\d{4})/(\d{1,2})/(\d{1,2})")
-UUID_PATH = re.compile(
-    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
-    re.IGNORECASE,
-)
-
-def _html_from_response(resp: requests.Response) -> str:
-    return resp.content.decode("utf-8", errors="replace")
+UUID_PATH = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.IGNORECASE)
 
 def _is_tournament_title(title: str) -> bool:
-    """[핵심 1] 제목으로 대회 여부 판별 (노이즈 차단)"""
     blacklist = ["작성중", "공지", "안내", "채용", "이벤트", "상품", "수요조사", "패키지", "광고", "정보", "서비스", "비용", "메뉴얼", "안내서", "제작", "양식", "약관", "패치노트", "FAQ", "사진", "배프(배드민턴프렌즈)"]
-    if any(b in title for b in blacklist):
-        return False
-        
-    if re.search(r'제\s*\d+\s*회', title):
-        return True
-        
+    if any(b in title for b in blacklist): return False
+    if re.search(r'제\s*\d+\s*회', title): return True
     whitelist = ["대회", "리그", "컵", "대잔치", "오픈", "축전"]
-    if any(w in title for w in whitelist):
-        return True
-        
-    return False
+    return any(w in title for w in whitelist)
 
 def _extract_info_from_text(html: str) -> Tuple[Optional[str], Optional[str]]:
-    """[핵심 2] 순수 텍스트에서 날짜/장소 정밀 추출 (실패해도 예외처리)"""
     soup = BeautifulSoup(html, "lxml")
     lines = soup.get_text(separator="\n", strip=True).split("\n")
-    
-    start_date = None
-    venue = None
-    
+    start_date, venue = None, None
     for i, line in enumerate(lines):
         if not start_date:
             m = DATE_YMD_SLASH.search(line)
-            if m:
-                try:
-                    # 장고 DB에 넣기 위해 datetime.date 객체로 변환
-                    start_date = dt.date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
-                except ValueError:
-                    pass
-        
+            if m: start_date = f"{m.group(1)}-{m.group(2).zfill(2)}-{m.group(3).zfill(2)}"
         if "장소" in line and not venue:
             parts = re.split(r'대회\s*장소|장소', line)
             if len(parts) > 1:
-                candidate = parts[-1].strip()
-                candidate = re.sub(r'^[:：\-\|•\s]+', '', candidate)
-                candidate = re.sub(r'^\d+(-\d+)*\.?\s*', '', candidate)
-                
-                if len(candidate) > 1 and not re.match(r'^[\d\-\.\s]+$', candidate):
-                    venue = candidate
-            
-            if not venue:
-                for nxt_line in lines[i+1:i+5]:
-                    candidate = re.sub(r'^[:：\-\|•\s]+', '', nxt_line.strip())
-                    candidate = re.sub(r'^\d+(-\d+)*\.?\s*', '', candidate)
-                    if len(candidate) > 1 and not re.match(r'^[\d\-\.\s]+$', candidate):
-                        venue = candidate
-                        break
-                        
+                cand = re.sub(r'^[:：\-\|•\s]+', '', parts[-1].strip())
+                if len(cand) > 1: venue = cand
     return start_date, venue
 
-def fetch_baef_tournament(url: str) -> Optional[Tournament]:
-    resp = requests.get(url, headers=HEADERS, timeout=10, verify=False)
-    resp.raise_for_status()
+def fetch_tournament_to_dict(url: str) -> Optional[Dict]:
+    """대회 기본 정보 수집"""
+    try:
+        resp = requests.get(url, headers=HEADERS, timeout=10, verify=False)
+        resp.raise_for_status()
+        html = resp.content.decode("utf-8", errors="replace")
+        soup = BeautifulSoup(html, "lxml")
+        
+        name = soup.find("h1").get_text(strip=True) if soup.find("h1") else soup.title.get_text(strip=True)
+        if not _is_tournament_title(name): return None
 
-    html = _html_from_response(resp)
-    soup = BeautifulSoup(html, "lxml")
-
-    # 1. 제목 추출
-    name = url
-    h1 = soup.find("h1")
-    if h1 and h1.get_text(strip=True):
-        name = h1.get_text(strip=True)
-    elif soup.title and soup.title.get_text(strip=True):
-        name = soup.title.get_text(strip=True)
-
-    # [적재 판별] 제목이 대회가 아니면 DB에 넣지 않음
-    if not _is_tournament_title(name):
+        start_date, venue = _extract_info_from_text(html)
+        return {
+            "external_id": url.rstrip("/").split("/")[-1],
+            "name": name,
+            "start_date": start_date,
+            "region_raw": venue,
+            "external_url": url,
+            "source": "BAEF"
+        }
+    except Exception as e:
+        print(f"[!] 에러 {url}: {e}")
         return None
 
-    # 2. 날짜/장소 정밀 추출
-    start_date, venue = _extract_info_from_text(html)
+def fetch_player_stats_from_tournament(url: str) -> List[Dict]:
+    """
+    [확장 포인트] 해당 대회 페이지에서 플레이어 전적을 수집하는 로직
+    대회 상세 페이지 내의 '결과' 또는 '대진표' 데이터를 파싱하여 리스트로 반환
+    """
+    # TODO: 대진표/결과 API 또는 HTML 파싱 로직 구현
+    # 예시 반환 구조:
+    # return [{"player_name": "100", "club": "크로데", "rank": 1, ...}]
+    return []
 
-    external_id = url.rstrip("/").split("/")[-1]
-
-    # [반자동 적재] 날짜나 장소가 파싱되지 않아 None이어도 DB에 생성!
-    obj, _created = Tournament.objects.update_or_create(
-        source=Source.BAEF,
-        external_id=external_id,
-        defaults={
-            "name": name,
-            "start_date": start_date, 
-            "end_date": start_date, # 단일 일자로 취급
-            "region_raw": venue,    # 추출한 장소를 region_raw에 임시 적재
-            "registration_start": None,
-            "registration_end": None,
-            "original_url": url,
-        },
-    )
-    return obj
-
-def _collect_detail_urls_from_list(list_url: str) -> List[str]:
+def collect_tournaments():
+    """대회 목록 수집 및 JSON 저장"""
+    os.makedirs(RAW_TOURNAMENT_DIR, exist_ok=True)
+    list_url = "https://www.badmintonfriends.co.kr/contest"
     resp = requests.get(list_url, headers=HEADERS, timeout=10, verify=False)
-    resp.raise_for_status()
-
-    html = _html_from_response(resp)
-    soup = BeautifulSoup(html, "lxml")
-
-    detail_urls: set[str] = set()
-
-    for a in soup.find_all("a", href=True):
-        full = urljoin(list_url, a["href"])
-
-        if not full.startswith("https://www.badmintonfriends.co.kr/"):
-            continue
-
-        path = full.split("https://www.badmintonfriends.co.kr/")[-1].lstrip("/")
-        if UUID_PATH.fullmatch(path):
-            detail_urls.add(full)
-
-    return sorted(detail_urls)
-
-def fetch_baef_from_list(list_url: str = "https://www.badmintonfriends.co.kr/contest") -> List[Tournament]:
-    urls = _collect_detail_urls_from_list(list_url)
-    results: List[Tournament] = []
+    soup = BeautifulSoup(resp.text, "lxml")
+    
+    urls = sorted({urljoin(list_url, a["href"]) for a in soup.find_all("a", href=True) 
+                  if UUID_PATH.fullmatch(urljoin(list_url, a["href"]).split("/")[-1])})
+    
+    print(f"[*] 대회 정보 {len(urls)}개 수집 시작...")
+    tournament_list = []
     
     for url in urls:
-        obj = fetch_baef_tournament(url)
-        if obj:
-            results.append(obj)
-            print(f"[+] DB 적재 완료: {obj.name} (날짜: {obj.start_date}, 장소: {obj.region_raw})")
-        time.sleep(0.1) # 서버 부하 방지
-        
-    return results
+        res = fetch_tournament_to_dict(url)
+        if res:
+            tournament_list.append(res)
+            print(f"[+] 대회 수집: {res['name']}")
+        time.sleep(0.1)
+
+    # JSON 저장
+    timestamp = dt.datetime.now().strftime('%Y%m%d_%H%M')
+    out_path = os.path.join(RAW_TOURNAMENT_DIR, f"baef_tournaments_{timestamp}.json")
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(tournament_list, f, ensure_ascii=False, indent=4)
+    print(f"[*] 대회 저장 완료: {out_path}")
+
+def collect_player_stats():
+    """플레이어 전적 수집 및 JSON 저장 (별도 실행용)"""
+    os.makedirs(RAW_PLAYER_DIR, exist_ok=True)
+    # 수집 로직에 따라 위 collect_tournaments와 병합하거나 별도 루프 생성
+    print("[!] 플레이어 전적 수집 기능은 fetch_player_stats_from_tournament 구현 후 동작합니다.")
+
+if __name__ == "__main__":
+    # 기본적으로 대회 정보부터 수집
+    collect_tournaments()

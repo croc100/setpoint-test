@@ -1,0 +1,95 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}공지사항{% endblock %}
+
+{% block content %}
+<section class="py-6 space-y-4">
+    <h1 class="toss-title">알림</h1>
+    
+    <form class="relative group" method="get">
+        <input type="text" name="q" placeholder="궁금한 소식을 검색해보세요" 
+               value="{{ request.GET.q|default:'' }}"
+               class="w-full h-12 px-5 bg-white dark:bg-zinc-800 rounded-2xl border border-transparent focus:border-tossBlue outline-none shadow-sm transition-all text-sm font-medium">
+        <button type="submit" class="absolute right-4 top-3 text-tossGray-400 group-focus-within:text-tossBlue transition-colors">
+            🔍
+        </button>
+        {% if request.GET.category %}
+            <input type="hidden" name="category" value="{{ request.GET.category }}">
+        {% endif %}
+    </form>
+
+    <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+        <a href="?{% if request.GET.q %}q={{ request.GET.q|urlencode }}{% endif %}" 
+           class="px-5 py-2.5 rounded-full text-xs font-bold whitespace-nowrap transition-all
+           {% if not request.GET.category %}bg-tossBlue text-white shadow-lg shadow-tossBlue/20{% else %}bg-white dark:bg-zinc-800 text-tossGray-500 hover:bg-tossGray-200{% endif %}">
+            전체
+        </a>
+        {% for cat_id, cat_name in categories %}
+        <a href="?category={{ cat_id }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}" 
+           class="px-5 py-2.5 rounded-full text-xs font-bold whitespace-nowrap transition-all
+           {% if request.GET.category == cat_id %}bg-tossBlue text-white shadow-lg shadow-tossBlue/20{% else %}bg-white dark:bg-zinc-800 text-tossGray-500 hover:bg-tossGray-200{% endif %}">
+            {{ cat_name }}
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+<div class="space-y-3">
+    {% for n in notices %}
+    <div class="toss-card group cursor-pointer hover:bg-tossGray-50 dark:hover:bg-white/[0.02] transition-all relative overflow-hidden"
+         onclick="location.href='{% url 'core:notice_detail' n.pk %}'">
+        
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-[10px] font-black shrink-0
+                {% if n.category == 'NOTICE' %}bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400
+                {% elif n.category == 'UPDATE' %}bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400
+                {% elif n.category == 'EVENT' %}bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400
+                {% else %}bg-tossGray-100 text-tossGray-500{% endif %}">
+                {% if n.category == 'NOTICE' %}공지
+                {% elif n.category == 'UPDATE' %}업뎃
+                {% elif n.category == 'EVENT' %}이벤트
+                {% else %}기타{% endif %}
+            </div>
+
+            <div class="flex-grow min-w-0">
+                <div class="flex justify-between items-start mb-1">
+                    <h3 class="text-[16px] font-bold text-tossGray-900 dark:text-white truncate group-hover:text-tossBlue transition-colors">
+                        {{ n.title }}
+                    </h3>
+                </div>
+                <p class="text-[13px] font-medium text-tossGray-400">
+                    {{ n.publish_at|date:"Y.m.d" }}
+                </p>
+            </div>
+
+            <div class="text-tossGray-300 group-hover:translate-x-1 transition-transform">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="toss-card text-center py-20">
+        <p class="text-tossGray-400 font-bold">찾으시는 소식이 없어요.</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% if is_paginated %}
+<nav class="flex justify-center items-center gap-4 py-10">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}" 
+       class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-zinc-800 shadow-sm text-tossGray-500">←</a>
+    {% endif %}
+    
+    <span class="text-sm font-bold text-tossGray-900 dark:text-white">
+        {{ page_obj.number }} / {{ paginator.num_pages }}
+    </span>
+
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}" 
+       class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-zinc-800 shadow-sm text-tossGray-500">→</a>
+    {% endif %}
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ notice.title }}{% endblock %}
+
+{% block content %}
+<section class="py-6 max-w-3xl mx-auto space-y-6">
+    <div class="flex justify-between items-center">
+        <a href="{% url 'core:notice_list' %}" class="inline-flex items-center text-sm font-bold text-tossGray-500 hover:text-tossBlue transition-colors">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            목록으로 돌아가기
+        </a>
+        
+        {% if user.is_staff %}
+        <a href="{% url 'core:notice_edit' notice.pk %}" class="px-4 py-2 bg-tossGray-100 text-tossGray-600 dark:bg-white/10 dark:text-white rounded-xl text-xs font-bold hover:bg-tossGray-200 active:scale-95 transition-all">
+            수정하기
+        </a>
+        {% endif %}
+    </div>
+
+    <article class="toss-card p-6 md:p-10">
+        <header class="border-b border-tossGray-100 dark:border-white/10 pb-6 mb-6">
+            <div class="flex items-center gap-2 mb-3">
+                <span class="px-2.5 py-1 bg-tossBlue/10 text-tossBlue rounded-md text-[11px] font-black tracking-wide">
+                    {{ notice.get_category_display }}
+                </span>
+                {% if notice.is_pinned %}
+                <span class="px-2.5 py-1 bg-red-50 text-red-500 rounded-md text-[11px] font-black tracking-wide">
+                    📌 중요
+                </span>
+                {% endif %}
+            </div>
+            
+            <h1 class="text-2xl md:text-3xl font-black text-tossGray-900 dark:text-white leading-snug tracking-tight">
+                {{ notice.title }}
+            </h1>
+            
+            <div class="mt-4 flex items-center gap-3 text-sm font-medium text-tossGray-400">
+                <span>{{ notice.publish_at|date:"Y.m.d H:i" }}</span>
+                {% if notice.author %}
+                <span class="w-1 h-1 rounded-full bg-tossGray-300"></span>
+                <span>{{ notice.author.nickname|default:notice.author.username }}</span>
+                {% endif %}
+            </div>
+        </header>
+
+        <div class="text-[15px] md:text-base text-tossGray-800 dark:text-tossGray-200 whitespace-pre-wrap leading-relaxed font-medium">
+            {{ notice.content }}
+        </div>
+    </article>
+</section>
+{% endblock %}

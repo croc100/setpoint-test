@@ -1,0 +1,136 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}배드민턴 선수 검색{% endblock %}
+
+{% block head %}
+    {{ block.super }}
+    <style type="text/tailwindcss">
+        /* 토스 스타일의 둥근 셀렉트 박스 */
+        .toss-select { 
+            @apply h-12 px-4 bg-white dark:bg-zinc-800 rounded-2xl border border-black/5 dark:border-white/5 outline-none text-sm font-bold appearance-none cursor-pointer hover:bg-tossGray-50 dark:hover:bg-white/5 transition-all; 
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%238b95a1'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); 
+            background-repeat: no-repeat; 
+            background-position: right 12px center; 
+            background-size: 16px; 
+        }
+        .rank-badge { @apply px-2 py-1 rounded-md text-[10px] font-black inline-flex items-center gap-1; }
+    </style>
+{% endblock %}
+
+{% block content %}
+<section class="py-6 space-y-6">
+    <div class="space-y-1">
+        <h1 class="toss-title">선수 검색</h1>
+        <p class="text-sm font-medium text-tossGray-500 italic">이름으로 검색하고 필터로 정교하게 찾아보세요.</p>
+    </div>
+
+    <form method="get" action="{% url 'core:player_search' %}" class="space-y-4">
+        <div class="relative group">
+            <input type="text" name="q" value="{{ query }}" placeholder="예: 홍길동" 
+                   class="w-full h-14 px-6 bg-white dark:bg-zinc-800 rounded-2xl border border-transparent focus:border-tossBlue outline-none shadow-sm transition-all text-base font-bold">
+            <button type="submit" class="absolute right-5 top-4 text-tossBlue font-black text-lg">🔍</button>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <select name="age" class="toss-select">
+                <option value="">나이대(전체)</option>
+                {% for a in filters.ages %}
+                <option value="{{ a }}" {% if request.GET.age == a %}selected{% endif %}>{{ a }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="level" class="toss-select">
+                <option value="">급수(전체)</option>
+                {% for l in filters.levels %}
+                <option value="{{ l }}" {% if request.GET.level == l %}selected{% endif %}>{{ l }}급</option>
+                {% endfor %}
+            </select>
+
+            <select name="gender" class="toss-select">
+                <option value="">성별(전체)</option>
+                {% for val, label in filters.genders %}
+                <option value="{{ val }}" {% if request.GET.gender == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="h-12 bg-tossBlue text-white rounded-2xl font-bold text-sm shadow-lg shadow-tossBlue/20 active:scale-95 transition-all">
+                조건 검색
+            </button>
+        </div>
+    </form>
+</section>
+
+{% if query or request.GET.age or request.GET.level %}
+<section class="space-y-4">
+    <div class="flex justify-between items-center px-1">
+        <h3 class="text-sm font-bold text-tossGray-500">검색 결과 <span class="text-tossBlue">{{ results|length }}</span></h3>
+    </div>
+
+    {% if results %}
+        <div class="hidden md:block toss-card !p-0 overflow-hidden overflow-x-auto no-scrollbar">
+            <table class="w-full text-left border-collapse min-w-[800px]">
+                <thead class="bg-tossGray-50 dark:bg-white/5 border-b border-tossGray-100 dark:border-white/5">
+                    <tr>
+                        <th class="px-6 py-4 text-xs font-bold text-tossGray-400">선수/출처</th>
+                        <th class="px-6 py-4 text-xs font-bold text-tossGray-400 text-center">성적</th>
+                        <th class="px-6 py-4 text-xs font-bold text-tossGray-400">정보</th>
+                        <th class="px-6 py-4 text-xs font-bold text-tossGray-400">소속/대회</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-tossGray-100 dark:divide-white/5">
+                    {% for r in results %}
+                    <tr class="hover:bg-tossGray-50 dark:hover:bg-white/[0.02] cursor-pointer" onclick="location.href='/player/{{ r.id|default:'#' }}/'">
+                        <td class="px-6 py-5">
+                            <div class="flex items-center gap-3">
+                                <span class="w-2 h-2 rounded-full" style="background-color: 
+                                    {% if r.source == 'FACECOK' %}#2563eb{% elif r.source == 'NEARMINTON' %}#16a34a{% elif r.source == 'SPONET' %}#ef4444{% elif r.source == 'WEEKUK' %}#f97316{% elif r.source == 'BAEF' %}#8b5cf6{% else %}#b0b8c1{% endif %};"></span>
+                                <span class="font-bold text-tossGray-900 dark:text-white">{{ r.name }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5 text-center">
+                            {% if r.daily_stats.first.rank == 1 %}<span class="rank-badge bg-yellow-100 text-yellow-700">🏆 1위</span>
+                            {% elif r.daily_stats.first.rank == 2 %}<span class="rank-badge bg-tossGray-200 text-tossGray-700">🥈 2위</span>
+                            {% elif r.daily_stats.first.rank == 3 %}<span class="rank-badge bg-orange-100 text-orange-700">🥉 3위</span>
+                            {% elif r.daily_stats.first.rank %}<span class="text-xs font-bold text-tossGray-600">{{ r.daily_stats.first.rank }}위</span>
+                            {% else %}<span class="text-tossGray-300">-</span>{% endif %}
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="text-xs font-medium text-tossGray-500">{{ r.daily_stats.first.gender|default:"-" }} · {{ r.daily_stats.first.category_age_band|default:"-" }} · {{ r.daily_stats.first.category_level|default:"-" }}</span>
+                        </td>
+                        <td class="px-6 py-5 min-w-0">
+                            <p class="text-xs font-bold text-tossGray-800 dark:text-tossGray-200 truncate">{{ r.club|default:"-" }}</p>
+                            <p class="text-[10px] text-tossGray-400 truncate mt-1">{{ r.daily_stats.first.tournament.name|default:"대회 정보 없음" }}</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="md:hidden space-y-3">
+            {% for r in results %}
+            <div class="toss-card active:scale-[0.98] transition-transform" onclick="location.href='/player/{{ r.id|default:'#' }}/'">
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full" style="background-color: 
+                            {% if r.source == 'FACECOK' %}#2563eb{% elif r.source == 'NEARMINTON' %}#16a34a{% elif r.source == 'SPONET' %}#ef4444{% elif r.source == 'WEEKUK' %}#f97316{% elif r.source == 'BAEF' %}#8b5cf6{% else %}#b0b8c1{% endif %};"></span>
+                        <span class="font-black text-lg">{{ r.name }}</span>
+                    </div>
+                    {% if r.daily_stats.first.rank == 1 %}<span class="text-sm">🏆</span>{% endif %}
+                </div>
+                <div class="space-y-1">
+                    <p class="text-xs font-bold text-tossGray-800 dark:text-tossGray-200">{{ r.club|default:"소속 없음" }}</p>
+                    <p class="text-[11px] text-tossGray-400">{{ r.daily_stats.first.tournament.name|default:"-" }} · {{ r.daily_stats.first.category_level|default:"" }}급</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="toss-card text-center py-20">
+            <p class="text-tossGray-400 font-bold">일치하는 선수를 찾지 못했습니다.</p>
+        </div>
+    {% endif %}
+</section>
+{% endif %}
+{% endblock %}

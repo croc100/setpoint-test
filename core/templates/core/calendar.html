@@ -1,0 +1,140 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}대회 캘린더{% endblock %}
+
+{% block head %}
+    {{ block.super }}
+    <meta name="description" content="전국 배드민턴 대회 일정을 한눈에 보는 캘린더. 위꾹, 스포넷, 우동배, 페이스콕, 배프 통합 정보를 확인하세요.">
+    
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+    <style type="text/tailwindcss">
+        /* Toss 스타일 캘린더 커스텀 */
+        .fc { @apply border-none font-sans; --fc-border-color: #f2f4f6; }
+        .dark .fc { --fc-border-color: #333d4b; }
+        
+        .fc-toolbar-title { @apply text-xl font-bold !text-tossGray-900 dark:!text-white; }
+        .fc-button { @apply !bg-tossGray-100 !border-none !text-tossGray-700 !font-bold !rounded-xl transition-all hover:!bg-tossGray-200 active:!scale-95; }
+        .dark .fc-button { @apply !bg-white/5 !text-tossGray-400 hover:!bg-white/10; }
+        
+        /* 날짜 숫자 스타일 */
+        .fc-daygrid-day-number { @apply p-2 text-sm font-medium text-tossGray-600 dark:text-tossGray-400; }
+        .fc-day-today { @apply !bg-tossBlue/5; }
+        
+        /* 모바일 리스트 스타일 (Toss Card 스타일 적용) */
+        .sp-item { @apply mb-3 p-5 rounded-toss bg-tossGray-50 dark:bg-white/5 border border-black/[0.03] dark:border-white/[0.05] transition-transform active:scale-[0.98]; }
+    </style>
+{% endblock %}
+
+{% block content %}
+<section class="py-4 space-y-2">
+    <h1 class="toss-title">대회 캘린더</h1>
+    <p class="text-sm font-medium text-tossGray-500">
+        전국 <strong>배드민턴 대회 일정</strong>을 한눈에 확인하세요.<br>
+        <span class="text-tossBlue text-xs">TIP: 날짜를 클릭하면 상세 목록을 볼 수 있습니다.</span>
+    </p>
+</section>
+
+<section class="flex flex-wrap gap-2 mb-4">
+    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-800 rounded-full text-[11px] font-bold shadow-sm border border-black/5 dark:border-white/5">
+        <span class="w-2 h-2 rounded-full bg-brand-facecok"></span> 페이스콕
+    </div>
+    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-800 rounded-full text-[11px] font-bold shadow-sm border border-black/5 dark:border-white/5">
+        <span class="w-2 h-2 rounded-full bg-brand-nearminton"></span> 우동배
+    </div>
+    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-800 rounded-full text-[11px] font-bold shadow-sm border border-black/5 dark:border-white/5">
+        <span class="w-2 h-2 rounded-full bg-brand-sponet"></span> 스포넷
+    </div>
+    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-800 rounded-full text-[11px] font-bold shadow-sm border border-black/5 dark:border-white/5">
+        <span class="w-2 h-2 rounded-full bg-brand-weekuk"></span> 위꾹
+    </div>
+    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-800 rounded-full text-[11px] font-bold shadow-sm border border-black/5 dark:border-white/5">
+        <span class="w-2 h-2 rounded-full bg-brand-baef"></span> 배프
+    </div>
+</section>
+
+<div class="toss-card !p-4 overflow-hidden">
+    <div id="calendar"></div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const calendarEl = document.getElementById("calendar");
+    
+    // [Data] 기존 컬러 및 라벨 데이터 유지
+    const SOURCE_COLORS = {
+        "FACECOK": "#2563eb", "NEARMINTON": "#16a34a", "SPONET": "#ef4444", 
+        "WEEKUK": "#f97316", "BAEF": "#8b5cf6"
+    };
+    const SOURCE_LABELS = {
+        "FACECOK": "페이스콕", "NEARMINTON": "우동배", "SPONET": "스포넷", 
+        "WEEKUK": "위꾹", "BAEF": "배프"
+    };
+
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: isMobile ? "listMonth" : "dayGridMonth",
+        locale: "ko",
+        height: "auto",
+        headerToolbar: {
+            left: "prev,next today",
+            center: "title",
+            right: isMobile ? "" : "dayGridMonth,listMonth"
+        },
+        buttonText: { today: "오늘", month: "월", list: "목록" },
+        
+        // [Data Bind] 데이터 엔드포인트 유지
+        events: "{% url 'core:calendar_events' %}",
+
+        dateClick: function(info) {
+            window.location.href = "/calendar/day/" + info.dateStr + "/";
+        },
+
+        eventDidMount: function (info) {
+            const props = info.event.extendedProps || {};
+            const src = (props.source || "").toUpperCase();
+            const color = SOURCE_COLORS[src] || "#b0b8c1";
+
+            if (!isMobile) {
+                // 데스크탑: 심플한 컬러 바
+                info.el.style.backgroundColor = color;
+                info.el.style.border = "none";
+                info.el.style.padding = "2px 4px";
+                info.el.style.borderRadius = "4px";
+            } else {
+                // 모바일: Toss 리스트 카드 스타일로 재조립
+                const titleTd = info.el.querySelector(".fc-list-event-title");
+                if (titleTd) {
+                    const titleText = info.event.title;
+                    const url = info.event.url || props.external_url || "#";
+                    const loc = props.region || "전국";
+
+                    titleTd.innerHTML = `
+                        <div class="sp-item" onclick="window.open('${url}')">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md text-white" style="background-color: ${color}">
+                                    ${SOURCE_LABELS[src] || src}
+                                </span>
+                                <span class="text-[10px] text-tossGray-400 font-medium">${loc}</span>
+                            </div>
+                            <h4 class="text-sm font-bold text-tossGray-900 dark:text-white leading-snug">${titleText}</h4>
+                        </div>
+                    `;
+                    // 기본 FullCalendar 스타일 제거
+                    info.el.style.background = "transparent";
+                    info.el.querySelector(".fc-list-event-graphic").style.display = "none";
+                }
+            }
+        }
+    });
+
+    calendar.render();
+});
+</script>
+{% endblock %}

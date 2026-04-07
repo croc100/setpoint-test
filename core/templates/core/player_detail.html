@@ -1,0 +1,101 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ player.name }} 선수의 상세 전적{% endblock %}
+
+{% block content %}
+<section class="py-6 max-w-4xl mx-auto space-y-6">
+    <div>
+        <a href="javascript:history.back()" class="inline-flex items-center text-sm font-bold text-tossGray-500 hover:text-tossBlue transition-colors">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            이전 화면으로
+        </a>
+    </div>
+
+    <div class="border-b border-tossGray-100 dark:border-white/10 pb-6">
+        <h1 class="text-3xl font-black text-tossGray-900 dark:text-white flex items-center gap-3 tracking-tight">
+            {{ player.name }}
+            <span class="text-lg font-bold text-tossGray-400 bg-tossGray-100 dark:bg-white/10 px-2 py-0.5 rounded-lg">
+                {{ player.club|default:"소속 없음" }}
+            </span>
+        </h1>
+        <div class="mt-3 flex items-center gap-3 text-sm font-medium text-tossGray-500">
+            <span>출처: <strong class="text-tossGray-700 dark:text-tossGray-300">{{ player.get_source_display|default:player.source }}</strong></span>
+            <span class="w-1 h-1 rounded-full bg-tossGray-300"></span>
+            <span>UID: {{ player.external_uid }}</span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="toss-card !p-5 text-center">
+            <div class="text-xs font-bold text-tossGray-400 mb-1">총 출전 대회</div>
+            <div class="text-2xl font-black text-tossGray-900 dark:text-white">{{ total_tournaments }}<span class="text-sm font-medium text-tossGray-400 ml-1">회</span></div>
+        </div>
+        <div class="toss-card !p-5 text-center border-b-4 border-yellow-400">
+            <div class="text-xs font-bold text-tossGray-400 mb-1">입상(1~3위)</div>
+            <div class="text-2xl font-black text-yellow-500">{{ total_medals }}<span class="text-sm font-medium text-tossGray-400 ml-1">회</span></div>
+        </div>
+        <div class="toss-card !p-5 text-center">
+            <div class="text-xs font-bold text-tossGray-400 mb-1">통산 승률</div>
+            <div class="text-2xl font-black text-tossBlue">{{ win_rate|floatformat:1 }}<span class="text-sm font-medium text-tossBlue/60 ml-1">%</span></div>
+        </div>
+        <div class="toss-card !p-5 text-center">
+            <div class="text-xs font-bold text-tossGray-400 mb-1">총 승/패</div>
+            <div class="text-xl font-black text-tossGray-900 dark:text-white mt-1.5">
+                <span class="text-red-500">{{ total_wins }}승</span> <span class="text-tossGray-300">/</span> <span class="text-tossBlue">{{ total_losses }}패</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="space-y-4 pt-4">
+        <h3 class="text-lg font-black text-tossGray-900 dark:text-white">대회 출전 기록</h3>
+        
+        {% if stats %}
+        <div class="toss-card !p-0 overflow-hidden overflow-x-auto no-scrollbar">
+            <table class="w-full text-left border-collapse min-w-[700px]">
+                <thead class="bg-tossGray-50 dark:bg-white/5 border-b border-tossGray-100 dark:border-white/5">
+                    <tr>
+                        <th class="px-6 py-4 text-xs font-bold text-tossGray-400">일자</th>
+                        <th class="px-6 py-4 text-xs font-bold text-tossGray-400">대회명</th>
+                        <th class="px-6 py-4 text-xs font-bold text-tossGray-400">참가 종목</th>
+                        <th class="px-6 py-4 text-xs font-bold text-tossGray-400 text-center">성적</th>
+                        <th class="px-6 py-4 text-xs font-bold text-tossGray-400 text-center">승패</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-tossGray-100 dark:divide-white/5">
+                    {% for stat in stats %}
+                    <tr class="hover:bg-tossGray-50 dark:hover:bg-white/[0.02] transition-colors">
+                        <td class="px-6 py-4 text-xs font-bold text-tossGray-500 whitespace-nowrap">
+                            {{ stat.date|date:"Y.m.d" }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <p class="text-sm font-bold text-tossGray-900 dark:text-white">{{ stat.tournament.name|default:"대회 정보 없음" }}</p>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-xs font-medium text-tossGray-600 bg-tossGray-100 dark:bg-white/10 px-2 py-1 rounded-md">
+                                {{ stat.gender|default:"-" }} {{ stat.category_age_band|default:"" }} {{ stat.category_level|default:"" }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            {% if stat.rank == 1 %}<span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-md text-[11px] font-black">🏆 1위</span>
+                            {% elif stat.rank == 2 %}<span class="px-2 py-1 bg-tossGray-200 text-tossGray-700 rounded-md text-[11px] font-black">🥈 2위</span>
+                            {% elif stat.rank == 3 %}<span class="px-2 py-1 bg-orange-100 text-orange-700 rounded-md text-[11px] font-black">🥉 3위</span>
+                            {% elif stat.rank %}<span class="text-xs font-bold text-tossGray-600">{{ stat.rank }}위</span>
+                            {% else %}<span class="text-tossGray-300 text-xs">기록 없음</span>{% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-center text-xs font-bold">
+                            <span class="text-red-500">{{ stat.win_count }}승</span> <span class="text-tossGray-300">/</span> <span class="text-tossBlue">{{ stat.loss_count }}패</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="toss-card text-center py-20">
+            <p class="text-tossGray-400 font-bold">이 선수의 상세 전적 데이터가 아직 없습니다.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

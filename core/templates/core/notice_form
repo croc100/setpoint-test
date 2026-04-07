@@ -1,0 +1,92 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}공지 {% if mode == "create" %}작성{% else %}수정{% endif %}{% endblock %}
+
+{% block head %}
+    {{ block.super }}
+    <style type="text/tailwindcss">
+        /* 장고 기본 폼 렌더링에 토스 스타일 강제 주입을 위한 CSS 설정 */
+        .toss-form-input input, .toss-form-input select, .toss-form-input textarea {
+            @apply w-full h-14 px-4 bg-white dark:bg-zinc-800 rounded-xl border border-tossGray-200 dark:border-white/10 outline-none focus:border-tossBlue focus:ring-1 focus:ring-tossBlue transition-all text-sm font-medium text-tossGray-900 dark:text-white;
+        }
+        .toss-form-input textarea {
+            @apply h-40 py-4 resize-none;
+        }
+        .toss-form-checkbox input[type="checkbox"] {
+            @apply w-6 h-6 rounded-md border-tossGray-300 text-tossBlue focus:ring-tossBlue;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<section class="py-6 max-w-3xl mx-auto space-y-6">
+    <div class="space-y-1">
+        <h1 class="toss-title">공지 {% if mode == "create" %}작성{% else %}수정{% endif %}</h1>
+        <p class="text-sm font-medium text-tossGray-500 italic">새로운 소식과 일정을 정확하게 전달하세요.</p>
+    </div>
+
+    <form method="post" class="toss-card space-y-6">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+        <div class="p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm font-bold">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        <div class="space-y-5 toss-form-input">
+            <div class="space-y-2">
+                <label class="block text-sm font-bold text-tossGray-800 dark:text-tossGray-200">제목</label>
+                {{ form.title }}
+                {% if form.title.errors %}<p class="text-xs text-red-500 font-bold">{{ form.title.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm font-bold text-tossGray-800 dark:text-tossGray-200">분류</label>
+                {{ form.category }}
+                {% if form.category.errors %}<p class="text-xs text-red-500 font-bold">{{ form.category.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm font-bold text-tossGray-800 dark:text-tossGray-200">본문</label>
+                {{ form.content }}
+                {% if form.content.errors %}<p class="text-xs text-red-500 font-bold">{{ form.content.errors.0 }}</p>{% endif %}
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 p-5 bg-tossGray-50 dark:bg-white/5 rounded-2xl border border-tossGray-100 dark:border-white/10 toss-form-checkbox">
+            <div class="flex items-center justify-between">
+                <label class="text-sm font-bold text-tossGray-800 dark:text-tossGray-200 cursor-pointer">게시 여부</label>
+                {{ form.is_published }}
+            </div>
+            <div class="flex items-center justify-between">
+                <label class="text-sm font-bold text-tossGray-800 dark:text-tossGray-200 cursor-pointer">메뉴 노출</label>
+                {{ form.show_as_page }}
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 toss-form-input">
+            <div class="space-y-2">
+                <label class="block text-sm font-bold text-tossGray-800 dark:text-tossGray-200">게시 시작일</label>
+                {{ form.publish_at }}
+                {% if form.publish_at.errors %}<p class="text-xs text-red-500 font-bold">{{ form.publish_at.errors.0 }}</p>{% endif %}
+            </div>
+            <div class="space-y-2">
+                <label class="block text-sm font-bold text-tossGray-800 dark:text-tossGray-200">게시 종료일</label>
+                {{ form.expire_at }}
+                {% if form.expire_at.errors %}<p class="text-xs text-red-500 font-bold">{{ form.expire_at.errors.0 }}</p>{% endif %}
+            </div>
+        </div>
+
+        <div class="pt-4 flex gap-3 border-t border-tossGray-100 dark:border-white/10 mt-6">
+            <button type="submit" class="flex-1 h-14 bg-tossBlue text-white rounded-2xl font-bold text-[15px] shadow-lg shadow-tossBlue/20 active:scale-[0.98] transition-all">
+                저장하기
+            </button>
+            <a href="{% url 'core:notice_list' %}" class="flex-1 h-14 flex items-center justify-center bg-tossGray-100 text-tossGray-600 dark:bg-white/10 dark:text-white rounded-2xl font-bold text-[15px] active:scale-[0.98] transition-all">
+                목록으로
+            </a>
+        </div>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,193 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    
+    <meta name="google-site-verification" content="wc3hHBb7nndR4p7M1QTkTKV9rq73pEfFm84lboCgCgo" />
+    <meta name="naver-site-verification" content="3271cce9b1c38fb7e642fff6ec7911a724291651" />
+    <meta name="description" content="전국 배드민턴 대회 검색 · 일정 캘린더 · 선수 전적 조회 — 위꾹, 스포넷, 우동배, 페이스콕, 배프 통합 플랫폼">
+    <meta name="keywords" content="배드민턴 대회, 배드민턴 일정, 위꾹, 스포넷, 우동배, 페이스콕, 배프, 배드민턴 전적, 배드민턴 선수 검색">
+    
+    <meta property="og:title" content="Setpoint - 전국 배드민턴 대회 일정 통합">
+    <meta property="og:description" content="전국 배드민턴 대회 일정 한눈에 보기 · 선수 검색 기능 제공">
+    <meta property="og:url" content="https://setpoint.kr">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://setpoint.kr/static/og_image.png">
+    <link rel="icon" href="{% static 'favicon.png' %}" type="image/png">
+
+    <title>setpoint - {% block title %}{% endblock %}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        tossBlue: '#3182f6',
+                        tossGray: {
+                            50: '#f9fafb',
+                            100: '#f2f4f6',
+                            200: '#e5e8eb',
+                            300: '#d1d6db',
+                            400: '#b0b8c1',
+                            500: '#8b95a1',
+                            600: '#6b7684',
+                            700: '#4e5968',
+                            800: '#333d4b',
+                            900: '#191f28',
+                        },
+                        // [Data] 기존 서비스별 고유 컬러 유지
+                        brand: {
+                            weekuk: '#f97316',
+                            sponet: '#ef4444',
+                            baef: '#8b5cf6',
+                            facecok: '#2563eb',
+                            nearminton: '#16a34a',
+                        }
+                    },
+                    borderRadius: {
+                        'toss': '24px',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer base {
+            html { @apply scroll-smooth; }
+            body { 
+                @apply bg-tossGray-100 text-tossGray-900 antialiased font-sans transition-colors duration-200;
+                font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif;
+            }
+            .dark body { @apply bg-[#101012] text-[#f9fafb]; }
+        }
+        @layer components {
+            .toss-card { @apply bg-white dark:bg-[#1c1c1e] rounded-toss p-6 shadow-sm border border-black/[0.03] dark:border-white/[0.05]; }
+            .toss-title { @apply text-2xl font-bold tracking-tight leading-tight; }
+        }
+    </style>
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4195312815096689" crossorigin="anonymous"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QQS4QN04WG"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-QQS4QN04WG');
+    </script>
+
+    <script>
+        (function () {
+            const saved = localStorage.getItem("theme");
+            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            if (saved === "dark" || (!saved && prefersDark)) {
+                document.documentElement.classList.add("dark");
+                document.documentElement.setAttribute("data-theme", "dark");
+            } else {
+                document.documentElement.setAttribute("data-theme", "light");
+            }
+        })();
+    </script>
+
+    {% block head %}{% endblock %}
+</head>
+
+<body class="min-h-screen flex flex-col pb-20 md:pb-0">
+
+    <header class="sticky top-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-tossGray-200/50 dark:border-white/10">
+        <div class="max-w-4xl mx-auto px-5 h-16 flex items-center justify-between">
+            <a href="{% url 'core:home' %}" class="text-xl font-bold text-tossBlue tracking-tighter">setpoint</a>
+            
+            <div class="flex items-center gap-2">
+                <button id="themeToggle" class="p-2 rounded-xl hover:bg-tossGray-200 dark:hover:bg-white/10 transition-colors">
+                    <span class="dark:hidden">🌙</span>
+                    <span class="hidden dark:inline">☀️</span>
+                </button>
+                
+                <nav class="hidden md:flex items-center gap-1 ml-4">
+                    <a href="{% url 'core:player_search' %}" class="px-4 py-2 text-sm font-semibold hover:text-tossBlue">선수검색</a>
+                    <a href="{% url 'core:calendar' %}" class="px-4 py-2 text-sm font-semibold hover:text-tossBlue">캘린더</a>
+                    {% if user.is_authenticated %}
+                        <form action="{% url 'core:logout' %}" method="post" class="inline ml-2">
+                            {% csrf_token %}
+                            <button type="submit" class="px-4 py-2 bg-tossGray-200 dark:bg-white/10 rounded-xl text-xs font-bold">로그아웃</button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'core:login' %}" class="ml-2 px-5 py-2 bg-tossBlue text-white rounded-xl text-sm font-bold">로그인</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-[200px_minmax(0,1fr)_200px] gap-8 px-5 py-8 flex-grow">
+        
+        <aside class="hidden lg:block">
+            {% block ad_left %}{% endblock %}
+        </aside>
+
+        <div class="space-y-6">
+            {% block content %}{% endblock %}
+        </div>
+
+        <aside class="hidden lg:block space-y-4">
+            <div class="toss-card !p-2 sticky top-24 overflow-hidden">
+                <script src="https://ads-partners.coupang.com/g.js"></script>
+                <script>
+                    new PartnersCoupang.G({"id":953341,"template":"carousel","trackingCode":"AF4831716","width":"180","height":"600","tsource":""});
+                </script>
+            </div>
+            {% block ad_right %}{% endblock %}
+        </aside>
+    </main>
+
+    <nav class="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white/90 dark:bg-black/90 backdrop-blur-xl border-t border-tossGray-200 dark:border-white/10 pb-safe">
+        <div class="flex justify-around items-center h-16">
+            <a href="{% url 'core:home' %}" class="flex flex-col items-center gap-1">
+                <span class="text-[10px] font-bold text-tossGray-500">홈</span>
+            </a>
+            <a href="{% url 'core:player_search' %}" class="flex flex-col items-center gap-1">
+                <span class="text-[10px] font-bold text-tossGray-500">선수검색</span>
+            </a>
+            <a href="{% url 'core:calendar' %}" class="flex flex-col items-center gap-1">
+                <span class="text-[10px] font-bold text-tossGray-500">캘린더</span>
+            </a>
+            <a href="{% url 'core:notice_list' %}" class="flex flex-col items-center gap-1">
+                <span class="text-[10px] font-bold text-tossGray-500">공지</span>
+            </a>
+        </div>
+    </nav>
+
+    <footer class="bg-tossGray-200 dark:bg-[#0a0a0b] py-12">
+        <div class="max-w-4xl mx-auto px-5 space-y-6">
+            <div class="space-y-2">
+                <p class="text-sm font-bold text-tossGray-800 dark:text-tossGray-200">© 2025 setpoint by CRODE</p>
+                <p class="text-xs text-tossGray-500 leading-relaxed">
+                    setpoint는 위꾹, 스포넷, 우동배, 페이스콕, 배프 등의 공개 정보를 수집·정리하여 제공하는 비공식 서비스입니다. 각 사이트 및 단체와는 어떠한 제휴·협력·승인 관계도 없으며, 모든 대회 및 선수 정보의 권리는 각 주최 및 권리자에게 있습니다.
+                    제공되는 정보는 오류가 포함될 수 있으며, setpoint는 본 정보를 기반으로 한 의사결정에 대해 법적 책임을 지지 않습니다. 정확한 내용은 반드시 각 주최 측의 공식 공지 및 공문을 확인해 주세요.
+                </p>
+            </div>
+            <div class="pt-4 border-t border-tossGray-300 dark:border-white/5 flex gap-4 text-xs font-bold text-tossGray-600">
+                <a href="mailto:admin@crode.net" class="hover:text-tossBlue">문의하기</a>
+                <a href="https://crode.net" target="_blank" class="hover:text-tossBlue">dl_setpoint@crode.net</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/theme.js' %}"></script>
+    <script>
+        // Inline Theme Toggle (In case theme.js is not yet loaded)
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            const nextTheme = isDark ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', nextTheme);
+            localStorage.setItem('theme', nextTheme);
+        });
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

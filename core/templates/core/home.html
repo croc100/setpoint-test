@@ -1,0 +1,113 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}홈{% endblock %}
+
+{% block content %}
+<section class="py-6 space-y-1">
+    <h1 class="toss-title">
+        안녕하세요, {{ greeting_name }}님<br>
+        <span class="text-tossGray-400">오늘의 배드민턴 소식이에요</span>
+    </h1>
+</section>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    
+    <div class="lg:col-span-8 space-y-6">
+        <section class="toss-card min-h-[400px]">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-bold">소식</h2>
+            </div>
+
+            {% if news %}
+                <div class="divide-y divide-tossGray-100 dark:divide-white/5">
+                    {% for n in news %}
+                    <div class="py-5 first:pt-0 group cursor-pointer">
+                        <h3 class="font-bold text-[16px] group-hover:text-tossBlue transition-colors">
+                            {% if n.url %}
+                                <a href="{{ n.url }}" target="_blank" rel="noopener noreferrer">{{ n.title }}</a>
+                            {% else %}
+                                {{ n.title }}
+                            {% endif %}
+                        </h3>
+                        {% if n.summary %}
+                            <p class="text-sm text-tossGray-500 mt-2 leading-relaxed line-clamp-2">{{ n.summary }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="flex flex-col items-center justify-center py-20 text-tossGray-300">
+                    <span class="text-4xl mb-4">📰</span>
+                    <p class="text-sm font-medium">새로운 소식을 준비하고 있어요</p>
+                </div>
+            {% endif %}
+        </section>
+    </div>
+
+    <div class="lg:col-span-4 space-y-6">
+        
+        <section class="toss-card">
+            <div class="flex justify-between items-center mb-5">
+                <h2 class="text-sm font-bold text-tossGray-500 uppercase tracking-wider">공지사항</h2>
+                <a href="{% url 'core:notice_list' %}" class="text-xs font-bold text-tossBlue">전체보기</a>
+            </div>
+
+            {% if notices %}
+                <div class="space-y-5">
+                    {% for n in notices %}
+                    <a href="{% url 'core:notice_detail' n.id %}" class="block group">
+                        <h3 class="text-[15px] font-bold group-hover:text-tossBlue transition-colors truncate">{{ n.title }}</h3>
+                        <p class="text-[11px] text-tossGray-400 mt-1">
+                            {{ n.publish_at|date:"Y.m.d" }} · {{ n.get_category_display }}
+                        </p>
+                    </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-sm text-tossGray-400 py-4">게시된 공지가 없습니다.</p>
+            {% endif %}
+        </section>
+
+        <section class="toss-card bg-tossBlue/[0.03] border-tossBlue/10">
+            <div class="flex justify-between items-center mb-5">
+                <h2 class="text-sm font-bold text-tossBlue">금주의 대회 🔥</h2>
+            </div>
+
+            {% if featured_items %}
+                <div class="space-y-6">
+                    {% for ft in featured_items %}
+                    <div class="relative pl-4 border-l-2 border-tossBlue/20">
+                        <h3 class="text-[14px] font-bold leading-tight">
+                            {% if ft.tournament.external_url %}
+                                <a href="{{ ft.tournament.external_url }}" target="_blank" rel="noopener noreferrer" class="hover:underline">
+                                    {{ ft.tournament.name }}
+                                </a>
+                            {% else %}
+                                {{ ft.tournament.name }}
+                            {% endif %}
+                        </h3>
+                        <p class="text-[11px] text-tossGray-500 mt-2 font-medium">
+                            {% if ft.tournament.start_date %}
+                                {{ ft.tournament.start_date|date:"m.d" }}
+                                {% if ft.tournament.end_date %} ~ {{ ft.tournament.end_date|date:"m.d" }}{% endif %}
+                            {% endif %}
+                            {% if ft.tournament.region %} · {{ ft.tournament.region }}{% endif %}
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-sm text-tossGray-400 py-4">이번 주 대회가 없습니다.</p>
+            {% endif %}
+        </section>
+
+        <section class="toss-card">
+            <h2 class="text-sm font-bold text-tossGray-500 mb-4">동호회 랭킹</h2>
+            <div class="flex items-center justify-center py-8 bg-tossGray-50 dark:bg-white/5 rounded-2xl border border-dashed border-tossGray-200 dark:border-white/10">
+                <p class="text-xs text-tossGray-400 font-bold">랭킹 시스템 집계 중</p>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}

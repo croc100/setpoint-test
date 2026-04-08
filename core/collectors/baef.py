@@ -28,7 +28,6 @@ HEADERS = {
     "Referer": "https://www.badmintonfriends.co.kr/",
 }
 
-DATE_YMD_SLASH = re.compile(r"(\d{4})/(\d{1,2})/(\d{1,2})")
 UUID_PATH = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.IGNORECASE)
 
 def _is_tournament_title(title: str) -> bool:
@@ -38,33 +37,78 @@ def _is_tournament_title(title: str) -> bool:
     whitelist = ["대회", "리그", "컵", "대잔치", "오픈", "축전"]
     return any(w in title for w in whitelist)
 
-def _extract_info_from_text(html: str) -> Tuple[Optional[str], Optional[str]]:
-    soup = BeautifulSoup(html, "lxml")
-    lines = soup.get_text(separator="\n", strip=True).split("\n")
-    start_date, venue = None, None
-    for i, line in enumerate(lines):
-        if not start_date:
-            m = DATE_YMD_SLASH.search(line)
-            if m: start_date = f"{m.group(1)}-{m.group(2).zfill(2)}-{m.group(3).zfill(2)}"
-        if "장소" in line and not venue:
-            parts = re.split(r'대회\s*장소|장소', line)
-            if len(parts) > 1:
-                cand = re.sub(r'^[:：\-\|•\s]+', '', parts[-1].strip())
-                if len(cand) > 1: venue = cand
-    return start_date, venue
+def _extract_info_from_oopy_json(html: str) -> Tuple[Optional[str], Optional[str], Optional[str]]:
+    """
+    [핵심 변경 사항]
+    Next.js(__NEXT_DATA__) JSON을 뜯어서 '대회명', '일시', '장소'를 정확히 타겟팅하여 추출합니다.
+    """
+    soup = BeautifulSoup(html, "html.parser")
+    script_tag = soup.find('script', id='__NEXT_DATA__')
+    
+    if not script_tag or not script_tag.string:
+        return None, None, None
+
+    try:
+        data = json.loads(script_tag.string)
+        blocks = data.get('props', {}).get('pageProps', {}).get('recordMap', {}).get('block', {})
+    except json.JSONDecodeError:
+        return None, None, None
+
+    name, start_date, venue = None, None, None
+    is_next_date = False
+    is_next_venue = False
+
+    # 노션 블록 순회 (정확한 텍스트 추출)
+    for block_id, block_info in blocks.items():
+        value = block_info.get('value', {})
+        properties = value.get('properties', {})
+        block_type = value.get('type', '')
+
+        # 1. 대회명 추출 (페이지 최상단 h1)
+        if block_type == 'page' and 'title' in properties and not name:
+             name = properties['title'][0][0]
+
+        if 'title' not in properties:
+            continue
+            
+        text_data = properties['title'][0][0].strip()
+
+        # 2. 날짜 추출 (서브 헤더 '대회일시' 바로 다음 불릿 리스트 텍스트)
+        if "대회일시" in text_data:
+            is_next_date = True
+            continue
+        if is_next_date and text_data:
+            # "2026/05/17(일) 08:00 ~" 같은 텍스트에서 날짜만 정규식으로 안전하게 파싱
+            date_match = re.search(r"(\d{4})/(\d{1,2})/(\d{1,2})", text_data)
+            if date_match:
+                start_date = f"{date_match.group(1)}-{date_match.group(2).zfill(2)}-{date_match.group(3).zfill(2)}"
+            is_next_date = False
+
+        # 3. 장소 추출 (서브 헤더 '대회장소' 바로 다음 불릿 리스트 텍스트)
+        if "대회장소" in text_data:
+            is_next_venue = True
+            continue
+        if is_next_venue and text_data:
+            venue = text_data
+            is_next_venue = False
+
+    return name, start_date, venue
 
 def fetch_tournament_to_dict(url: str) -> Optional[Dict]:
     """대회 기본 정보 수집"""
     try:
         resp = requests.get(url, headers=HEADERS, timeout=10, verify=False)
         resp.raise_for_status()
-        html = resp.content.decode("utf-8", errors="replace")
-        soup = BeautifulSoup(html, "lxml")
         
-        name = soup.find("h1").get_text(strip=True) if soup.find("h1") else soup.title.get_text(strip=True)
-        if not _is_tournament_title(name): return None
+        # HTML 텍스트 전달
+        html = resp.content.decode("utf-8", errors="replace")
+        
+        # JSON 기반 추출 함수 호출
+        name, start_date, venue = _extract_info_from_oopy_json(html)
 
-        start_date, venue = _extract_info_from_text(html)
+        if not name or not _is_tournament_title(name): 
+            return None
+
         return {
             "external_id": url.rstrip("/").split("/")[-1],
             "name": name,
@@ -80,11 +124,7 @@ def fetch_tournament_to_dict(url: str) -> Optional[Dict]:
 def fetch_player_stats_from_tournament(url: str) -> List[Dict]:
     """
     [확장 포인트] 해당 대회 페이지에서 플레이어 전적을 수집하는 로직
-    대회 상세 페이지 내의 '결과' 또는 '대진표' 데이터를 파싱하여 리스트로 반환
     """
-    # TODO: 대진표/결과 API 또는 HTML 파싱 로직 구현
-    # 예시 반환 구조:
-    # return [{"player_name": "100", "club": "크로데", "rank": 1, ...}]
     return []
 
 def collect_tournaments():
@@ -104,7 +144,7 @@ def collect_tournaments():
         res = fetch_tournament_to_dict(url)
         if res:
             tournament_list.append(res)
-            print(f"[+] 대회 수집: {res['name']}")
+            print(f"[+] 대회 수집 완료: {res['name']} | 일시: {res['start_date']} | 장소: {res['region_raw']}")
         time.sleep(0.1)
 
     # JSON 저장
@@ -115,11 +155,9 @@ def collect_tournaments():
     print(f"[*] 대회 저장 완료: {out_path}")
 
 def collect_player_stats():
-    """플레이어 전적 수집 및 JSON 저장 (별도 실행용)"""
+    """플레이어 전적 수집 및 JSON 저장"""
     os.makedirs(RAW_PLAYER_DIR, exist_ok=True)
-    # 수집 로직에 따라 위 collect_tournaments와 병합하거나 별도 루프 생성
     print("[!] 플레이어 전적 수집 기능은 fetch_player_stats_from_tournament 구현 후 동작합니다.")
 
 if __name__ == "__main__":
-    # 기본적으로 대회 정보부터 수집
     collect_tournaments()

@@ -126,7 +126,7 @@
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-[200px_minmax(0,1fr)_200px] gap-8 px-5 py-8 flex-grow">
+    <main class="{% block max_width %}max-w-6xl{% endblock %} mx-auto w-full grid grid-cols-1 lg:grid-cols-[200px_minmax(0,1fr)_200px] gap-8 px-5 py-8 flex-grow">
         
         <aside class="hidden lg:block">
             {% block ad_left %}{% endblock %}

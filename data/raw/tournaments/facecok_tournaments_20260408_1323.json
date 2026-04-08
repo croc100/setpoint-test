@@ -1,0 +1,482 @@
+[
+    {
+        "external_id": "4157",
+        "name": "2026 전주시 배드민턴 클럽 대축전",
+        "start_date": "2026-04-11",
+        "region_raw": "전북-전주시",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4157",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4146",
+        "name": "제2회 대전광역시 스트로커스 슈퍼매치",
+        "start_date": "2026-04-11",
+        "region_raw": "대전-중구",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4146",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4192",
+        "name": "제12회 속초설악배 오픈배드민턴대회",
+        "start_date": "2026-04-11",
+        "region_raw": "강원-속초시",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4192",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4219",
+        "name": "제29회 대전광역시 서구협회장기 배드민턴대회",
+        "start_date": "2026-04-11",
+        "region_raw": "대전-서구 도솔체육관",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4219",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4272",
+        "name": "제6회 MG청양새마을금고 이사장기 배드민턴대회",
+        "start_date": "2026-04-11",
+        "region_raw": "충남-청양군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4272",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4245",
+        "name": "제19회 남원시장기 배드민턴대회",
+        "start_date": "2026-04-11",
+        "region_raw": "전북-남원시",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4245",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4246",
+        "name": "2026년 안산시 협회장기 배드민턴대회",
+        "start_date": "2026-04-11",
+        "region_raw": "경기-안산시 와동배드민턴전용구장 외 1개소(올림픽체육관)",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4246",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4252",
+        "name": "제10회 영월동강배 전국장애인배드민턴대회",
+        "start_date": "2026-04-11",
+        "region_raw": "강원-영월군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4252",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4256",
+        "name": "제20회 부여군협회장기 배드민턴대회",
+        "start_date": "2026-04-12",
+        "region_raw": "충남-부여군 부여군민체육관",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4256",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4233",
+        "name": "2026 강원특별자치도 어르신 대회",
+        "start_date": "2026-04-16",
+        "region_raw": "강원-영월군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4233",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4199",
+        "name": "2026 제1회 천안유관순열사배 전국배드민턴대회",
+        "start_date": "2026-04-18",
+        "region_raw": "충남-천안시 천안시실내배드민턴장/MG인재개발원",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4199",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4204",
+        "name": "제8회 정선군협회장기 배드민턴대회",
+        "start_date": "2026-04-18",
+        "region_raw": "강원-정선군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4204",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4237",
+        "name": "2026년 영월군협회장배 배드민턴대회",
+        "start_date": "2026-04-18",
+        "region_raw": "강원-영월군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4237",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4244",
+        "name": "2026년 계룡시장배 배드민턴 대회 & 전국 국군(군인)부.유소년부.시니어부(선착순)",
+        "start_date": "2026-04-18",
+        "region_raw": "충남-계룡시 계룡시민체육관(다목적체육관)",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4244",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4227",
+        "name": "제8회 프리미크 보성갈비 오픈 전국배드민턴대회",
+        "start_date": "2026-04-19",
+        "region_raw": "서울-강서구 마곡실내배드민턴장",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4227",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4195",
+        "name": "2026년 제3회 아산 이충무공배 전국 배드민턴 대회",
+        "start_date": "2026-04-25",
+        "region_raw": "충남-아산시",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4195",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4164",
+        "name": "제9회 제천시 동양일보배 한방약초 전국배드민턴대회",
+        "start_date": "2026-04-25",
+        "region_raw": "충북-제천시",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4164",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4179",
+        "name": "제20회 강릉 경포배오픈 배드민턴대회",
+        "start_date": "2026-04-25",
+        "region_raw": "강원-강릉시 강릉아레나체육관  강릉생활체육관 배드민턴장",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4179",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4234",
+        "name": "제19회 군산시 새만금배 전국배드민턴대회",
+        "start_date": "2026-04-25",
+        "region_raw": "전북-군산시",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4234",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4147",
+        "name": "제8회 대전광역시 S&K병원 중구협회장기대회",
+        "start_date": "2026-04-26",
+        "region_raw": "대전-중구",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4147",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4260",
+        "name": "제1회 춘도스트링배 전국배드민턴 대축전",
+        "start_date": "2026-04-26",
+        "region_raw": "충북-진천군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4260",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4250",
+        "name": "2026 홍성군수기 배드민턴대회",
+        "start_date": "2026-04-26",
+        "region_raw": "충남-홍성군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4250",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4170",
+        "name": "2026 원주시장기 배드민턴대회",
+        "start_date": "2026-05-02",
+        "region_raw": "강원-원주시",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4170",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4206",
+        "name": "제8회 삼척시배드민턴협회장기 생활체육 배드민턴 대회",
+        "start_date": "2026-05-02",
+        "region_raw": "강원-삼척시 삼척체육관",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4206",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4240",
+        "name": "제2회 장수 전국초중고학생 나르샤 배드민턴대회",
+        "start_date": "2026-05-05",
+        "region_raw": "전북-장수군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4240",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4214",
+        "name": "2026 제10회 인제내린천배 오픈 배드민턴대회",
+        "start_date": "2026-05-09",
+        "region_raw": "강원-인제군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4214",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4259",
+        "name": "제2회 특별한 청양&루틴 전국배드민턴대회",
+        "start_date": "2026-05-09",
+        "region_raw": "충남-청양군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4259",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4266",
+        "name": "제4회 충청북도 체육회장배 생활체육 배드민턴대회 요강",
+        "start_date": "2026-05-09",
+        "region_raw": "충북-청주시",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4266",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4258",
+        "name": "제10회 부안붉은노을 전국배드민턴대회",
+        "start_date": "2026-05-09",
+        "region_raw": "전북-부안군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4258",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4230",
+        "name": "2026 스파이더 배드민턴 슈퍼시리즈 in 전주",
+        "start_date": "2026-05-16",
+        "region_raw": "전북-전주시 전주화산체육관",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4230",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4198",
+        "name": "제31회 충주시생활체육대회",
+        "start_date": "2026-05-16",
+        "region_raw": "충북-충주시",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4198",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4183",
+        "name": "제21회 홍천군협회장기 배드민턴대회",
+        "start_date": "2026-05-16",
+        "region_raw": "강원-홍천군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4183",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4261",
+        "name": "제2회당진해나루배전국배드민턴대회",
+        "start_date": "2026-05-16",
+        "region_raw": "충남-당진시 당진실내체육관, 당진초, 당진정보고 3곳",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4261",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4253",
+        "name": "제19회 강원도장애인생활체육배드민턴대회",
+        "start_date": "2026-05-18",
+        "region_raw": "강원-동해시",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4253",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4156",
+        "name": "2026 진안 홍삼배 전국배드민턴대회",
+        "start_date": "2026-05-23",
+        "region_raw": "전북-진안군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4156",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4190",
+        "name": "테크니스트 전국 배드민턴대회",
+        "start_date": "2026-05-23",
+        "region_raw": "대전-중구",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4190",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4213",
+        "name": "2026 청춘양구 국토정중앙배 배드민턴대회",
+        "start_date": "2026-05-23",
+        "region_raw": "강원-양구군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4213",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4262",
+        "name": "제15회 순창고추장배 전국배드민턴대회",
+        "start_date": "2026-06-06",
+        "region_raw": "전북-순창군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4262",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4269",
+        "name": "제10회 물맑은양평군수배 전국배드민턴대회",
+        "start_date": "2026-06-06",
+        "region_raw": "경기-양평군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4269",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4231",
+        "name": "2026 박주봉배 국제배드민턴대회",
+        "start_date": "2026-06-12",
+        "region_raw": "전북-전주시",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4231",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4267",
+        "name": "2026 세종특별자치시 교육감배 교직원 배드민턴 대회",
+        "start_date": "2026-06-13",
+        "region_raw": "세종-세종시 반곡고등학교",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4267",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4268",
+        "name": "저소득층 학생 선수 지원을 위한 한마음 배드민턴 축제",
+        "start_date": "2026-06-13",
+        "region_raw": "경기-동두천시",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4268",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4249",
+        "name": "제2회 상상대로 음성 전국배드민턴대회",
+        "start_date": "2026-06-13",
+        "region_raw": "충북-음성군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4249",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4270",
+        "name": "제9회 광주시 토마토배 전국배드민턴대회",
+        "start_date": "2026-06-20",
+        "region_raw": "경기-광주시",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4270",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4239",
+        "name": "제4회 테크니스트 슈퍼챌린지 전국배드민턴대회",
+        "start_date": "2026-06-20",
+        "region_raw": "충북-충주시",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4239",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4176",
+        "name": "2026년 제21회 부여굿뜨래배전국배드민턴대회",
+        "start_date": "2026-07-04",
+        "region_raw": "충남-부여군 부여국민체육센타외2곳",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4176",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4271",
+        "name": "2026 제21회 원주 치악배 오픈 배드민터대회",
+        "start_date": "2026-07-04",
+        "region_raw": "강원-원주시",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4271",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4235",
+        "name": "2026년 강원특별자치도 도지사기대회",
+        "start_date": "2026-07-11",
+        "region_raw": "강원-횡성군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4235",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4241",
+        "name": "제16회 고창복분자배전국배드민턴대회",
+        "start_date": "2026-07-11",
+        "region_raw": "전북-고창군 고창군립체육관(고창군 운동장길 36)",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4241",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4158",
+        "name": "제36회 전주시장기 배드민턴대회",
+        "start_date": "2026-07-18",
+        "region_raw": "전북-전주시",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4158",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4225",
+        "name": "제17회 향수옥천 전국 배드민턴대회",
+        "start_date": "2026-07-18",
+        "region_raw": "충북-옥천군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4225",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4238",
+        "name": "2026 제18회 영월동강배 전국 오픈 배드민턴대회",
+        "start_date": "2026-07-18",
+        "region_raw": "강원-영월군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4238",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4257",
+        "name": "제13회충청남도초중고교직원및사제동행배드민턴대회",
+        "start_date": "2026-07-18",
+        "region_raw": "충남-천안시 천안시실내배드민턴장",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4257",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4162",
+        "name": "제18회 보령머드전국배드민턴대회",
+        "start_date": "2026-07-25",
+        "region_raw": "충남-보령시",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4162",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4188",
+        "name": "제5회 단양팔경 초중고 학생 배드민턴대회",
+        "start_date": "2026-07-25",
+        "region_raw": "충북-단양군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4188",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4263",
+        "name": "제19회 화천 산천어 오픈 배드민턴 대회",
+        "start_date": "2026-08-08",
+        "region_raw": "강원-화천군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4263",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4165",
+        "name": "제2회 제천시 의림지배 전국배드민턴대회",
+        "start_date": "2026-08-15",
+        "region_raw": "충북-제천시",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4165",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4248",
+        "name": "제10회 완주로컬푸드전국배드민턴대회",
+        "start_date": "2026-08-15",
+        "region_raw": "전북-완주군 우석대학교",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4248",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4148",
+        "name": "제14회 무주반딧불 오픈 배드민턴대회",
+        "start_date": "2026-08-22",
+        "region_raw": "전북-무주군",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4148",
+        "source": "FACECOK"
+    },
+    {
+        "external_id": "4265",
+        "name": "2026년 제1회 군 문화축제 기념 계룡시 전국배드민턴대회(국군부.유소년부.시니어부.일반부)",
+        "start_date": "2026-10-03",
+        "region_raw": "충남-계룡시",
+        "external_url": "https://facecock.co.kr/page/index.php?pid=game_view&ga_id=4265",
+        "source": "FACECOK"
+    }
+]

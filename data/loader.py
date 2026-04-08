@@ -6,18 +6,15 @@ import glob
 # ---------------------------------------------------------
 # [1] 장고 환경(Environment) 완벽 분리 및 초기화
 # ---------------------------------------------------------
-# 이 스크립트가 어디서 실행되든 무조건 프로젝트 최상단을 가리키도록 절대 경로 강제 주입
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if BASE_DIR not in sys.path:
     sys.path.append(BASE_DIR)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
-# [주의] django.setup()은 반드시 앱 모델들을 import 하기 '전'에 실행되어야 함
 import django
 django.setup()
 
-# 이제 안전하게 모델 임포트
 from django.db import transaction
 from core.models import Tournament, Player, PlayerDailyStats, Source
 
@@ -43,14 +40,23 @@ def load_tournaments():
         # 트랜잭션 묶기: 파일 하나 단위로 안전하게 처리
         with transaction.atomic():
             for item in data:
+                # [SE Fix] end_date, venue 추가 및 기본값 처리
+                # JSON에서 end_date가 없으면 start_date를 사용 (단일 일자 대회로 간주)
+                end_date = item.get('end_date') or item.get('start_date')
+                
+                # Source 값이 DB enum에 정의되어 있다고 가정합니다. (FACECOK, NEARMINTON 등)
+                source_val = item.get('source')
+                
                 Tournament.objects.update_or_create(
                     external_id=item['external_id'],
                     defaults={
                         "name": item['name'],
-                        "start_date": item.get('start_date'),  # None 방어
+                        "start_date": item.get('start_date'),
+                        "end_date": end_date,  # 추가됨
                         "region_raw": item.get('region_raw', ''),
+                        "venue": item.get('venue', ''),  # 추가됨
                         "external_url": item.get('external_url', ''),
-                        "source": item.get('source', Source.BAEF)
+                        "source": source_val
                     }
                 )
         print(f"[+] 완료: {os.path.basename(file_path)}")
@@ -73,27 +79,24 @@ def load_player_stats():
 
         with transaction.atomic():
             for item in data:
-                # 1. 외래키(대회) 존재 여부 검증 (방어 로직)
                 tournament_obj = Tournament.objects.filter(external_id=item['tournament_external_id']).first()
                 if not tournament_obj:
                     print(f"  [경고] 매칭되는 대회(ID:{item['tournament_external_id']})가 DB에 없어 해당 전적을 건너뜁니다.")
-                    continue # 대회가 없으면 이 선수의 이번 전적은 넣지 않음
+                    continue 
 
-                # 2. 선수 마스터 데이터 확보
                 player, _ = Player.objects.get_or_create(
                     external_uid=item['external_uid'],
                     defaults={
                         "name": item['player_name'],
                         "club": item.get('club', ''),
-                        "source": Source.BAEF
+                        "source": item.get('source', Source.BAEF) # 확장성 고려
                     }
                 )
 
-                # 3. 일별 전적 적재
                 PlayerDailyStats.objects.update_or_create(
                     player=player,
                     date=item['date'],
-                    tournament=tournament_obj, # tournament도 식별 기준에 포함 (하루에 2개 대회 참가 가능성)
+                    tournament=tournament_obj, 
                     defaults={
                         "gender": item['stats'].get('gender', ''),
                         "category_age_band": item['stats'].get('age_band', ''),

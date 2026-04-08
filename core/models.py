@@ -72,7 +72,7 @@ class PlayerDailyStats(models.Model):
     loss_count = models.IntegerField(default=0)
     win_rate = models.FloatField(default=0.0)
     ranking_point = models.IntegerField(default=0)
-
+    
     class Meta:
         unique_together = ('player', 'date')
         ordering = ['-date']
@@ -96,6 +96,10 @@ class Tournament(models.Model):
     name = models.CharField(max_length=200)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
+    
+    venue = models.CharField(max_length=255, blank=True) 
+
+    region = models.CharField(max_length=100, blank=True)
     
     # [수정] 수집기에서 사용하는 필드명 확보
     region = models.CharField(max_length=100, blank=True) 

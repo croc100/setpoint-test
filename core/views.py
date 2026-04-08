@@ -88,16 +88,18 @@ class CalendarDayView(ListView):
         if not target_date:
             raise Http404("잘못된 날짜 형식입니다.")
 
+        # [SE Fix] 좀비 데이터 누수 방지 (엄격한 기간 매칭)
         return Tournament.objects.filter(
-            Q(start_date__lte=target_date) & 
-            (Q(end_date__gte=target_date) | Q(end_date__isnull=True))
+            # 조건 1: 정상적으로 시작일과 종료일이 모두 있고, 타겟 날짜가 그 사이에 포함되는 경우
+            Q(start_date__lte=target_date, end_date__gte=target_date) | 
+            # 조건 2: 종료일이 누락(Null)된 과거 데이터의 경우, 시작일과 타겟 날짜가 정확히 일치하는 하루만 노출
+            Q(start_date=target_date, end_date__isnull=True)
         ).order_by('start_date')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['day'] = parse_date(self.kwargs.get('date_str'))
         return context
-
 
 # ==========================================
 # 3. 공지사항 (Notice)

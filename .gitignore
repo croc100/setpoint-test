@@ -1,4 +1,4 @@
-# .gitignore
+# .gitignore (기존 내용 유지)
 *.sqlite3
 __pycache__/
 *.py[cod]
@@ -10,3 +10,7 @@ staticfiles/
 media/
 .env
 .DS_Store
+
+# [Security] 크롤러 로직 및 원시 데이터 격리
+core/collectors/
+data/

@@ -16,7 +16,8 @@
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://setpoint.kr/static/og_image.png">
     <link rel="icon" href="{% static 'favicon.png' %}" type="image/png">
-    <link rel="apple-touch-icon" href="{% static 'favicon.png' %}"> <link rel="shortcut icon" href="{% static 'favicon.png' %}" type="image/png">
+    <link rel="apple-touch-icon" href="{% static 'favicon.png' %}"> 
+    <link rel="shortcut icon" href="{% static 'favicon.png' %}" type="image/png">
 
     <meta name="msapplication-TileImage" content="{% static 'favicon.png' %}">
     <title>setpoint - {% block title %}{% endblock %}</title>
@@ -41,7 +42,6 @@
                             800: '#333d4b',
                             900: '#191f28',
                         },
-                        // [Data] 기존 서비스별 고유 컬러 유지
                         brand: {
                             weekuk: '#f97316',
                             sponet: '#ef4444',
@@ -62,10 +62,12 @@
         @layer base {
             html { @apply scroll-smooth; }
             body { 
+                /* [SE Fix] 기본 텍스트 컬러 상속 구조로 변경하여 외부 라이브러리(캘린더 등) 호버 충돌 방지 */
                 @apply bg-tossGray-100 text-tossGray-900 antialiased font-sans transition-colors duration-200;
                 font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif;
             }
-            .dark body { @apply bg-[#101012] text-[#f9fafb]; }
+            /* [SE Fix] 다크모드 바디 텍스트를 tossGray-100으로 명시하여 호버 가독성 확보 */
+            .dark body { @apply bg-[#101012] text-tossGray-100; }
         }
         @layer components {
             .toss-card { @apply bg-white dark:bg-[#1c1c1e] rounded-toss p-6 shadow-sm border border-black/[0.03] dark:border-white/[0.05]; }
@@ -121,13 +123,12 @@
                     {% else %}
                         <a href="{% url 'core:login' %}" class="ml-2 px-5 py-2 bg-tossBlue text-white rounded-xl text-sm font-bold">로그인</a>
                     {% endif %}
-                </div>
+                </nav>
             </div>
         </div>
     </header>
 
     <main class="{% block max_width %}max-w-6xl{% endblock %} mx-auto w-full grid grid-cols-1 lg:grid-cols-[200px_minmax(0,1fr)_200px] gap-8 px-5 py-8 flex-grow">
-        
         <aside class="hidden lg:block">
             {% block ad_left %}{% endblock %}
         </aside>
@@ -149,17 +150,17 @@
 
     <nav class="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white/90 dark:bg-black/90 backdrop-blur-xl border-t border-tossGray-200 dark:border-white/10 pb-safe">
         <div class="flex justify-around items-center h-16">
-            <a href="{% url 'core:home' %}" class="flex flex-col items-center gap-1">
-                <span class="text-[10px] font-bold text-tossGray-500">홈</span>
+            <a href="{% url 'core:home' %}" class="flex flex-col items-center gap-1 group">
+                <span class="text-[10px] font-bold text-tossGray-500 group-hover:text-tossBlue">홈</span>
             </a>
-            <a href="{% url 'core:player_search' %}" class="flex flex-col items-center gap-1">
-                <span class="text-[10px] font-bold text-tossGray-500">선수검색</span>
+            <a href="{% url 'core:player_search' %}" class="flex flex-col items-center gap-1 group">
+                <span class="text-[10px] font-bold text-tossGray-500 group-hover:text-tossBlue">선수검색</span>
             </a>
-            <a href="{% url 'core:calendar' %}" class="flex flex-col items-center gap-1">
-                <span class="text-[10px] font-bold text-tossGray-500">캘린더</span>
+            <a href="{% url 'core:calendar' %}" class="flex flex-col items-center gap-1 group">
+                <span class="text-[10px] font-bold text-tossGray-500 group-hover:text-tossBlue">캘린더</span>
             </a>
-            <a href="{% url 'core:notice_list' %}" class="flex flex-col items-center gap-1">
-                <span class="text-[10px] font-bold text-tossGray-500">공지</span>
+            <a href="{% url 'core:notice_list' %}" class="flex flex-col items-center gap-1 group">
+                <span class="text-[10px] font-bold text-tossGray-500 group-hover:text-tossBlue">공지</span>
             </a>
         </div>
     </nav>
@@ -182,7 +183,6 @@
 
     <script src="{% static 'js/theme.js' %}"></script>
     <script>
-        // Inline Theme Toggle (In case theme.js is not yet loaded)
         document.getElementById('themeToggle').addEventListener('click', function() {
             const isDark = document.documentElement.classList.toggle('dark');
             const nextTheme = isDark ? 'dark' : 'light';

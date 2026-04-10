@@ -11,28 +11,63 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
     <style type="text/tailwindcss">
-        /* Toss 스타일 캘린더 커스텀 */
-        .fc { @apply border-none font-sans; --fc-border-color: #f2f4f6; }
+        /* 1. 기본 Toss 스타일 및 FullCalendar 연동 */
+        .fc { @apply border-none font-sans; --fc-border-color: #333d4b; }
         .dark .fc { --fc-border-color: #333d4b; }
         
         .fc-toolbar-title { @apply text-xl font-bold !text-tossGray-900 dark:!text-white; }
         .fc-button { @apply !bg-tossGray-100 !border-none !text-tossGray-700 !font-bold !rounded-xl transition-all hover:!bg-tossGray-200 active:!scale-95; }
         .dark .fc-button { @apply !bg-white/5 !text-tossGray-400 hover:!bg-white/10; }
         
-        /* 날짜 숫자 스타일 */
+        /* 2. 날짜 숫자 및 배경 스타일 */
         .fc-daygrid-day-number { @apply p-2 text-sm font-medium text-tossGray-600 dark:text-tossGray-400; }
         .fc-day-today { @apply !bg-tossBlue/5; }
         
-        .fc-event { @apply cursor-pointer; }
+        .fc-event { @apply cursor-pointer transition-colors; }
         .fc-daygrid-event { @apply overflow-hidden whitespace-nowrap text-ellipsis; }
         .fc-daygrid-event-harness { @apply mb-[2px]; }
         
-        /* 목록 뷰 최적화 */
+        /* 3. 목록 뷰 최적화 */
         .fc-list-event-time { display: none !important; }
         .fc-list-table { @apply !border-none; }
         .fc-list-day-cushion { @apply bg-tossGray-100 dark:bg-zinc-800 !py-3; }
         
-        /* 모바일 리스트 아이템 */
+        /* 4. [핵심] 다크모드 시 헤더(월화수...) 및 셀 배경 하얀색 제거 */
+        .dark .fc-theme-standard th, 
+        .dark .fc-theme-standard td,
+        .dark .fc-list {
+            @apply !bg-transparent border-[#333d4b];
+        }
+    
+        /* 월간 뷰 상단 요일 헤더 가독성 확보 */
+        .dark .fc-col-header-cell-cushion {
+            @apply !text-tossGray-400 font-bold;
+        }
+    
+        /* 🔥 5. 다크모드 전용 저자극 호버 시스템 🔥 */
+        
+        /* 월간 뷰 이벤트 호버: 진회색 톤업 */
+        .dark .fc-daygrid-event:hover {
+            background-color: rgba(255, 255, 255, 0.08) !important;
+            @apply !text-white;
+        }
+    
+        /* 목록 뷰 호버: 배경은 어둡게, 글자는 밝게 */
+        .dark .fc-list-event:hover td {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+        }
+        
+        .dark .fc-list-event:hover .fc-list-event-title,
+        .dark .fc-list-event:hover .fc-list-event-title * {
+            @apply !text-white;
+        }
+    
+        /* 공통: 호버 시 내부 요소 컬러 상속 */
+        .dark .fc-event:hover * {
+            color: inherit !important;
+        }
+    
+        /* 모바일 리스트 아이템 레이아웃 */
         .sp-item { @apply mb-1 p-4 rounded-xl bg-tossGray-50 dark:bg-white/5 border border-black/[0.03] dark:border-white/[0.05]; }
     </style>
 {% endblock %}
@@ -74,7 +109,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     const calendarEl = document.getElementById("calendar");
     
-    // 결정론적 컬러 맵핑 테이블
     const SOURCE_COLORS = {
         "FACECOK": "#2563eb", 
         "NEARMINTON": "#16a34a", 
@@ -121,18 +155,14 @@ document.addEventListener("DOMContentLoaded", function () {
             const src = (props.source || "").toUpperCase();
             const color = SOURCE_COLORS[src] || "#b0b8c1";
 
-            // 1. 공통 속성 부여
             info.el.setAttribute("title", info.event.title);
 
-            // 2. 월간 뷰(DayGrid) 점 색상 교정
             const dotEl = info.el.querySelector('.fc-daygrid-event-dot');
             if (dotEl) dotEl.style.borderColor = color;
 
-            // 3. 목록 뷰(List) 점 색상 교정 (데스크탑 리스트 뷰 대응)
             const listDotEl = info.el.querySelector('.fc-list-event-dot');
             if (listDotEl) listDotEl.style.borderColor = color;
 
-            // 4. 모바일 환경 전용 커스텀 레이아웃
             if (isMobile) {
                 const titleTd = info.el.querySelector(".fc-list-event-title");
                 if (titleTd) {
@@ -151,13 +181,10 @@ document.addEventListener("DOMContentLoaded", function () {
                         </div>
                     `;
                     info.el.style.background = "transparent";
-                    
-                    // 모바일 리스트에서 기본 점 숨김 (카드 내부에 배지가 있으므로)
                     const graphicEl = info.el.querySelector(".fc-list-event-graphic");
                     if (graphicEl) graphicEl.style.display = "none";
                 }
             } else {
-                // 데스크탑 환경에서는 텍스트 컬러 유동적 상속
                 info.el.style.color = 'inherit';
             }
         }

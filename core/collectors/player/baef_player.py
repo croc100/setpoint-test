@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import re
 import time
 from typing import Dict, List, Optional, Tuple
 
@@ -23,25 +22,25 @@ def _get_headers(token: str) -> dict:
     }
 
 
-def _get_token() -> Optional[str]:
+def get_token() -> Optional[str]:
     token = os.environ.get("BAEF_TOKEN", "").strip()
     if not token:
-        print("  [!] BAEF_TOKEN 환경변수가 설정되지 않았습니다. 선수 전적 수집을 건너뜁니다.")
+        print("  [!] BAEF_TOKEN 환경변수가 설정되지 않았습니다.")
     return token or None
 
 
 def _parse_category(category_full: str) -> Tuple[str, str, str]:
     """'남성 D조 30대' → ('남성', '30대', 'D조')"""
-    gender = next((g for g in ["남성", "여성", "혼합"] if g in category_full), "")
+    gender   = next((g for g in ["남성", "여성", "혼합"] if g in category_full), "")
     age_band = next((a for a in ["10대", "20대", "30대", "40대", "50대", "60대", "70대", "오픈"] if a in category_full), "")
-    level = next((l for l in ["S조", "A조", "B조", "C조", "D조", "E조"] if l in category_full), "")
+    level    = next((l for l in ["S조", "A조", "B조", "C조", "D조", "E조"] if l in category_full), "")
     return gender, age_band, level
 
 
 def _rank_to_final_status(rank_text: str) -> str:
     if not rank_text:
         return ""
-    if rank_text in ("우승",):
+    if rank_text == "우승":
         return "우승"
     if rank_text in ("준우승", "2위"):
         return "준우승"
@@ -52,16 +51,33 @@ def _rank_to_final_status(rank_text: str) -> str:
     return "예선탈락"
 
 
+# ──────────────────────────────────────────────
+# 모바일 API 수집 함수들 (baef_auto_pilot.py 기반)
+# ──────────────────────────────────────────────
+
+def _get_contest_list(session: requests.Session, headers: dict) -> List[dict]:
+    """모바일 API에서 대회 목록 조회"""
+    try:
+        res = session.get(f"{BASE_API}/comp/v3/list", headers=headers, timeout=10).json()
+        result = res.get("result", {})
+        if isinstance(result, dict):
+            return result.get("COMP_LIST", [])
+        if isinstance(result, list):
+            return result
+    except Exception as e:
+        print(f"  [!] 대회 목록 조회 실패: {e}")
+    return []
+
+
 def _extract_pks(detail_result: dict) -> Tuple[str, List[str]]:
-    """대회 상세 정보에서 CONCAT_PK(참가자 조회용)와 AGE_PK 리스트(순위 조회용) 추출"""
+    """PROGRESS_GUBUN_LIST → AGE_PK 리스트 추출"""
     pks: List[str] = []
     for gubun in detail_result.get("PROGRESS_GUBUN_LIST", []):
         for grade in gubun.get("GRADE_LIST", []):
             pk = grade.get("AGE_PK")
             if pk:
                 pks.append(str(pk))
-    concat_pk = ",".join(pks)
-    return concat_pk, list(dict.fromkeys(pks))  # 순서 보존 중복제거
+    return ",".join(pks), list(dict.fromkeys(pks))
 
 
 def _fetch_participants(session: requests.Session, contest_id: str, concat_pk: str, headers: dict) -> List[dict]:
@@ -94,41 +110,37 @@ def _fetch_participants(session: requests.Session, contest_id: str, concat_pk: s
 
                 p1 = details[0] if len(details) > 0 else {}
                 p2 = details[1] if len(details) > 1 else {}
-
                 p1_name = _name(p1) or team.get("PLAYER1_NAME") or team.get("MBER_NM") or ""
-                p1_club = _club(p1)
                 p2_name = _name(p2) or team.get("PLAYER2_NAME") or team.get("PARTNER_NM") or ""
-                p2_club = _club(p2)
                 category_full = team.get("GRADE_TEXT") or team.get("GRADE_AGE_TEXT") or ""
 
                 if p1_name:
-                    participants.append({"name": p1_name, "club": p1_club, "category_full": category_full})
+                    participants.append({"name": p1_name, "club": _club(p1), "category_full": category_full})
                 if p2_name:
-                    participants.append({"name": p2_name, "club": p2_club, "category_full": category_full})
+                    participants.append({"name": p2_name, "club": _club(p2), "category_full": category_full})
 
             offset += len(teams)
             time.sleep(0.3)
         except Exception as e:
-            print(f"    [!] 참가자 명단 수집 오류 (offset={offset}): {e}")
+            print(f"    [!] 참가자 수집 오류 (offset={offset}): {e}")
             break
 
     return participants
 
 
 def _fetch_final_ranks(session: requests.Session, contest_id: str, age_pks: List[str], headers: dict) -> Dict[Tuple[str, str], str]:
-    """최종 순위(우승/준우승/3위/8강 등) 수집. {(player_name, category_full): rank_text}"""
+    """최종 순위 수집 → {(player_name, category_full): rank_text}"""
     rank_map: Dict[Tuple[str, str], str] = {}
     url = f"{BASE_API}/comp/intime/apply/match/result/{contest_id}/team"
 
     for age_pk in age_pks:
         try:
             res = session.get(url, headers=headers, params={"agePk": age_pk}, timeout=10).json()
-            for match_group in res.get("result", {}).get("MATCH_RANK_LIST", []):
-                category = match_group.get("GUBUN_FULL_TEXT", "")
-                for item in match_group.get("RANK_LIST", []):
+            for group in res.get("result", {}).get("MATCH_RANK_LIST", []):
+                category = group.get("GUBUN_FULL_TEXT", "")
+                for item in group.get("RANK_LIST", []):
                     rank_text = item.get("WIN_TYPE_TEXT", "")
-                    det = item.get("TEAM_DETAIL_LIST", [])
-                    for p in det:
+                    for p in item.get("TEAM_DETAIL_LIST", []):
                         name = p.get("NM") or p.get("NAME") or ""
                         if name:
                             rank_map[(name, category)] = rank_text
@@ -139,62 +151,16 @@ def _fetch_final_ranks(session: requests.Session, contest_id: str, age_pks: List
     return rank_map
 
 
-def collect_player_stats(tournament: dict) -> List[dict]:
-    """
-    BAEF 대회 선수 전적 수집.
-    tournament: {external_id, name, start_date, source, external_url, ...}
-    환경변수 BAEF_TOKEN 필요.
-    반환: List[player_stat_dict]
-    """
-    token = _get_token()
-    if not token:
-        return []
-
-    contest_id = str(tournament.get("external_id", ""))
-    if not contest_id:
-        print("  [!] tournament.external_id가 없어 BAEF 선수 수집을 건너뜁니다.")
-        return []
-
-    headers = _get_headers(token)
-    session = requests.Session()
-
-    # 1. 대회 상세 → PKs 추출
-    try:
-        detail_url = f"{BASE_API}/comp/v2/detail/{contest_id}"
-        res = session.get(detail_url, headers=headers, timeout=10).json()
-        if res.get("resCode") != "001" or not res.get("result"):
-            print(f"  [!] BAEF 대회 {contest_id} 상세 조회 실패 (resCode={res.get('resCode')})")
-            return []
-        detail = res["result"]
-    except Exception as e:
-        print(f"  [!] BAEF 대회 상세 요청 실패: {e}")
-        return []
-
-    concat_pk, age_pks = _extract_pks(detail)
-    if not concat_pk:
-        print(f"  [-] 대회 {contest_id}: 종목 PK 없음 (접수 전이거나 결과 없음)")
-        return []
-
-    print(f"  [-] 참가자 명단 수집 중 (대회ID: {contest_id}, 종목 수: {len(age_pks)})")
-
-    # 2. 참가자 명단
-    participants = _fetch_participants(session, contest_id, concat_pk, headers)
-    print(f"    → 참가자 {len(participants)}명")
-
-    # 3. 최종 순위
-    rank_map = _fetch_final_ranks(session, contest_id, age_pks, headers)
-    print(f"    → 순위 데이터 {len(rank_map)}명")
-
-    # 4. 조합 → 표준 포맷
+def _build_stats(participants: List[dict], rank_map: Dict) -> List[dict]:
+    """참가자 + 순위 → 표준 player_stat 리스트"""
     stats: List[dict] = []
-    seen: set = set()  # (name, category_full) 중복 방지
+    seen: set = set()
 
     for p in participants:
         name = p["name"].strip()
         club = p["club"].strip()
         category_full = p["category_full"].strip()
         key = (name, category_full)
-
         if key in seen:
             continue
         seen.add(key)
@@ -219,5 +185,79 @@ def collect_player_stats(tournament: dict) -> List[dict]:
             "matches": [],
         })
 
-    print(f"    → 최종 {len(stats)}명 통합 완료")
     return stats
+
+
+# ──────────────────────────────────────────────
+# 공개 인터페이스
+# ──────────────────────────────────────────────
+
+def collect_all_player_stats(token: str) -> List[dict]:
+    """
+    모바일 API 대회 목록 전체를 순회하며 선수 전적 수집.
+    반환: [{"contest_id": str, "contest_title": str, "stats": [...]}]
+    관리 커맨드에서 대회명으로 DB Tournament와 매칭한다.
+    """
+    headers = _get_headers(token)
+    session = requests.Session()
+
+    contests = _get_contest_list(session, headers)
+    if not contests:
+        print("  [!] 수집 가능한 BAEF 대회가 없습니다.")
+        return []
+
+    print(f"  [*] BAEF 모바일 API 대회 {len(contests)}개 발견")
+    all_results = []
+
+    for comp in contests:
+        contest_id = str(comp.get("PK") or comp.get("COMP_PK") or comp.get("id") or "")
+        title = comp.get("TITLE", f"Unknown_{contest_id}")
+
+        if not contest_id:
+            print(f"    [-] ID 없는 대회 스킵: {title}")
+            continue
+
+        print(f"\n  [+] {title} (ID: {contest_id})")
+
+        # 상세 → PK 추출
+        try:
+            res = session.get(f"{BASE_API}/comp/v2/detail/{contest_id}", headers=headers, timeout=10).json()
+            if res.get("resCode") != "001" or not res.get("result"):
+                print(f"    [-] 대회 정보 없음 (resCode={res.get('resCode')})")
+                continue
+            detail = res["result"]
+        except Exception as e:
+            print(f"    [!] 상세 조회 실패: {e}")
+            continue
+
+        concat_pk, age_pks = _extract_pks(detail)
+        if not concat_pk:
+            print(f"    [-] 종목 PK 없음 (접수 전이거나 결과 없음)")
+            continue
+
+        participants = _fetch_participants(session, contest_id, concat_pk, headers)
+        rank_map = _fetch_final_ranks(session, contest_id, age_pks, headers)
+        stats = _build_stats(participants, rank_map)
+
+        print(f"    → 참가자 {len(participants)}명 / 순위 {len(rank_map)}명 / 결과 {len(stats)}명")
+
+        if stats:
+            all_results.append({
+                "contest_id": contest_id,
+                "contest_title": title,
+                "stats": stats,
+            })
+
+        time.sleep(1.0)
+
+    return all_results
+
+
+def collect_player_stats(tournament: dict) -> List[dict]:
+    """
+    per-tournament 인터페이스 (base_player.py 라우팅용).
+    BAEF는 UUID(web) ≠ integer ID(mobile API) 불일치로 직접 매핑 불가.
+    → collect_all_player_stats()를 통해 일괄 처리하세요.
+    """
+    print("  [!] BAEF는 per-tournament 수집을 지원하지 않습니다. collect_player_stats --source BAEF 로 실행하세요.")
+    return []

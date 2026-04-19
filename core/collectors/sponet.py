@@ -59,8 +59,9 @@ def fetch_tournaments_from_proxy(limit: int = 100) -> List[Dict[str, Any]]:
         print(f"[!] 프록시 API 통신 오류: {e}")
         return []
 
-def collect_tournaments(limit: int = 100):
+def collect_tournaments(limit: int = 100, known_ids: set = None):
     """스포넷 대회 목록 수집 (단일 파일 저장 로직 제거, 리스트 반환)"""
+    known_ids = known_ids or set()
     os.makedirs(RAW_TOURNAMENT_DIR, exist_ok=True)
     print(f"[*] 스포넷(SPONET) 대회 정보 수집 시작 (최근 {limit}개 대상, 프록시 경유)...")
     
@@ -79,7 +80,7 @@ def collect_tournaments(limit: int = 100):
 
     for raw in raw_tournaments:
         tid = raw.get("TOURNAMENT_ID")
-        if not tid or tid in seen_ids:
+        if not tid or tid in seen_ids or str(tid) in known_ids:
             continue
             
         start_raw = raw.get("TOUR_DATE_FROM") or ""

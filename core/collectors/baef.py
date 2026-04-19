@@ -127,19 +127,23 @@ def fetch_player_stats_from_tournament(url: str) -> List[Dict]:
     """
     return []
 
-def collect_tournaments():
+def collect_tournaments(known_ids: set = None):
     """대회 목록 수집 (단일 파일 저장 로직 제거, 리스트 반환)"""
+    known_ids = known_ids or set()
     os.makedirs(RAW_TOURNAMENT_DIR, exist_ok=True)
     list_url = "https://www.badmintonfriends.co.kr/contest"
     resp = requests.get(list_url, headers=HEADERS, timeout=10, verify=False)
     soup = BeautifulSoup(resp.text, "lxml")
-    
-    urls = sorted({urljoin(list_url, a["href"]) for a in soup.find_all("a", href=True) 
+
+    urls = sorted({urljoin(list_url, a["href"]) for a in soup.find_all("a", href=True)
                   if UUID_PATH.fullmatch(urljoin(list_url, a["href"]).split("/")[-1])})
-    
+
+    # 이미 수집된 UUID는 건너뜀
+    urls = [u for u in urls if u.rstrip("/").split("/")[-1] not in known_ids]
+
     print(f"[*] BAEF 대회 정보 {len(urls)}개 수집 시작...")
     tournament_list = []
-    
+
     for url in urls:
         res = fetch_tournament_to_dict(url)
         if res:

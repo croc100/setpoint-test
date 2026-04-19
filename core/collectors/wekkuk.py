@@ -152,8 +152,9 @@ def fetch_list(page: int, session: requests.Session) -> List[RawTournament]:
 
     return tournaments
 
-def collect_tournaments(max_pages: int = 1): 
+def collect_tournaments(max_pages: int = 1, known_ids: set = None):
     """위꾹 대회 목록 수집 (단일 파일 저장 로직 제거, 리스트 반환)"""
+    known_ids = known_ids or set()
     os.makedirs(RAW_TOURNAMENT_DIR, exist_ok=True)
     print(f"[*] 위꾹(WEEKUK) 대회 정보 수집 시작 (최대 {max_pages}페이지)...")
 
@@ -183,7 +184,7 @@ def collect_tournaments(max_pages: int = 1):
         print("[!] 수집된 위꾹 대회가 없습니다.")
         return []
 
-    unique_items = {t.external_id: t for t in all_tournaments}.values()
+    unique_items = {t.external_id: t for t in all_tournaments if t.external_id not in known_ids}.values()
     
     final_list = []
     for t in unique_items:

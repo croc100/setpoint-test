@@ -12,5 +12,3 @@ media/
 .DS_Store
 
 # [Security] 크롤러 로직 및 원시 데이터 격리
-core/collectors/
-data/

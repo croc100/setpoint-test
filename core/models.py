@@ -75,6 +75,9 @@ class PlayerDailyStats(models.Model):
     win_rate = models.FloatField(default=0.0)
     ranking_point = models.IntegerField(default=0)
 
+    gain_point = models.IntegerField(default=0, help_text="득실차")
+    final_status = models.CharField(max_length=20, null=True, blank=True, help_text="최종 상태 (우승, 본선 진출, 예선 탈락 등)")
+
     # ==================================================
     # [SE Architecture] Draft & Publish 상태 제어 필드
     # ==================================================
@@ -184,3 +187,25 @@ class News(models.Model):
 
     def __str__(self):
         return self.title
+    
+
+#  ==========================================
+
+
+class MatchRecord(models.Model):
+    """개별 매치(조별리그/본선) 스코어 및 승패 기록 테이블"""
+    daily_stat = models.ForeignKey(
+        'PlayerDailyStats', 
+        related_name='matches', 
+        on_delete=models.CASCADE
+    )
+    bracket_name = models.CharField(max_length=50, null=True, blank=True) # 예: "1조", "본선"
+    is_win = models.BooleanField(default=False)
+    my_score = models.IntegerField(default=0)
+    op_score = models.IntegerField(default=0)
+    opponent_names = models.CharField(max_length=255, blank=True, null=True)
+    opponent_club = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        db_table = 'match_record'
+        ordering = ['id'] # 입력 순서대로 정렬

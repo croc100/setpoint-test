@@ -48,43 +48,91 @@
     </div>
 
     <div class="space-y-4 pt-4">
-        <h3 class="text-lg font-black text-tossGray-900 dark:text-white">대회 출전 기록</h3>
+        <h3 class="text-lg font-black text-tossGray-900 dark:text-white">대회별 상세 기록</h3>
         
         {% if stats %}
         <div class="toss-card !p-0 overflow-hidden overflow-x-auto no-scrollbar">
             <table class="w-full text-left border-collapse min-w-[700px]">
                 <thead class="bg-tossGray-50 dark:bg-white/5 border-b border-tossGray-100 dark:border-white/5">
                     <tr>
-                        <th class="px-6 py-4 text-xs font-bold text-tossGray-400">일자</th>
-                        <th class="px-6 py-4 text-xs font-bold text-tossGray-400">대회명</th>
-                        <th class="px-6 py-4 text-xs font-bold text-tossGray-400">참가 종목</th>
-                        <th class="px-6 py-4 text-xs font-bold text-tossGray-400 text-center">성적</th>
-                        <th class="px-6 py-4 text-xs font-bold text-tossGray-400 text-center">승패</th>
+                        <th class="px-6 py-4 text-xs font-bold text-tossGray-400">일자 / 대회명</th>
+                        <th class="px-6 py-4 text-xs font-bold text-tossGray-400">종목</th>
+                        <th class="px-6 py-4 text-xs font-bold text-tossGray-400">최종 결과</th>
+                        <th class="px-6 py-4 text-xs font-bold text-tossGray-400 text-center">조별 승패</th>
+                        <th class="px-6 py-4 text-xs font-bold text-tossGray-400 text-center">상세보기</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-tossGray-100 dark:divide-white/5">
                     {% for stat in stats %}
                     <tr class="hover:bg-tossGray-50 dark:hover:bg-white/[0.02] transition-colors">
-                        <td class="px-6 py-4 text-xs font-bold text-tossGray-500 whitespace-nowrap">
-                            {{ stat.date|date:"Y.m.d" }}
+                        <td class="px-6 py-4">
+                            <div class="text-xs font-bold text-tossGray-400 mb-0.5">{{ stat.date|date:"Y.m.d"|default:"일자미상" }}</div>
+                            <div class="text-sm font-black text-tossGray-900 dark:text-white">{{ stat.tournament.name|default:stat.tournament_name }}</div>
                         </td>
                         <td class="px-6 py-4">
-                            <p class="text-sm font-bold text-tossGray-900 dark:text-white">{{ stat.tournament.name|default:"대회 정보 없음" }}</p>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="text-xs font-medium text-tossGray-600 bg-tossGray-100 dark:bg-white/10 px-2 py-1 rounded-md">
-                                {{ stat.gender|default:"-" }} {{ stat.category_age_band|default:"" }} {{ stat.category_level|default:"" }}
+                            <span class="text-xs font-medium text-tossGray-600 bg-tossGray-100 dark:bg-white/10 px-2 py-1 rounded-md whitespace-nowrap">
+                                {{ stat.category_full|default:"종목미상" }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-center">
-                            {% if stat.rank == 1 %}<span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-md text-[11px] font-black">🏆 1위</span>
-                            {% elif stat.rank == 2 %}<span class="px-2 py-1 bg-tossGray-200 text-tossGray-700 rounded-md text-[11px] font-black">🥈 2위</span>
-                            {% elif stat.rank == 3 %}<span class="px-2 py-1 bg-orange-100 text-orange-700 rounded-md text-[11px] font-black">🥉 3위</span>
-                            {% elif stat.rank %}<span class="text-xs font-bold text-tossGray-600">{{ stat.rank }}위</span>
-                            {% else %}<span class="text-tossGray-300 text-xs">기록 없음</span>{% endif %}
+                        <td class="px-6 py-4">
+                            {% if stat.rank == 1 %}<span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-md text-xs font-black border border-yellow-200">🏆 1위 (우승)</span>
+                            {% elif stat.rank == 2 %}<span class="px-2 py-1 bg-tossGray-200 text-tossGray-700 rounded-md text-xs font-black border border-tossGray-300">🥈 2위 (준우승)</span>
+                            {% elif stat.rank == 3 %}<span class="px-2 py-1 bg-orange-100 text-orange-700 rounded-md text-xs font-black border border-orange-200">🥉 3위</span>
+                            {% elif stat.final_status == '본선 진출' %}
+                                <span class="px-2 py-1 bg-blue-50 text-blue-600 rounded-md text-xs font-bold border border-blue-100">🔥 본선 진출</span>
+                            {% elif stat.final_status == '예선 탈락' %}
+                                <span class="px-2 py-1 bg-gray-50 text-gray-500 rounded-md text-xs font-medium border border-gray-200">💧 예선 탈락</span>
+                            {% else %}
+                                <span class="text-tossGray-400 text-xs font-medium">{{ stat.final_status|default:"결과 집계중" }}</span>
+                            {% endif %}
                         </td>
-                        <td class="px-6 py-4 text-center text-xs font-bold">
-                            <span class="text-red-500">{{ stat.win_count }}승</span> <span class="text-tossGray-300">/</span> <span class="text-tossBlue">{{ stat.loss_count }}패</span>
+                        <td class="px-6 py-4 text-center">
+                            <div class="text-sm font-black text-tossGray-800 dark:text-tossGray-200">
+                                <span class="text-red-500">{{ stat.win_count }}승</span> <span class="text-tossGray-300 mx-0.5">/</span> <span class="text-tossBlue">{{ stat.loss_count }}패</span>
+                            </div>
+                            {% if stat.gain_point %}
+                            <div class="text-[10px] text-tossGray-400 mt-1">득실차 {{ stat.gain_point|stringformat:"+d" }}</div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <button onclick="toggleDetails('match-{{ forloop.counter }}')" class="px-3 py-1.5 bg-white dark:bg-tossGray-800 border border-tossGray-200 dark:border-tossGray-700 rounded-lg text-xs font-bold text-tossGray-600 hover:bg-tossGray-50 transition-colors shadow-sm">
+                                스코어 확인
+                            </button>
+                        </td>
+                    </tr>
+                    
+                    <tr id="match-{{ forloop.counter }}" class="hidden bg-tossGray-50 dark:bg-black/20">
+                        <td colspan="5" class="px-6 py-5">
+                            <div class="max-w-3xl border-l-2 border-tossBlue pl-4 py-1 space-y-3">
+                                <div class="text-xs font-bold text-tossGray-500 mb-2">상세 매치 기록 ({{ stat.bracket_name|default:"조 정보 없음" }})</div>
+                                
+                                {% if stat.matches %}
+                                    <div class="space-y-2">
+                                        {% for match in stat.matches %}
+                                        <div class="flex items-center justify-between bg-white dark:bg-tossGray-900 border border-tossGray-100 dark:border-white/5 p-3 rounded-lg shadow-sm">
+                                            <div class="flex items-center gap-3">
+                                                {% if match.is_win %}
+                                                    <span class="w-8 text-center text-xs font-black text-red-500 bg-red-50 px-1.5 py-1 rounded">승</span>
+                                                {% else %}
+                                                    <span class="w-8 text-center text-xs font-bold text-tossBlue bg-blue-50 px-1.5 py-1 rounded">패</span>
+                                                {% endif %}
+                                                
+                                                <div class="text-sm text-tossGray-800 dark:text-tossGray-200">
+                                                    <span class="text-tossGray-400 mr-2">vs</span> 
+                                                    <span class="font-bold">{{ match.opponent_names }}</span>
+                                                    <span class="text-xs text-tossGray-400 ml-1">({{ match.opponent_club|default:"소속없음" }})</span>
+                                                </div>
+                                            </div>
+                                            <div class="text-base font-black tracking-wider {% if match.is_win %}text-red-500{% else %}text-tossBlue{% endif %}">
+                                                {{ match.my_score }} : {{ match.op_score }}
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <p class="text-sm text-tossGray-400">상세 스코어 데이터가 제공되지 않은 경기입니다.</p>
+                                {% endif %}
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -93,9 +141,22 @@
         </div>
         {% else %}
         <div class="toss-card text-center py-20">
-            <p class="text-tossGray-400 font-bold">이 선수의 상세 전적 데이터가 아직 없습니다.</p>
+            <div class="text-4xl mb-3">🏸</div>
+            <p class="text-tossGray-500 font-bold">이 선수의 상세 전적 데이터가 아직 없습니다.</p>
+            <p class="text-xs text-tossGray-400 mt-2">최근 대회부터 데이터가 수집되고 있습니다.</p>
         </div>
         {% endif %}
     </div>
 </section>
+
+<script>
+function toggleDetails(id) {
+    const el = document.getElementById(id);
+    if (el.classList.contains('hidden')) {
+        el.classList.remove('hidden');
+    } else {
+        el.classList.add('hidden');
+    }
+}
+</script>
 {% endblock %}

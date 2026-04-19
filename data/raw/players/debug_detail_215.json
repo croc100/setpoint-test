@@ -1,0 +1,248 @@
+{
+  "APPLY_ESSENTIAL_PLAYER_AT": "Y",
+  "MAX_APPLY_CNT": 9,
+  "REFEREE_TEAM_PK": -1,
+  "COMP_TYPE_DETAIL": "UNIVER_GROUP",
+  "OFFICAL_PDF_URL": "https://d2tn3lsgn32r6f.cloudfront.net/resource/user/COMP_POST/852e8582-0615-465c-a6d9-5467faf072ed.pdf",
+  "CAN_APPLY_ESSENTIAL_CI_AT": "N",
+  "CONTAIN_YN": "N",
+  "GYM_INFO": [
+    {
+      "NAME": "서울대학교 체육관"
+    }
+  ],
+  "COMP_PK": 215,
+  "COMP_MANAGER_AT": "N",
+  "COMP_PROGRESS_KIND_VAL": "NOR",
+  "GAME_INTERVAL_MINUTE": 15,
+  "OFFICAL_FILE_VIEWER_URL": null,
+  "CAN_APPLY_ESSENTIAL_PLAYER_AT": "Y",
+  "COMP_NOTION_URL": null,
+  "IS_BF_ORGAN": "N",
+  "APPLY_OPEN_TYPE": "ALL_OPEN",
+  "STATE_VAL": 9,
+  "APPLY_ESSENTIAL_CI_AT": "Y",
+  "COMMERCE_DEADLINE": null,
+  "COMP_ING_TIME_LIST": [
+    "2024-11-03 08:00:00"
+  ],
+  "REAL_COURT_COMP_AT": "Y",
+  "APPLY_DD": "2024-10-01T10:00:00",
+  "PROGRESS_GUBUN_LIST": [
+    {
+      "DATA": "MD",
+      "COMP_PK": 215,
+      "TEXT": "남복",
+      "PK": 323,
+      "REGIST_DT": "2024-10-01T02:08:07",
+      "UPDATE_DT": null,
+      "GRADE_LIST": [
+        {
+          "ENTRY_PRICE": 25000,
+          "GRADE_AGE_TEXT": "1부",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "1부",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 736,
+          "AGE_PK": 1541
+        },
+        {
+          "ENTRY_PRICE": 25000,
+          "GRADE_AGE_TEXT": "2부",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "2부",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 737,
+          "AGE_PK": 1542
+        },
+        {
+          "ENTRY_PRICE": 25000,
+          "GRADE_AGE_TEXT": "3부",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "3부",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 738,
+          "AGE_PK": 1543
+        }
+      ]
+    },
+    {
+      "DATA": "WD",
+      "COMP_PK": 215,
+      "TEXT": "여복",
+      "PK": 324,
+      "REGIST_DT": "2024-10-01T02:08:07",
+      "UPDATE_DT": null,
+      "GRADE_LIST": [
+        {
+          "ENTRY_PRICE": 25000,
+          "GRADE_AGE_TEXT": "1부",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "1부",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 739,
+          "AGE_PK": 1544
+        },
+        {
+          "ENTRY_PRICE": 25000,
+          "GRADE_AGE_TEXT": "2부",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "2부",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 740,
+          "AGE_PK": 1545
+        },
+        {
+          "ENTRY_PRICE": 25000,
+          "GRADE_AGE_TEXT": "3부",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "3부",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 741,
+          "AGE_PK": 1546
+        }
+      ]
+    },
+    {
+      "DATA": "XD",
+      "COMP_PK": 215,
+      "TEXT": "혼복",
+      "PK": 325,
+      "REGIST_DT": "2024-10-01T02:08:07",
+      "UPDATE_DT": null,
+      "GRADE_LIST": [
+        {
+          "ENTRY_PRICE": 25000,
+          "GRADE_AGE_TEXT": "1부",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "1부",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 742,
+          "AGE_PK": 1547
+        },
+        {
+          "ENTRY_PRICE": 25000,
+          "GRADE_AGE_TEXT": "2부",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "2부",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 743,
+          "AGE_PK": 1548
+        },
+        {
+          "ENTRY_PRICE": 25000,
+          "GRADE_AGE_TEXT": "3부",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "3부",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 744,
+          "AGE_PK": 1549
+        }
+      ]
+    },
+    {
+      "DATA": "MS",
+      "COMP_PK": 215,
+      "TEXT": "남단",
+      "PK": 326,
+      "REGIST_DT": "2024-10-01T02:08:07",
+      "UPDATE_DT": null,
+      "GRADE_LIST": [
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "1부",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "1부",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 745,
+          "AGE_PK": 1550
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "2부",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "2부",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 746,
+          "AGE_PK": 1551
+        }
+      ]
+    },
+    {
+      "DATA": "WS",
+      "COMP_PK": 215,
+      "TEXT": "여단",
+      "PK": 327,
+      "REGIST_DT": "2024-10-01T02:08:07",
+      "UPDATE_DT": null,
+      "GRADE_LIST": [
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "통합",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "통합",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 747,
+          "AGE_PK": 1552
+        }
+      ]
+    }
+  ],
+  "BFR_ADJUST_MAX_END_DD": "2024-09-30",
+  "APPLY_GOODS_INFO_LIST": [
+    {
+      "DUPLICATE_RECEIVE_CAN_AT": "N",
+      "APPLY_GOODS_INFO_PK": 17,
+      "GOODS_DETAIL_URL": null,
+      "GOODS_IMG_URL": "https://d2tn3lsgn32r6f.cloudfront.net/resource/user/COMP_POST/0a4218b5-79ad-4f59-8b38-f844fe72757c.png",
+      "USE_AT": "Y",
+      "GOODS_NAME": "빅터 반팔",
+      "GOODS_SIZE": [
+        {
+          "USE_AT": "Y",
+          "PK": 1,
+          "SIZE_TEXT": "XS(85)"
+        },
+        {
+          "USE_AT": "Y",
+          "PK": 2,
+          "SIZE_TEXT": "S(90)"
+        },
+        {
+          "USE_AT": "Y",
+          "PK": 3,
+          "SIZE_TEXT": "M(95)"
+        },
+        {
+          "USE_AT": "Y",
+          "PK": 4,
+          "SIZE_TEXT": "L(100)"
+        },
+        {
+          "USE_AT": "Y",
+          "PK": 5,
+          "SIZE_TEXT": "XL(105)"
+        },
+        {
+          "USE_AT": "Y",
+          "PK": 6,
+          "SIZE_TEXT": "2XL(110)"
+        },
+        {
+          "USE_AT": "Y",
+          "PK": 7,
+          "SIZE_TEXT": "3XL(115)"
+        }
+      ]
+    }
+  ],
+  "COMP_PROGRESS_KIND_VAL_TEXT": "개인전",
+  "PAYMENT_TYPE": "BF_NOT_PG",
+  "COMP_NOTION_HASH": null,
+  "CAN_CONCLUSION_APPLY_AT": "N",
+  "COMP_INFO_KIND": "UNIVER_CLUB",
+  "TITLE": "제 12회 서울대배 with VICTOR",
+  "APPLY_AT": "N",
+  "REAL_COURT_CAN_MAPPING_MAX_TIME": 100,
+  "THUMBNAIL_IMG_URL": "https://d2tn3lsgn32r6f.cloudfront.net/resource/user/COMP_POST/1117a5fa-ed2f-452d-8c45-4892176ab3bd.png"
+}

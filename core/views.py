@@ -220,7 +220,7 @@ class NoticeDetailView(DetailView):
     
 
 class PlayerDetailView(DetailView):
-    """선수 상세 전적 페이지"""
+    """선수 상세 전적 페이지 (조별 상세 매치 데이터 포함)"""
     model = Player
     template_name = 'core/player_detail.html'
     context_object_name = 'player'
@@ -228,23 +228,64 @@ class PlayerDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # 선수의 모든 전적을 최신순으로 가져옴 (대회 정보 포함)
-        stats = self.object.daily_stats.select_related('tournament').all().order_by('-date')
-        context['stats'] = stats
+        # 선수의 모든 대회별 통계를 최신순으로 가져옴
+        raw_stats = self.object.daily_stats.select_related('tournament').all().order_by('-date')
         
-        # 요약 통계 계산
-        context['total_tournaments'] = stats.count()
+        processed_stats = []
+        total_wins = 0
+        total_losses = 0
+        total_medals = 0
         
-        # 1위~3위 입상 횟수 계산
-        context['total_medals'] = sum(1 for stat in stats if stat.rank and stat.rank <= 3)
-        
-        # 전체 승률 계산
-        total_wins = sum(stat.win_count for stat in stats)
-        total_losses = sum(stat.loss_count for stat in stats)
-        total_matches = total_wins + total_losses
-        
+        for stat in raw_stats:
+            # 1. 누적 데이터 합산
+            total_wins += stat.win_count
+            total_losses += stat.loss_count
+            if stat.rank and stat.rank <= 3:
+                total_medals += 1
+                
+            # 2. 파이프라인에서 수집한 데이터 가공 (프론트엔드 포맷팅)
+            # - 만약 Match 스코어 데이터가 stat.matches.all() 같은 릴레이션으로 묶여있다고 가정
+            # - DB 구조에 따라 stat.matches_data (JSON 필드) 등으로 접근할 수도 있음
+            match_list = []
+            
+            # DB 모델 구조에 따라 아래 로직을 조정해야 함 (여기서는 일반적인 FK 릴레이션 가정)
+            if hasattr(stat, 'matches'):
+                for match in stat.matches.all():
+                    match_list.append({
+                        "is_win": match.is_win,
+                        "opponent_names": match.opponent_names,
+                        "opponent_club": match.opponent_club,
+                        "my_score": match.my_score,
+                        "op_score": match.op_score
+                    })
+            
+            # 3. HTML 렌더링에 필요한 추가 필드 조합
+            # (기존 모델에 이 필드들이 없다면 동적으로 할당해줌)
+            stat.matches_list = match_list
+            stat.category_full = f"{stat.gender or ''} {stat.category_age_band or ''} {stat.category_level or ''}".strip()
+            
+            # [핵심] final_status 계산 로직
+            # DB에 명시적 필드가 없다면 득실과 랭크를 기반으로 자동 추론
+            if not hasattr(stat, 'final_status') or not stat.final_status:
+                if stat.rank == 1:
+                    stat.final_status = '우승'
+                elif stat.rank and stat.rank > 0:
+                    stat.final_status = '본선 진출'
+                elif stat.win_count > 0 or stat.loss_count > 0:
+                    # 경기는 뛰었는데 랭크(입상)가 없다면 예선 탈락이거나 본선 초반 탈락
+                    stat.final_status = '예선 탈락' 
+                else:
+                    stat.final_status = '출전 예정 / 기록 없음'
+            
+            processed_stats.append(stat)
+            
+        context['stats'] = processed_stats
+        context['total_tournaments'] = len(processed_stats)
+        context['total_medals'] = total_medals
         context['total_wins'] = total_wins
         context['total_losses'] = total_losses
+        
+        total_matches = total_wins + total_losses
         context['win_rate'] = (total_wins / total_matches * 100) if total_matches > 0 else 0.0
 
         return context

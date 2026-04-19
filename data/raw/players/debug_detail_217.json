@@ -1,0 +1,1239 @@
+{
+  "APPLY_ESSENTIAL_PLAYER_AT": "N",
+  "MAX_APPLY_CNT": 10,
+  "REFEREE_TEAM_PK": -1,
+  "COMP_TYPE_DETAIL": "NATION",
+  "OFFICAL_PDF_URL": "https://d2tn3lsgn32r6f.cloudfront.net/resource/user/COMP_OFFICIAL/3d633b32-9c6e-4f38-986f-57ecfabc30df.pdf",
+  "CAN_APPLY_ESSENTIAL_CI_AT": "Y",
+  "CONTAIN_YN": "N",
+  "GYM_INFO": [
+    {
+      "NAME": "구립월곡배드민턴전용체육관"
+    },
+    {
+      "NAME": "성북구민체육관"
+    }
+  ],
+  "COMP_PK": 217,
+  "COMP_MANAGER_AT": "N",
+  "COMP_PROGRESS_KIND_VAL": "NOR",
+  "GAME_INTERVAL_MINUTE": 13,
+  "OFFICAL_FILE_VIEWER_URL": null,
+  "CAN_APPLY_ESSENTIAL_PLAYER_AT": "Y",
+  "COMP_NOTION_URL": null,
+  "IS_BF_ORGAN": "N",
+  "APPLY_OPEN_TYPE": "ALL_OPEN",
+  "STATE_VAL": 9,
+  "APPLY_ESSENTIAL_CI_AT": "N",
+  "COMMERCE_DEADLINE": null,
+  "COMP_ING_TIME_LIST": [
+    "2024-11-02 07:00:00",
+    "2024-11-03 07:00:00"
+  ],
+  "REAL_COURT_COMP_AT": "Y",
+  "APPLY_DD": "2024-10-04T10:00:00",
+  "PROGRESS_GUBUN_LIST": [
+    {
+      "DATA": "MD",
+      "COMP_PK": 217,
+      "TEXT": "남복",
+      "PK": 331,
+      "REGIST_DT": "2024-10-10T16:28:47",
+      "UPDATE_DT": null,
+      "GRADE_LIST": [
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "2030A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 755,
+          "AGE_PK": 1590
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "2030A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 755,
+          "AGE_PK": 1591
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "40 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 755,
+          "AGE_PK": 1592
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "45 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 755,
+          "AGE_PK": 1593
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "50 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 755,
+          "AGE_PK": 1594
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "55 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 755,
+          "AGE_PK": 1595
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "60 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 755,
+          "AGE_PK": 1596
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "65 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 755,
+          "AGE_PK": 1597
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "70 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 755,
+          "AGE_PK": 1598
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "75 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 755,
+          "AGE_PK": 1599
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "2030B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 754,
+          "AGE_PK": 1581
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "2030B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 754,
+          "AGE_PK": 1582
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "40 B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 754,
+          "AGE_PK": 1583
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "45 B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 754,
+          "AGE_PK": 1584
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "50 B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 754,
+          "AGE_PK": 1585
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "55 B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 754,
+          "AGE_PK": 1586
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "60 B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 754,
+          "AGE_PK": 1587
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "65 B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 754,
+          "AGE_PK": 1588
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "70 B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 754,
+          "AGE_PK": 1589
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "20 C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 753,
+          "AGE_PK": 1573
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "30 C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 753,
+          "AGE_PK": 1574
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "40 C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 753,
+          "AGE_PK": 1575
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "45 C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 753,
+          "AGE_PK": 1576
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "50 C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 753,
+          "AGE_PK": 1577
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "55 C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 753,
+          "AGE_PK": 1578
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "60 C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 753,
+          "AGE_PK": 1579
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "65 C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 753,
+          "AGE_PK": 1580
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "20 D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 752,
+          "AGE_PK": 1565
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "30 D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 752,
+          "AGE_PK": 1566
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "40 D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 752,
+          "AGE_PK": 1567
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "45 D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 752,
+          "AGE_PK": 1568
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "50 D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 752,
+          "AGE_PK": 1569
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "55 D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 752,
+          "AGE_PK": 1570
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "60 D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 752,
+          "AGE_PK": 1571
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "60E65D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 752,
+          "AGE_PK": 1572
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "20 E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 751,
+          "AGE_PK": 1557
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "30 E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 751,
+          "AGE_PK": 1558
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "40 E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 751,
+          "AGE_PK": 1559
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "45 E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 751,
+          "AGE_PK": 1560
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "50 E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 751,
+          "AGE_PK": 1561
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "55 E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 751,
+          "AGE_PK": 1562
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "60E65D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 751,
+          "AGE_PK": 1563
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "65 E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 751,
+          "AGE_PK": 1564
+        }
+      ]
+    },
+    {
+      "DATA": "WD",
+      "COMP_PK": 217,
+      "TEXT": "여복",
+      "PK": 332,
+      "REGIST_DT": "2024-10-10T16:28:47",
+      "UPDATE_DT": null,
+      "GRADE_LIST": [
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "20 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 760,
+          "AGE_PK": 1633
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "30 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 760,
+          "AGE_PK": 1634
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "40 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 760,
+          "AGE_PK": 1635
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "45 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 760,
+          "AGE_PK": 1636
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "50 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 760,
+          "AGE_PK": 1637
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "55 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 760,
+          "AGE_PK": 1638
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "60 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 760,
+          "AGE_PK": 1639
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "65 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 760,
+          "AGE_PK": 1640
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "70AB75A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 760,
+          "AGE_PK": 1641
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "70AB75A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 760,
+          "AGE_PK": 1642
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "2030B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 759,
+          "AGE_PK": 1624
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "2030B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 759,
+          "AGE_PK": 1625
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "40 B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 759,
+          "AGE_PK": 1626
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "45 B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 759,
+          "AGE_PK": 1627
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "50 B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 759,
+          "AGE_PK": 1628
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "55 B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 759,
+          "AGE_PK": 1629
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "60BC",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 759,
+          "AGE_PK": 1630
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "65 B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 759,
+          "AGE_PK": 1631
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "70AB75A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 759,
+          "AGE_PK": 1632
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "2030C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 758,
+          "AGE_PK": 1616
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "2030C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 758,
+          "AGE_PK": 1617
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "40 C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 758,
+          "AGE_PK": 1618
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "45 C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 758,
+          "AGE_PK": 1619
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "50 C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 758,
+          "AGE_PK": 1620
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "55 C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 758,
+          "AGE_PK": 1621
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "60BC",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 758,
+          "AGE_PK": 1622
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "65 C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 758,
+          "AGE_PK": 1623
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "20 D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 757,
+          "AGE_PK": 1608
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "30 D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 757,
+          "AGE_PK": 1609
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "40 D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 757,
+          "AGE_PK": 1610
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "45 D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 757,
+          "AGE_PK": 1611
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "50 D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 757,
+          "AGE_PK": 1612
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "5560D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 757,
+          "AGE_PK": 1613
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "5560D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 757,
+          "AGE_PK": 1614
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "65 D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 757,
+          "AGE_PK": 1615
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "2030E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 756,
+          "AGE_PK": 1600
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "2030E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 756,
+          "AGE_PK": 1601
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "404550E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 756,
+          "AGE_PK": 1602
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "404550E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 756,
+          "AGE_PK": 1603
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "404550E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 756,
+          "AGE_PK": 1604
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "55 E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 756,
+          "AGE_PK": 1605
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "60 E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 756,
+          "AGE_PK": 1606
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "65 E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 756,
+          "AGE_PK": 1607
+        }
+      ]
+    },
+    {
+      "DATA": "XD",
+      "COMP_PK": 217,
+      "TEXT": "혼복",
+      "PK": 333,
+      "REGIST_DT": "2024-10-10T16:28:47",
+      "UPDATE_DT": null,
+      "GRADE_LIST": [
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "2030A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 765,
+          "AGE_PK": 1676
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "2030A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 765,
+          "AGE_PK": 1677
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "40 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 765,
+          "AGE_PK": 1678
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "45 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 765,
+          "AGE_PK": 1679
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "50 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 765,
+          "AGE_PK": 1680
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "55 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 765,
+          "AGE_PK": 1681
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "60 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 765,
+          "AGE_PK": 1682
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "65 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 765,
+          "AGE_PK": 1683
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "70AB",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 765,
+          "AGE_PK": 1684
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "75 A",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "A",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 765,
+          "AGE_PK": 1685
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "2030B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 764,
+          "AGE_PK": 1667
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "2030B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 764,
+          "AGE_PK": 1668
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "40 B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 764,
+          "AGE_PK": 1669
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "45 B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 764,
+          "AGE_PK": 1670
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "50 B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 764,
+          "AGE_PK": 1671
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "55 B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 764,
+          "AGE_PK": 1672
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "60 B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 764,
+          "AGE_PK": 1673
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "65 B",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 764,
+          "AGE_PK": 1674
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "70AB",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "B",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 764,
+          "AGE_PK": 1675
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "20 C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 763,
+          "AGE_PK": 1659
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "30 C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 763,
+          "AGE_PK": 1660
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "40 C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 763,
+          "AGE_PK": 1661
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "45 C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 763,
+          "AGE_PK": 1662
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "50 C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 763,
+          "AGE_PK": 1663
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "55 C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 763,
+          "AGE_PK": 1664
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "60CD65C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 763,
+          "AGE_PK": 1665
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "60CD65C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "C",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 763,
+          "AGE_PK": 1666
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "20 D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 762,
+          "AGE_PK": 1651
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "30DE",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 762,
+          "AGE_PK": 1652
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "40 D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 762,
+          "AGE_PK": 1653
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "45 D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 762,
+          "AGE_PK": 1654
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "5055D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 762,
+          "AGE_PK": 1655
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "5055D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 762,
+          "AGE_PK": 1656
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "60CD65C",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 762,
+          "AGE_PK": 1657
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "65 D",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "D",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 762,
+          "AGE_PK": 1658
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "20 E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 761,
+          "AGE_PK": 1643
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "30DE",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 761,
+          "AGE_PK": 1644
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "40 E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 761,
+          "AGE_PK": 1645
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "4550E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 761,
+          "AGE_PK": 1646
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "4550E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 761,
+          "AGE_PK": 1647
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "55 E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 761,
+          "AGE_PK": 1648
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "60 E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 761,
+          "AGE_PK": 1649
+        },
+        {
+          "ENTRY_PRICE": 30000,
+          "GRADE_AGE_TEXT": "65 E",
+          "APPLY_TEAM_LIMIT_CNT": 150,
+          "GRADE_TEXT": "E",
+          "WILD_CARD_AT": "N",
+          "GRADE_PK": 761,
+          "AGE_PK": 1650
+        }
+      ]
+    }
+  ],
+  "BFR_ADJUST_MAX_END_DD": null,
+  "APPLY_GOODS_INFO_LIST": [],
+  "COMP_PROGRESS_KIND_VAL_TEXT": "개인전",
+  "PAYMENT_TYPE": "AUTO_PAY_OK",
+  "COMP_NOTION_HASH": null,
+  "CAN_CONCLUSION_APPLY_AT": "Y",
+  "COMP_INFO_KIND": "ALL",
+  "TITLE": "제34회 성북구협회장기 배드민턴 대회",
+  "APPLY_AT": "N",
+  "REAL_COURT_CAN_MAPPING_MAX_TIME": 100,
+  "THUMBNAIL_IMG_URL": "https://d2tn3lsgn32r6f.cloudfront.net/resource/user/COMP_POST/ae59e9de-0353-4eff-8f29-8b40baf2ed09.png"
+}

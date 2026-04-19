@@ -126,7 +126,8 @@ class Tournament(models.Model):
     
     external_id = models.CharField(max_length=100, db_index=True, null=True, blank=True)
     external_url = models.URLField(blank=True, max_length=500)
-    
+    stats_collected = models.BooleanField(default=False, help_text="선수 전적 수집 완료 여부")
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

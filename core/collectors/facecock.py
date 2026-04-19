@@ -119,8 +119,9 @@ def fetch_tournament_list(page: int = 1) -> List[Dict]:
         
     return tournaments
 
-def collect_tournaments(max_pages: int = 3):
+def collect_tournaments(max_pages: int = 3, known_ids: set = None):
     """대회 목록 수집 (단일 파일 저장 로직 제거, 리스트 반환)"""
+    known_ids = known_ids or set()
     os.makedirs(RAW_TOURNAMENT_DIR, exist_ok=True)
     
     print(f"[*] 페이스콕(FACECOK) 대회 정보 수집 시작 (최대 {max_pages}페이지)...")
@@ -135,8 +136,8 @@ def collect_tournaments(max_pages: int = 3):
         all_tournaments.extend(page_data)
         time.sleep(0.5)
 
-    # 중복 제거 (external_id 기준)
-    unique_tournaments = {t['external_id']: t for t in all_tournaments}.values()
+    # 중복 제거 및 이미 수집된 항목 제외
+    unique_tournaments = {t['external_id']: t for t in all_tournaments if t['external_id'] not in known_ids}.values()
     final_list = list(unique_tournaments)
 
     if not final_list:

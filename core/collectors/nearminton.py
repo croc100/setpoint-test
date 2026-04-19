@@ -84,7 +84,7 @@ def fetch_list() -> List[RawTournament]:
             continue
             
         external_id = idx_match.group(1)
-        if external_id in seen_ids:
+        if external_id in seen_ids or external_id in known_ids:
             continue
         seen_ids.add(external_id)
 
@@ -146,8 +146,9 @@ def fetch_list() -> List[RawTournament]:
 
     return tournaments
 
-def collect_tournaments():
+def collect_tournaments(known_ids: set = None):
     """우동배 대회 목록 수집 (단일 파일 저장 로직 제거, 리스트 반환)"""
+    known_ids = known_ids or set()
     os.makedirs(RAW_TOURNAMENT_DIR, exist_ok=True)
     print("[*] 우동배(NEARMINTON) 대회 정보 수집 시작...")
     

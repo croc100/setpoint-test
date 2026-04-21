@@ -46,6 +46,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    # django-allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.kakao',
     'core',
 ]
 
@@ -57,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -130,3 +137,45 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 AUTH_USER_MODEL = 'core.User'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ==========================================
+# django-allauth 설정
+# ==========================================
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+SITE_ID = 1
+
+# 로그인/로그아웃 리디렉션
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+# allauth 계정 설정
+ACCOUNT_LOGIN_METHODS = {'username'}
+ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
+ACCOUNT_SIGNUP_FIELDS = ['username*', 'password1*', 'password2*']
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+
+# 소셜 계정 설정 (DB 없이 설정으로 앱 키 관리)
+SOCIALACCOUNT_PROVIDERS = {
+    'kakao': {
+        'APPS': [
+            {
+                'client_id': os.environ.get('KAKAO_CLIENT_ID', 'd08c45ee66f6acac413a41c13dc9c1fe'),
+                'secret': '',
+                'key': '',
+            }
+        ]
+    }
+}
+
+# 소셜 로그인 후 자동으로 기존 이메일 계정 연결
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+
+# 커스텀 어댑터
+ACCOUNT_ADAPTER = 'core.adapters.AccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'core.adapters.SocialAccountAdapter'

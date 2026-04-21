@@ -1,19 +1,39 @@
 {% extends "core/base.html" %}
+{% load socialaccount %}
 
 {% block title %}로그인 - setpoint{% endblock %}
 
 {% block content %}
 <section class="py-12 md:py-20 max-w-md mx-auto px-4">
     <div class="bg-white dark:bg-zinc-900 rounded-[24px] p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-black/5 dark:border-white/5">
-        
+
         <div class="text-center mb-8">
             <h1 class="text-[26px] font-black text-gray-900 dark:text-white tracking-tight">로그인</h1>
-            <p class="text-sm font-medium text-gray-500 mt-2">setpoint.kr 시스템에 접속합니다.</p>
+            <p class="text-sm font-medium text-gray-500 mt-2">내 대회 전적을 확인하고 관리하세요.</p>
         </div>
 
-        <form method="post" class="space-y-5">
+        {# 카카오 소셜 로그인 #}
+        <div class="mb-6">
+            <a href="{% provider_login_url 'kakao' %}"
+               class="flex items-center justify-center gap-3 w-full h-14 rounded-xl font-bold text-[15px] transition-transform active:scale-[0.98]"
+               style="background-color: #FEE500; color: #191919;">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M10 2C5.582 2 2 4.91 2 8.5c0 2.273 1.375 4.27 3.455 5.488L4.5 18l4.318-2.89C9.202 15.17 9.597 15.2 10 15.2c4.418 0 8-2.91 8-6.7S14.418 2 10 2z" fill="#191919"/>
+                </svg>
+                카카오로 시작하기
+            </a>
+        </div>
+
+        {# 구분선 - 관리자 전용 #}
+        <div class="relative flex items-center gap-3 mb-6">
+            <div class="flex-1 h-px bg-gray-100 dark:bg-white/10"></div>
+            <span class="text-xs font-bold text-gray-400">관리자 로그인</span>
+            <div class="flex-1 h-px bg-gray-100 dark:bg-white/10"></div>
+        </div>
+
+        <form method="post" class="space-y-4">
             {% csrf_token %}
-            
+
             {% if form.non_field_errors %}
                 <div class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/50 text-red-600 dark:text-red-400 text-[13px] font-bold rounded-xl text-center">
                     아이디 또는 비밀번호를 다시 확인해주세요.
@@ -21,29 +41,27 @@
             {% endif %}
 
             <div class="space-y-2">
-                <label for="{{ form.username.id_for_label }}" class="block text-sm font-bold text-gray-700 dark:text-gray-300 pl-1">아이디</label>
-                <input type="text" 
-                       name="{{ form.username.html_name }}" 
-                       id="{{ form.username.id_for_label }}" 
+                <input type="text"
+                       name="{{ form.username.html_name }}"
+                       id="{{ form.username.id_for_label }}"
                        required autofocus autocomplete="username"
-                       class="w-full h-14 px-5 bg-gray-50 dark:bg-zinc-800 rounded-xl border border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-zinc-900 outline-none transition-all text-base font-bold text-gray-900 dark:text-white placeholder-gray-400"
-                       placeholder="아이디를 입력해주세요">
+                       class="w-full h-12 px-5 bg-gray-50 dark:bg-zinc-800 rounded-xl border border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-zinc-900 outline-none transition-all text-sm font-bold text-gray-900 dark:text-white placeholder-gray-400"
+                       placeholder="아이디">
             </div>
 
             <div class="space-y-2">
-                <label for="{{ form.password.id_for_label }}" class="block text-sm font-bold text-gray-700 dark:text-gray-300 pl-1">비밀번호</label>
-                <input type="password" 
-                       name="{{ form.password.html_name }}" 
-                       id="{{ form.password.id_for_label }}" 
+                <input type="password"
+                       name="{{ form.password.html_name }}"
+                       id="{{ form.password.id_for_label }}"
                        required autocomplete="current-password"
-                       class="w-full h-14 px-5 bg-gray-50 dark:bg-zinc-800 rounded-xl border border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-zinc-900 outline-none transition-all text-base font-bold text-gray-900 dark:text-white placeholder-gray-400"
-                       placeholder="비밀번호를 입력해주세요">
+                       class="w-full h-12 px-5 bg-gray-50 dark:bg-zinc-800 rounded-xl border border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-zinc-900 outline-none transition-all text-sm font-bold text-gray-900 dark:text-white placeholder-gray-400"
+                       placeholder="비밀번호">
             </div>
 
-            <button type="submit" class="w-full h-14 mt-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-[16px] active:scale-[0.98] transition-transform">
+            <button type="submit" class="w-full h-12 bg-tossBlue hover:bg-blue-600 text-white rounded-xl font-bold text-sm active:scale-[0.98] transition-transform">
                 로그인
             </button>
-            
+
             <div class="hidden">
                 {{ form.username.errors }}
                 {{ form.password.errors }}

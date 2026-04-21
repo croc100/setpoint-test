@@ -9,7 +9,10 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.config_url if hasattr(admin.site, 'config_url') else admin.site.urls), # 기본 admin
-    
+
+    # django-allauth 소셜 로그인
+    path('accounts/', include('allauth.urls')),
+
     # core 앱의 URL 연결
     path('', include('core.urls')),
 ]

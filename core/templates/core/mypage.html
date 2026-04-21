@@ -1,0 +1,63 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}마이페이지{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-2xl mx-auto">
+
+  {# 프로필 헤더 #}
+  <div class="toss-card flex items-center gap-5">
+    <div class="w-16 h-16 rounded-full bg-tossBlue/10 flex items-center justify-center text-2xl font-black text-tossBlue shrink-0">
+      {{ request.user.username|first|upper }}
+    </div>
+    <div>
+      <h1 class="text-xl font-black text-tossGray-900 dark:text-white">
+        {{ request.user.nickname|default:request.user.username }}
+      </h1>
+      <p class="text-sm text-tossGray-400 font-medium mt-0.5">{{ request.user.email|default:"이메일 없음" }}</p>
+    </div>
+  </div>
+
+  {# 팔로우 중인 선수 #}
+  <div class="space-y-3">
+    <h2 class="text-lg font-black text-tossGray-900 dark:text-white">팔로우 중인 선수</h2>
+
+    {% if following %}
+    <div class="space-y-2">
+      {% for player in following %}
+      <a href="{% url 'core:player_detail' player.pk %}"
+         class="toss-card !p-4 flex items-center justify-between hover:shadow-md transition-shadow block">
+        <div>
+          <span class="text-sm font-bold text-tossGray-900 dark:text-white">{{ player.name }}</span>
+          <span class="ml-2 text-xs text-tossGray-400">{{ player.club }}</span>
+        </div>
+        {% if player.level %}
+        <span class="px-2 py-0.5 rounded-md text-xs font-bold bg-tossGray-100 dark:bg-white/10 text-tossGray-600 dark:text-tossGray-300">
+          {{ player.level }}
+        </span>
+        {% endif %}
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="toss-card text-center py-12">
+      <div class="text-3xl mb-2">🏸</div>
+      <p class="text-sm text-tossGray-400 font-medium">팔로우 중인 선수가 없어요</p>
+      <a href="{% url 'core:player_search' %}"
+         class="mt-3 inline-block text-sm text-tossBlue font-bold hover:underline">선수 검색하기</a>
+    </div>
+    {% endif %}
+  </div>
+
+  {# 로그아웃 #}
+  <form action="{% url 'core:logout' %}" method="post">
+    {% csrf_token %}
+    <button type="submit"
+            class="w-full py-3 bg-tossGray-100 dark:bg-white/10 text-tossGray-600 dark:text-tossGray-300 rounded-xl text-sm font-bold hover:bg-tossGray-200 transition-colors">
+      로그아웃
+    </button>
+  </form>
+
+</div>
+{% endblock %}

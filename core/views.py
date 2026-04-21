@@ -8,10 +8,10 @@
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
 
-from django.shortcuts import render
-from django.urls import reverse_lazy
-from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DetailView, View
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse_lazy, reverse
+from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DetailView, View, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import JsonResponse, Http404
 from django.db.models import Q, Prefetch, Count, Sum, FloatField, ExpressionWrapper
 from django.db.models.functions import Coalesce
@@ -656,5 +656,96 @@ class PlayerDetailView(DetailView):
         
         total_matches = total_wins + total_losses
         context['win_rate'] = (total_wins / total_matches * 100) if total_matches > 0 else 0.0
+
+
+# ==========================================
+# 9. 마이페이지 (My Page)
+# ==========================================
+class MyPageView(LoginRequiredMixin, TemplateView):
+    template_name = 'core/mypage.html'
+    login_url = '/login/'
+
+    def get(self, request, *args, **kwargs):
+        # 관리자는 어드민 대시보드로 리다이렉트
+        if request.user.is_staff or request.user.is_superuser:
+            return redirect('core:manage_dashboard')
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['following'] = self.request.user.following_players.all()[:10]
+        return context
+
+
+# ==========================================
+# 10. 관리자 대시보드 (Admin Dashboard)
+# ==========================================
+class ManageDashboardView(AdminRequiredMixin, View):
+    template_name = 'core/manage/dashboard.html'
+
+    def get(self, request):
+        stats = {
+            'tournament_total':   Tournament.objects.count(),
+            'tournament_draft':   Tournament.objects.filter(status='draft').count(),
+            'notice_total':       Notice.objects.count(),
+            'player_total':       Player.objects.count(),
+        }
+        recent_tournaments = Tournament.objects.order_by('-created_at')[:10]
+        recent_notices     = Notice.objects.order_by('-publish_at')[:5]
+        return render(request, self.template_name, {
+            'stats':              stats,
+            'recent_tournaments': recent_tournaments,
+            'recent_notices':     recent_notices,
+        })
+
+
+class TournamentCreateView(AdminRequiredMixin, CreateView):
+    model = Tournament
+    template_name = 'core/manage/tournament_form.html'
+    fields = ['name', 'start_date', 'end_date', 'venue', 'region', 'source',
+              'status', 'external_url', 'external_id']
+    success_url = reverse_lazy('core:manage_dashboard')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['mode'] = 'create'
+        return context
+
+
+class TournamentUpdateView(AdminRequiredMixin, UpdateView):
+    model = Tournament
+    template_name = 'core/manage/tournament_form.html'
+    fields = ['name', 'start_date', 'end_date', 'venue', 'region', 'source',
+              'status', 'external_url', 'external_id']
+    success_url = reverse_lazy('core:manage_dashboard')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['mode'] = 'edit'
+        return context
+
+
+class TournamentDeleteView(AdminRequiredMixin, DeleteView):
+    model = Tournament
+    template_name = 'core/manage/confirm_delete.html'
+    success_url = reverse_lazy('core:manage_dashboard')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['item_name'] = self.object.name
+        context['cancel_url'] = reverse('core:manage_dashboard')
+        return context
+
+
+class NoticeDeleteView(AdminRequiredMixin, DeleteView):
+    model = Notice
+    template_name = 'core/manage/confirm_delete.html'
+    success_url = reverse_lazy('core:notice_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['item_name'] = self.object.title
+        context['cancel_url'] = reverse('core:notice_list')
+        return context
 
         return context

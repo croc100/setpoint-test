@@ -116,10 +116,11 @@
                     <a href="{% url 'core:tournament_list' %}" class="px-4 py-2 text-sm font-semibold hover:text-tossBlue">대회</a>
                     <a href="{% url 'core:calendar' %}" class="px-4 py-2 text-sm font-semibold hover:text-tossBlue">캘린더</a>
                     {% if user.is_authenticated %}
-                        <form action="{% url 'core:logout' %}" method="post" class="inline ml-2">
-                            {% csrf_token %}
-                            <button type="submit" class="px-4 py-2 bg-tossGray-200 dark:bg-white/10 rounded-xl text-xs font-bold">로그아웃</button>
-                        </form>
+                        {% if user.is_staff or user.is_superuser %}
+                            <a href="{% url 'core:manage_dashboard' %}" class="ml-2 px-4 py-2 bg-tossGray-800 dark:bg-white text-white dark:text-tossGray-900 rounded-xl text-xs font-bold">관리자</a>
+                        {% else %}
+                            <a href="{% url 'core:mypage' %}" class="ml-2 px-4 py-2 bg-tossGray-200 dark:bg-white/10 rounded-xl text-xs font-bold">마이페이지</a>
+                        {% endif %}
                     {% else %}
                         <a href="{% url 'core:login' %}" class="ml-2 px-5 py-2 bg-tossBlue text-white rounded-xl text-sm font-bold">로그인</a>
                     {% endif %}

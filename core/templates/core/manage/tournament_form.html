@@ -1,0 +1,67 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{% if mode == 'create' %}대회 추가{% else %}대회 수정{% endif %}{% endblock %}
+
+{% block content %}
+<div class="space-y-5 max-w-2xl mx-auto">
+
+  <div class="flex items-center gap-3">
+    <a href="{% url 'core:manage_dashboard' %}"
+       class="inline-flex items-center text-sm font-bold text-tossGray-500 hover:text-tossBlue transition-colors">
+      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      대시보드
+    </a>
+  </div>
+
+  <h1 class="toss-title text-tossGray-900 dark:text-white">
+    {% if mode == 'create' %}대회 추가{% else %}대회 수정{% endif %}
+  </h1>
+
+  <div class="toss-card">
+    <form method="post" class="space-y-5">
+      {% csrf_token %}
+
+      {% for field in form %}
+      <div class="space-y-1.5">
+        <label class="text-xs font-bold text-tossGray-600 dark:text-tossGray-400">
+          {{ field.label }}{% if field.field.required %} <span class="text-red-400">*</span>{% endif %}
+        </label>
+
+        {% if field.field.widget.input_type == 'select' %}
+          <select name="{{ field.html_name }}"
+                  class="w-full px-4 py-2.5 rounded-xl border border-tossGray-200 dark:border-white/10 bg-tossGray-50 dark:bg-white/5 text-sm font-medium text-tossGray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-tossBlue/40">
+            {% for val, label in field.field.choices %}
+            <option value="{{ val }}" {% if field.value == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        {% else %}
+          <input type="{{ field.field.widget.input_type|default:'text' }}"
+                 name="{{ field.html_name }}"
+                 value="{{ field.value|default:'' }}"
+                 {% if field.field.required %}required{% endif %}
+                 class="w-full px-4 py-2.5 rounded-xl border border-tossGray-200 dark:border-white/10 bg-tossGray-50 dark:bg-white/5 text-sm font-medium text-tossGray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-tossBlue/40 placeholder-tossGray-300">
+        {% endif %}
+
+        {% if field.errors %}
+        <p class="text-xs text-red-500 font-medium">{{ field.errors|join:", " }}</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit"
+                class="flex-1 py-3 bg-tossBlue text-white rounded-xl text-sm font-bold hover:bg-blue-600 transition-colors">
+          {% if mode == 'create' %}추가하기{% else %}저장하기{% endif %}
+        </button>
+        <a href="{% url 'core:manage_dashboard' %}"
+           class="flex-1 py-3 bg-tossGray-100 dark:bg-white/10 text-tossGray-600 dark:text-tossGray-300 rounded-xl text-sm font-bold text-center hover:bg-tossGray-200 transition-colors">
+          취소
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

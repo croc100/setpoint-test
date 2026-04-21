@@ -1,0 +1,196 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}대회 관리{% endblock %}
+{% block max_width %}max-w-7xl{% endblock %}
+
+{% block ad_left %}
+<nav class="sticky top-24 space-y-1">
+  <p class="text-[10px] font-black text-tossGray-400 uppercase tracking-widest px-3 mb-3">관리 메뉴</p>
+  <a href="{% url 'core:manage_dashboard' %}"
+     class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold text-tossGray-600 dark:text-tossGray-300 hover:bg-tossGray-100 dark:hover:bg-white/5 transition-colors">
+    <span>📊</span> 대시보드
+  </a>
+  <a href="{% url 'core:manage_tournaments' %}"
+     class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold bg-tossBlue/10 text-tossBlue">
+    <span>🏸</span> 대회 관리
+  </a>
+  <a href="{% url 'core:notice_list' %}"
+     class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold text-tossGray-600 dark:text-tossGray-300 hover:bg-tossGray-100 dark:hover:bg-white/5 transition-colors">
+    <span>📢</span> 공지사항
+  </a>
+  <div class="pt-3 mt-3 border-t border-tossGray-100 dark:border-white/5">
+    <form action="{% url 'core:logout' %}" method="post">
+      {% csrf_token %}
+      <button type="submit"
+              class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold text-tossGray-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 transition-colors">
+        <span>🚪</span> 로그아웃
+      </button>
+    </form>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+
+  {# 헤더 #}
+  <div class="flex items-center justify-between flex-wrap gap-3">
+    <h1 class="toss-title text-tossGray-900 dark:text-white">대회 관리</h1>
+    <a href="{% url 'core:tournament_create' %}"
+       class="px-5 py-2.5 bg-tossBlue text-white rounded-xl text-sm font-bold hover:bg-blue-600 transition-colors">
+      + 대회 추가
+    </a>
+  </div>
+
+  {# 검색 + 필터 #}
+  <form method="get" class="toss-card !p-4 flex flex-wrap gap-3 items-end">
+    <div class="flex-1 min-w-[180px]">
+      <label class="text-[11px] font-bold text-tossGray-400 block mb-1">대회명 검색</label>
+      <input type="text" name="q" value="{{ q }}" placeholder="대회명 입력..."
+             class="w-full px-3 py-2 rounded-xl border border-tossGray-200 dark:border-white/10 bg-tossGray-50 dark:bg-white/5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-tossBlue/40">
+    </div>
+    <div>
+      <label class="text-[11px] font-bold text-tossGray-400 block mb-1">플랫폼</label>
+      <select name="source"
+              class="px-3 py-2 rounded-xl border border-tossGray-200 dark:border-white/10 bg-tossGray-50 dark:bg-white/5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-tossBlue/40">
+        <option value="">전체</option>
+        {% for src, meta in sources %}
+        <option value="{{ src }}" {% if source_q == src %}selected{% endif %}>{{ meta.label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="text-[11px] font-bold text-tossGray-400 block mb-1">상태</label>
+      <select name="status"
+              class="px-3 py-2 rounded-xl border border-tossGray-200 dark:border-white/10 bg-tossGray-50 dark:bg-white/5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-tossBlue/40">
+        <option value="">전체</option>
+        {% for val, label in status_choices %}
+        <option value="{{ val }}" {% if status_q == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="flex gap-2">
+      <button type="submit"
+              class="px-4 py-2 bg-tossBlue text-white rounded-xl text-sm font-bold hover:bg-blue-600 transition-colors">
+        검색
+      </button>
+      {% if q or source_q or status_q %}
+      <a href="{% url 'core:manage_tournaments' %}"
+         class="px-4 py-2 border border-tossGray-200 dark:border-white/10 rounded-xl text-sm font-bold text-tossGray-500 hover:bg-tossGray-100 transition-colors">
+        초기화
+      </a>
+      {% endif %}
+    </div>
+  </form>
+
+  {# 결과 수 #}
+  <p class="text-xs font-bold text-tossGray-400 px-1">
+    총 {{ paginator.count }}개 대회
+  </p>
+
+  {# 테이블 #}
+  <div class="toss-card !p-0 overflow-hidden overflow-x-auto">
+    <table class="w-full text-left border-collapse min-w-[700px]">
+      <thead class="bg-tossGray-50 dark:bg-white/5 border-b border-tossGray-100 dark:border-white/5">
+        <tr>
+          <th class="px-4 py-3 text-xs font-bold text-tossGray-400">대회명</th>
+          <th class="px-4 py-3 text-xs font-bold text-tossGray-400 whitespace-nowrap">시작일</th>
+          <th class="px-4 py-3 text-xs font-bold text-tossGray-400 whitespace-nowrap">종료일</th>
+          <th class="px-4 py-3 text-xs font-bold text-tossGray-400">지역</th>
+          <th class="px-4 py-3 text-xs font-bold text-tossGray-400">플랫폼</th>
+          <th class="px-4 py-3 text-xs font-bold text-tossGray-400">상태</th>
+          <th class="px-4 py-3 text-xs font-bold text-tossGray-400 text-right">관리</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-tossGray-50 dark:divide-white/[0.03]">
+        {% for t in tournaments %}
+        <tr class="hover:bg-tossGray-50 dark:hover:bg-white/[0.02] transition-colors">
+          <td class="px-4 py-3">
+            <div class="text-sm font-bold text-tossGray-900 dark:text-white leading-snug">
+              {{ t.name|truncatechars:35 }}
+            </div>
+            {% if t.external_url %}
+            <a href="{{ t.external_url }}" target="_blank"
+               class="text-[10px] text-tossBlue hover:underline">원문 ↗</a>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3 text-xs font-medium text-tossGray-500 whitespace-nowrap">
+            {{ t.start_date|date:"Y.m.d"|default:"—" }}
+          </td>
+          <td class="px-4 py-3 text-xs font-medium text-tossGray-500 whitespace-nowrap">
+            {{ t.end_date|date:"Y.m.d"|default:"—" }}
+          </td>
+          <td class="px-4 py-3 text-xs font-medium text-tossGray-500">
+            {{ t.region|default:"—" }}
+          </td>
+          <td class="px-4 py-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-black
+              {% if t.source == 'BAEF' %}bg-violet-50 text-violet-600
+              {% elif t.source == 'WEEKUK' %}bg-orange-50 text-orange-600
+              {% elif t.source == 'SPONET' %}bg-red-50 text-red-600
+              {% elif t.source == 'FACECOK' %}bg-blue-50 text-blue-600
+              {% elif t.source == 'NEARMINTON' %}bg-green-50 text-green-600
+              {% else %}bg-tossGray-100 text-tossGray-500{% endif %}">
+              {% if t.source == 'BAEF' %}배프
+              {% elif t.source == 'WEEKUK' %}위꾹
+              {% elif t.source == 'SPONET' %}스포넷
+              {% elif t.source == 'FACECOK' %}페이스콕
+              {% elif t.source == 'NEARMINTON' %}우동배
+              {% else %}{{ t.source }}{% endif %}
+            </span>
+          </td>
+          <td class="px-4 py-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-black
+              {% if t.status == 'draft' %}bg-yellow-50 text-yellow-600
+              {% elif t.status == 'ongoing' %}bg-blue-50 text-blue-600
+              {% else %}bg-tossGray-100 text-tossGray-500{% endif %}">
+              {{ t.get_status_display }}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-right">
+            <div class="flex items-center justify-end gap-1.5">
+              <a href="{% url 'core:tournament_detail' t.pk %}" target="_blank"
+                 class="px-2.5 py-1 text-xs font-bold text-tossGray-400 hover:text-tossBlue transition-colors"
+                 title="미리보기">↗</a>
+              <a href="{% url 'core:tournament_edit' t.pk %}"
+                 class="px-2.5 py-1 text-xs font-bold bg-tossGray-100 dark:bg-white/10 text-tossGray-600 dark:text-tossGray-300 rounded-lg hover:bg-tossGray-200 transition-colors">
+                수정
+              </a>
+              <a href="{% url 'core:tournament_delete' t.pk %}"
+                 class="px-2.5 py-1 text-xs font-bold bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors">
+                삭제
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="px-4 py-16 text-center text-sm text-tossGray-400 font-medium">
+            검색 결과가 없습니다.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {# 페이지네이션 #}
+  {% if is_paginated %}
+  <nav class="flex justify-center items-center gap-3">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if source_q %}&source={{ source_q }}{% endif %}{% if status_q %}&status={{ status_q }}{% endif %}"
+       class="w-9 h-9 flex items-center justify-center rounded-xl bg-tossGray-100 dark:bg-white/10 text-tossGray-600 hover:bg-tossGray-200 transition-colors text-sm font-bold">←</a>
+    {% endif %}
+    <span class="text-sm font-bold text-tossGray-600 dark:text-tossGray-300">
+      {{ page_obj.number }} / {{ paginator.num_pages }}
+    </span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if source_q %}&source={{ source_q }}{% endif %}{% if status_q %}&status={{ status_q }}{% endif %}"
+       class="w-9 h-9 flex items-center justify-center rounded-xl bg-tossGray-100 dark:bg-white/10 text-tossGray-600 hover:bg-tossGray-200 transition-colors text-sm font-bold">→</a>
+    {% endif %}
+  </nav>
+  {% endif %}
+
+</div>
+{% endblock %}

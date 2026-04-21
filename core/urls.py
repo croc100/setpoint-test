@@ -10,7 +10,7 @@ from .views import (
     TournamentListView, TournamentDetailView,
     ClubRankingView, ClubDetailView,
     MyPageView,
-    ManageDashboardView,
+    ManageDashboardView, ManageTournamentListView,
     TournamentCreateView, TournamentUpdateView, TournamentDeleteView,
     NoticeDeleteView,
 )
@@ -47,6 +47,7 @@ urlpatterns = [
 
     # 관리자 대시보드
     path('manage/', ManageDashboardView.as_view(), name='manage_dashboard'),
+    path('manage/tournaments/', ManageTournamentListView.as_view(), name='manage_tournaments'),
     path('manage/tournament/create/', TournamentCreateView.as_view(), name='tournament_create'),
     path('manage/tournament/<int:pk>/edit/', TournamentUpdateView.as_view(), name='tournament_edit'),
     path('manage/tournament/<int:pk>/delete/', TournamentDeleteView.as_view(), name='tournament_delete'),

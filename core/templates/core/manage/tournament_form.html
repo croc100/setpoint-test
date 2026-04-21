@@ -2,66 +2,157 @@
 {% load static %}
 
 {% block title %}{% if mode == 'create' %}대회 추가{% else %}대회 수정{% endif %}{% endblock %}
+{% block max_width %}max-w-7xl{% endblock %}
+
+{% block ad_left %}
+<nav class="sticky top-24 space-y-1">
+  <p class="text-[10px] font-black text-tossGray-400 uppercase tracking-widest px-3 mb-3">관리 메뉴</p>
+  <a href="{% url 'core:manage_dashboard' %}"
+     class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold text-tossGray-600 dark:text-tossGray-300 hover:bg-tossGray-100 dark:hover:bg-white/5 transition-colors">
+    <span>📊</span> 대시보드
+  </a>
+  <a href="{% url 'core:manage_tournaments' %}"
+     class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold text-tossGray-600 dark:text-tossGray-300 hover:bg-tossGray-100 dark:hover:bg-white/5 transition-colors">
+    <span>🏸</span> 대회 관리
+  </a>
+  <a href="{% url 'core:notice_list' %}"
+     class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold text-tossGray-600 dark:text-tossGray-300 hover:bg-tossGray-100 dark:hover:bg-white/5 transition-colors">
+    <span>📢</span> 공지사항
+  </a>
+  <div class="pt-3 mt-3 border-t border-tossGray-100 dark:border-white/5">
+    <form action="{% url 'core:logout' %}" method="post">
+      {% csrf_token %}
+      <button type="submit"
+              class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold text-tossGray-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 transition-colors">
+        <span>🚪</span> 로그아웃
+      </button>
+    </form>
+  </div>
+</nav>
+{% endblock %}
 
 {% block content %}
-<div class="space-y-5 max-w-2xl mx-auto">
+<div class="space-y-5 max-w-2xl">
 
-  <div class="flex items-center gap-3">
-    <a href="{% url 'core:manage_dashboard' %}"
-       class="inline-flex items-center text-sm font-bold text-tossGray-500 hover:text-tossBlue transition-colors">
+  <div>
+    <a href="{% url 'core:manage_tournaments' %}"
+       class="inline-flex items-center text-sm font-bold text-tossGray-500 hover:text-tossBlue transition-colors mb-3">
       <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
       </svg>
-      대시보드
+      대회 관리
     </a>
+    <h1 class="toss-title text-tossGray-900 dark:text-white">
+      {% if mode == 'create' %}대회 추가{% else %}대회 수정{% endif %}
+    </h1>
   </div>
 
-  <h1 class="toss-title text-tossGray-900 dark:text-white">
-    {% if mode == 'create' %}대회 추가{% else %}대회 수정{% endif %}
-  </h1>
+  <form method="post" class="space-y-4">
+    {% csrf_token %}
 
-  <div class="toss-card">
-    <form method="post" class="space-y-5">
-      {% csrf_token %}
+    {# 대회명 #}
+    <div class="toss-card space-y-4">
+      <h2 class="text-sm font-black text-tossGray-700 dark:text-tossGray-300">기본 정보</h2>
 
-      {% for field in form %}
       <div class="space-y-1.5">
-        <label class="text-xs font-bold text-tossGray-600 dark:text-tossGray-400">
-          {{ field.label }}{% if field.field.required %} <span class="text-red-400">*</span>{% endif %}
-        </label>
+        <label class="text-xs font-bold text-tossGray-500">대회명 <span class="text-red-400">*</span></label>
+        <input type="text" name="name" value="{{ form.name.value|default:'' }}" required
+               placeholder="예: 제10회 전국 배드민턴 동호인대회"
+               class="w-full px-4 py-2.5 rounded-xl border border-tossGray-200 dark:border-white/10 bg-tossGray-50 dark:bg-white/5 text-sm font-medium text-tossGray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-tossBlue/40">
+        {% if form.name.errors %}<p class="text-xs text-red-500">{{ form.name.errors|join:", " }}</p>{% endif %}
+      </div>
 
-        {% if field.field.widget.input_type == 'select' %}
-          <select name="{{ field.html_name }}"
+      <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-tossGray-500">시작일</label>
+          <input type="date" name="start_date" value="{{ form.start_date.value|date:'Y-m-d'|default:'' }}"
+                 class="w-full px-4 py-2.5 rounded-xl border border-tossGray-200 dark:border-white/10 bg-tossGray-50 dark:bg-white/5 text-sm font-medium text-tossGray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-tossBlue/40">
+          {% if form.start_date.errors %}<p class="text-xs text-red-500">{{ form.start_date.errors|join:", " }}</p>{% endif %}
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-tossGray-500">종료일</label>
+          <input type="date" name="end_date" value="{{ form.end_date.value|date:'Y-m-d'|default:'' }}"
+                 class="w-full px-4 py-2.5 rounded-xl border border-tossGray-200 dark:border-white/10 bg-tossGray-50 dark:bg-white/5 text-sm font-medium text-tossGray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-tossBlue/40">
+          {% if form.end_date.errors %}<p class="text-xs text-red-500">{{ form.end_date.errors|join:", " }}</p>{% endif %}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-tossGray-500">지역</label>
+          <input type="text" name="region" value="{{ form.region.value|default:'' }}"
+                 placeholder="예: 서울, 경기"
+                 class="w-full px-4 py-2.5 rounded-xl border border-tossGray-200 dark:border-white/10 bg-tossGray-50 dark:bg-white/5 text-sm font-medium text-tossGray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-tossBlue/40">
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-tossGray-500">장소 (venue)</label>
+          <input type="text" name="venue" value="{{ form.venue.value|default:'' }}"
+                 placeholder="예: 올림픽공원 체육관"
+                 class="w-full px-4 py-2.5 rounded-xl border border-tossGray-200 dark:border-white/10 bg-tossGray-50 dark:bg-white/5 text-sm font-medium text-tossGray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-tossBlue/40">
+        </div>
+      </div>
+    </div>
+
+    {# 분류 #}
+    <div class="toss-card space-y-4">
+      <h2 class="text-sm font-black text-tossGray-700 dark:text-tossGray-300">분류</h2>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-tossGray-500">플랫폼 (출처) <span class="text-red-400">*</span></label>
+          <select name="source" required
                   class="w-full px-4 py-2.5 rounded-xl border border-tossGray-200 dark:border-white/10 bg-tossGray-50 dark:bg-white/5 text-sm font-medium text-tossGray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-tossBlue/40">
-            {% for val, label in field.field.choices %}
-            <option value="{{ val }}" {% if field.value == val %}selected{% endif %}>{{ label }}</option>
+            {% for val, label in form.source.field.choices %}
+            <option value="{{ val }}" {% if form.source.value == val %}selected{% endif %}>{{ label }}</option>
             {% endfor %}
           </select>
-        {% else %}
-          <input type="{{ field.field.widget.input_type|default:'text' }}"
-                 name="{{ field.html_name }}"
-                 value="{{ field.value|default:'' }}"
-                 {% if field.field.required %}required{% endif %}
-                 class="w-full px-4 py-2.5 rounded-xl border border-tossGray-200 dark:border-white/10 bg-tossGray-50 dark:bg-white/5 text-sm font-medium text-tossGray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-tossBlue/40 placeholder-tossGray-300">
-        {% endif %}
-
-        {% if field.errors %}
-        <p class="text-xs text-red-500 font-medium">{{ field.errors|join:", " }}</p>
-        {% endif %}
+          {% if form.source.errors %}<p class="text-xs text-red-500">{{ form.source.errors|join:", " }}</p>{% endif %}
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-tossGray-500">진행 상태 <span class="text-red-400">*</span></label>
+          <select name="status" required
+                  class="w-full px-4 py-2.5 rounded-xl border border-tossGray-200 dark:border-white/10 bg-tossGray-50 dark:bg-white/5 text-sm font-medium text-tossGray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-tossBlue/40">
+            {% for val, label in form.status.field.choices %}
+            <option value="{{ val }}" {% if form.status.value == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          {% if form.status.errors %}<p class="text-xs text-red-500">{{ form.status.errors|join:", " }}</p>{% endif %}
+        </div>
       </div>
-      {% endfor %}
+    </div>
 
-      <div class="flex gap-3 pt-2">
-        <button type="submit"
-                class="flex-1 py-3 bg-tossBlue text-white rounded-xl text-sm font-bold hover:bg-blue-600 transition-colors">
-          {% if mode == 'create' %}추가하기{% else %}저장하기{% endif %}
-        </button>
-        <a href="{% url 'core:manage_dashboard' %}"
-           class="flex-1 py-3 bg-tossGray-100 dark:bg-white/10 text-tossGray-600 dark:text-tossGray-300 rounded-xl text-sm font-bold text-center hover:bg-tossGray-200 transition-colors">
-          취소
-        </a>
+    {# 외부 링크 #}
+    <div class="toss-card space-y-4">
+      <h2 class="text-sm font-black text-tossGray-700 dark:text-tossGray-300">외부 연동</h2>
+
+      <div class="space-y-1.5">
+        <label class="text-xs font-bold text-tossGray-500">원문 URL</label>
+        <input type="url" name="external_url" value="{{ form.external_url.value|default:'' }}"
+               placeholder="https://..."
+               class="w-full px-4 py-2.5 rounded-xl border border-tossGray-200 dark:border-white/10 bg-tossGray-50 dark:bg-white/5 text-sm font-medium text-tossGray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-tossBlue/40">
+        {% if form.external_url.errors %}<p class="text-xs text-red-500">{{ form.external_url.errors|join:", " }}</p>{% endif %}
       </div>
-    </form>
-  </div>
+
+      <div class="space-y-1.5">
+        <label class="text-xs font-bold text-tossGray-500">외부 ID</label>
+        <input type="text" name="external_id" value="{{ form.external_id.value|default:'' }}"
+               placeholder="플랫폼 고유 대회 ID"
+               class="w-full px-4 py-2.5 rounded-xl border border-tossGray-200 dark:border-white/10 bg-tossGray-50 dark:bg-white/5 text-sm font-medium text-tossGray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-tossBlue/40">
+      </div>
+    </div>
+
+    {# 버튼 #}
+    <div class="flex gap-3">
+      <button type="submit"
+              class="flex-1 py-3 bg-tossBlue text-white rounded-xl text-sm font-bold hover:bg-blue-600 transition-colors">
+        {% if mode == 'create' %}추가하기{% else %}저장하기{% endif %}
+      </button>
+      <a href="{% url 'core:manage_tournaments' %}"
+         class="flex-1 py-3 bg-tossGray-100 dark:bg-white/10 text-tossGray-600 dark:text-tossGray-300 rounded-xl text-sm font-bold text-center hover:bg-tossGray-200 transition-colors">
+        취소
+      </a>
+    </div>
+
+  </form>
 </div>
 {% endblock %}

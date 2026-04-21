@@ -2,6 +2,34 @@
 {% load static %}
 
 {% block title %}관리자 대시보드{% endblock %}
+{% block max_width %}max-w-7xl{% endblock %}
+
+{% block ad_left %}
+<nav class="sticky top-24 space-y-1">
+  <p class="text-[10px] font-black text-tossGray-400 uppercase tracking-widest px-3 mb-3">관리 메뉴</p>
+  <a href="{% url 'core:manage_dashboard' %}"
+     class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold bg-tossBlue/10 text-tossBlue">
+    <span>📊</span> 대시보드
+  </a>
+  <a href="{% url 'core:manage_tournaments' %}"
+     class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold text-tossGray-600 dark:text-tossGray-300 hover:bg-tossGray-100 dark:hover:bg-white/5 transition-colors">
+    <span>🏸</span> 대회 관리
+  </a>
+  <a href="{% url 'core:notice_list' %}"
+     class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold text-tossGray-600 dark:text-tossGray-300 hover:bg-tossGray-100 dark:hover:bg-white/5 transition-colors">
+    <span>📢</span> 공지사항
+  </a>
+  <div class="pt-3 mt-3 border-t border-tossGray-100 dark:border-white/5">
+    <form action="{% url 'core:logout' %}" method="post">
+      {% csrf_token %}
+      <button type="submit"
+              class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold text-tossGray-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 transition-colors">
+        <span>🚪</span> 로그아웃
+      </button>
+    </form>
+  </div>
+</nav>
+{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
@@ -9,8 +37,8 @@
   {# 헤더 #}
   <div class="flex items-center justify-between flex-wrap gap-3">
     <div>
-      <h1 class="toss-title text-tossGray-900 dark:text-white">관리자 대시보드</h1>
-      <p class="mt-1 text-sm text-tossGray-500">{{ request.user.username }}님 환영합니다</p>
+      <h1 class="toss-title text-tossGray-900 dark:text-white">대시보드</h1>
+      <p class="mt-0.5 text-sm text-tossGray-400">{{ request.user.username }} 관리자님</p>
     </div>
     <a href="{% url 'core:tournament_create' %}"
        class="px-5 py-2.5 bg-tossBlue text-white rounded-xl text-sm font-bold hover:bg-blue-600 transition-colors">
@@ -22,119 +50,71 @@
   <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
     <div class="toss-card !p-5 text-center">
       <div class="text-xs font-bold text-tossGray-400 mb-1">전체 대회</div>
-      <div class="text-2xl font-black text-tossGray-900 dark:text-white">{{ stats.tournament_total }}</div>
+      <div class="text-3xl font-black text-tossGray-900 dark:text-white">{{ stats.tournament_total }}</div>
     </div>
     <div class="toss-card !p-5 text-center border-b-4 border-yellow-400">
       <div class="text-xs font-bold text-tossGray-400 mb-1">검수 대기</div>
-      <div class="text-2xl font-black text-yellow-500">{{ stats.tournament_draft }}</div>
+      <div class="text-3xl font-black text-yellow-500">{{ stats.tournament_draft }}</div>
     </div>
     <div class="toss-card !p-5 text-center">
       <div class="text-xs font-bold text-tossGray-400 mb-1">공지사항</div>
-      <div class="text-2xl font-black text-tossGray-900 dark:text-white">{{ stats.notice_total }}</div>
+      <div class="text-3xl font-black text-tossGray-900 dark:text-white">{{ stats.notice_total }}</div>
     </div>
     <div class="toss-card !p-5 text-center">
       <div class="text-xs font-bold text-tossGray-400 mb-1">등록 선수</div>
-      <div class="text-2xl font-black text-tossGray-900 dark:text-white">{{ stats.player_total }}</div>
+      <div class="text-3xl font-black text-tossGray-900 dark:text-white">{{ stats.player_total }}</div>
     </div>
   </div>
 
-  {# 최근 대회 #}
-  <div class="space-y-3">
+  {# 공지사항 #}
+  <div class="toss-card space-y-4">
     <div class="flex items-center justify-between">
-      <h2 class="text-lg font-black text-tossGray-900 dark:text-white">최근 등록 대회</h2>
-      <a href="{% url 'core:tournament_list' %}" class="text-xs text-tossBlue font-bold hover:underline">전체보기</a>
-    </div>
-
-    <div class="toss-card !p-0 overflow-hidden overflow-x-auto">
-      <table class="w-full text-left border-collapse min-w-[600px]">
-        <thead class="bg-tossGray-50 dark:bg-white/5 border-b border-tossGray-100 dark:border-white/5">
-          <tr>
-            <th class="px-5 py-3 text-xs font-bold text-tossGray-400">대회명</th>
-            <th class="px-5 py-3 text-xs font-bold text-tossGray-400">날짜</th>
-            <th class="px-5 py-3 text-xs font-bold text-tossGray-400">출처</th>
-            <th class="px-5 py-3 text-xs font-bold text-tossGray-400">상태</th>
-            <th class="px-5 py-3 text-xs font-bold text-tossGray-400 text-right">관리</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-tossGray-50 dark:divide-white/[0.03]">
-          {% for t in recent_tournaments %}
-          <tr class="hover:bg-tossGray-50 dark:hover:bg-white/[0.02] transition-colors">
-            <td class="px-5 py-3">
-              <span class="text-sm font-bold text-tossGray-900 dark:text-white">{{ t.name|truncatechars:30 }}</span>
-            </td>
-            <td class="px-5 py-3 text-xs text-tossGray-500 font-medium whitespace-nowrap">
-              {{ t.start_date|date:"Y.m.d"|default:"미정" }}
-            </td>
-            <td class="px-5 py-3">
-              <span class="px-2 py-0.5 rounded text-[10px] font-black
-                {% if t.source == 'BAEF' %}bg-violet-50 text-violet-600
-                {% elif t.source == 'WEEKUK' %}bg-orange-50 text-orange-600
-                {% elif t.source == 'SPONET' %}bg-red-50 text-red-600
-                {% elif t.source == 'FACECOK' %}bg-blue-50 text-blue-600
-                {% elif t.source == 'NEARMINTON' %}bg-green-50 text-green-600
-                {% else %}bg-tossGray-100 text-tossGray-500{% endif %}">
-                {{ t.source }}
-              </span>
-            </td>
-            <td class="px-5 py-3">
-              <span class="px-2 py-0.5 rounded text-[10px] font-black
-                {% if t.status == 'draft' %}bg-yellow-50 text-yellow-600
-                {% elif t.status == 'ongoing' %}bg-blue-50 text-blue-600
-                {% else %}bg-tossGray-100 text-tossGray-500{% endif %}">
-                {{ t.get_status_display }}
-              </span>
-            </td>
-            <td class="px-5 py-3 text-right">
-              <div class="flex items-center justify-end gap-2">
-                <a href="{% url 'core:tournament_edit' t.pk %}"
-                   class="px-2.5 py-1 text-xs font-bold bg-tossGray-100 dark:bg-white/10 text-tossGray-600 dark:text-tossGray-300 rounded-lg hover:bg-tossGray-200 transition-colors">
-                  수정
-                </a>
-                <a href="{% url 'core:tournament_delete' t.pk %}"
-                   class="px-2.5 py-1 text-xs font-bold bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors">
-                  삭제
-                </a>
-              </div>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  {# 최근 공지사항 #}
-  <div class="space-y-3">
-    <div class="flex items-center justify-between">
-      <h2 class="text-lg font-black text-tossGray-900 dark:text-white">공지사항</h2>
+      <h2 class="text-base font-black text-tossGray-900 dark:text-white">최근 공지사항</h2>
       <a href="{% url 'core:notice_create' %}"
-         class="text-xs text-tossBlue font-bold hover:underline">+ 작성</a>
+         class="px-3 py-1.5 text-xs font-bold bg-tossGray-100 dark:bg-white/10 text-tossGray-600 dark:text-tossGray-300 rounded-lg hover:bg-tossGray-200 transition-colors">
+        + 작성
+      </a>
     </div>
-
-    <div class="space-y-2">
-      {% for n in recent_notices %}
-      <div class="toss-card !p-4 flex items-center justify-between gap-3">
-        <div class="min-w-0">
-          <span class="text-[10px] font-black px-1.5 py-0.5 rounded mr-2
-            {% if n.is_published %}bg-blue-50 text-blue-600{% else %}bg-tossGray-100 text-tossGray-400{% endif %}">
-            {% if n.is_published %}공개{% else %}비공개{% endif %}
-          </span>
-          <span class="text-sm font-bold text-tossGray-900 dark:text-white">{{ n.title }}</span>
-          <span class="ml-2 text-xs text-tossGray-400">{{ n.publish_at|date:"Y.m.d" }}</span>
-        </div>
-        <div class="flex items-center gap-2 shrink-0">
-          <a href="{% url 'core:notice_edit' n.pk %}"
-             class="px-2.5 py-1 text-xs font-bold bg-tossGray-100 dark:bg-white/10 text-tossGray-600 rounded-lg hover:bg-tossGray-200 transition-colors">
-            수정
-          </a>
-          <a href="{% url 'core:notice_delete' n.pk %}"
-             class="px-2.5 py-1 text-xs font-bold bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors">
-            삭제
-          </a>
-        </div>
+    {% for n in recent_notices %}
+    <div class="flex items-center justify-between gap-3 py-2 border-b border-tossGray-50 dark:border-white/[0.03] last:border-0">
+      <div class="flex items-center gap-2 min-w-0">
+        <span class="shrink-0 text-[10px] font-black px-1.5 py-0.5 rounded
+          {% if n.is_published %}bg-blue-50 text-blue-600{% else %}bg-tossGray-100 text-tossGray-400{% endif %}">
+          {% if n.is_published %}공개{% else %}비공개{% endif %}
+        </span>
+        <span class="text-sm font-bold text-tossGray-800 dark:text-tossGray-200 truncate">{{ n.title }}</span>
+        <span class="text-xs text-tossGray-400 shrink-0">{{ n.publish_at|date:"m.d" }}</span>
       </div>
-      {% endfor %}
+      <div class="flex items-center gap-1.5 shrink-0">
+        <a href="{% url 'core:notice_edit' n.pk %}"
+           class="px-2 py-1 text-xs font-bold text-tossGray-500 hover:text-tossBlue transition-colors">수정</a>
+        <a href="{% url 'core:notice_delete' n.pk %}"
+           class="px-2 py-1 text-xs font-bold text-red-400 hover:text-red-600 transition-colors">삭제</a>
+      </div>
     </div>
+    {% empty %}
+    <p class="text-sm text-tossGray-400 text-center py-4">공지사항이 없습니다.</p>
+    {% endfor %}
+  </div>
+
+  {# 바로가기 #}
+  <div class="grid grid-cols-2 gap-3">
+    <a href="{% url 'core:manage_tournaments' %}"
+       class="toss-card !p-5 flex items-center gap-3 hover:shadow-md transition-shadow">
+      <span class="text-2xl">🏸</span>
+      <div>
+        <div class="text-sm font-black text-tossGray-900 dark:text-white">대회 전체 관리</div>
+        <div class="text-xs text-tossGray-400 mt-0.5">검색·필터·수정·삭제</div>
+      </div>
+    </a>
+    <a href="{% url 'core:tournament_create' %}"
+       class="toss-card !p-5 flex items-center gap-3 hover:shadow-md transition-shadow">
+      <span class="text-2xl">➕</span>
+      <div>
+        <div class="text-sm font-black text-tossGray-900 dark:text-white">대회 추가</div>
+        <div class="text-xs text-tossGray-400 mt-0.5">수동 대회 등록</div>
+      </div>
+    </a>
   </div>
 
 </div>

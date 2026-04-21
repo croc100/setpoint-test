@@ -690,12 +690,44 @@ class ManageDashboardView(AdminRequiredMixin, View):
             'notice_total':       Notice.objects.count(),
             'player_total':       Player.objects.count(),
         }
-        recent_tournaments = Tournament.objects.order_by('-created_at')[:10]
-        recent_notices     = Notice.objects.order_by('-publish_at')[:5]
+        recent_notices = Notice.objects.order_by('-publish_at')[:5]
         return render(request, self.template_name, {
-            'stats':              stats,
-            'recent_tournaments': recent_tournaments,
-            'recent_notices':     recent_notices,
+            'stats':         stats,
+            'recent_notices': recent_notices,
+        })
+
+
+class ManageTournamentListView(AdminRequiredMixin, View):
+    template_name = 'core/manage/tournament_list.html'
+    paginate_by = 20
+
+    def get(self, request):
+        q      = request.GET.get('q', '').strip()
+        source = request.GET.get('source', '').strip()
+        status = request.GET.get('status', '').strip()
+
+        qs = Tournament.objects.order_by('-created_at')
+        if q:
+            qs = qs.filter(name__icontains=q)
+        if source:
+            qs = qs.filter(source=source)
+        if status:
+            qs = qs.filter(status=status)
+
+        paginator   = Paginator(qs, self.paginate_by)
+        page_number = request.GET.get('page', 1)
+        page_obj    = paginator.get_page(page_number)
+
+        return render(request, self.template_name, {
+            'page_obj':    page_obj,
+            'tournaments': page_obj.object_list,
+            'paginator':   paginator,
+            'is_paginated': paginator.num_pages > 1,
+            'q':       q,
+            'source_q': source,
+            'status_q': status,
+            'sources':  list(SOURCE_META.items()),
+            'status_choices': [('draft','검수중'), ('ongoing','진행중'), ('finished','종료')],
         })
 
 

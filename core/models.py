@@ -50,10 +50,15 @@ class Player(models.Model):
     # [SE Fix] 검색 속도 극대화를 위해 db_index 추가
     name = models.CharField(max_length=100, db_index=True)
     club = models.CharField(max_length=100, db_index=True)
-    source = models.CharField(max_length=20, choices=Source.choices) 
-    
+    source = models.CharField(max_length=20, choices=Source.choices)
+
+    # 선수 급수 (가장 최근 대회 기준으로 수집 시 자동 업데이트)
+    # 예: 자강, 준자강, A조, B조, C조, D조, E조, 왕초심, 초심
+    level = models.CharField(max_length=20, blank=True, default='', db_index=True,
+                             help_text="선수 급수 (최근 대회 기준, 예: 자강/A조/B조/C조/D조)")
+
     # [SE Fix] 위꾹처럼 고유 ID가 명확하지 않은 곳을 대비해 null=True 허용, 대신 인덱스 유지
-    external_uid = models.CharField(max_length=100, unique=True, null=True, blank=True, db_index=True) 
+    external_uid = models.CharField(max_length=100, unique=True, null=True, blank=True, db_index=True)
 
     def __str__(self):
         return f"{self.name} ({self.club})"
@@ -77,6 +82,15 @@ class PlayerDailyStats(models.Model):
 
     gain_point = models.IntegerField(default=0, help_text="득실차")
     final_status = models.CharField(max_length=20, null=True, blank=True, help_text="최종 상태 (우승, 본선 진출, 예선 탈락 등)")
+
+    # 복식 파트너 정보 (단식이면 공백)
+    partner_name  = models.CharField(max_length=100, blank=True, default='', help_text="복식 파트너 이름")
+    partner_club  = models.CharField(max_length=100, blank=True, default='', help_text="복식 파트너 동호회")
+    partner_level = models.CharField(max_length=20,  blank=True, default='', help_text="복식 파트너 급수")
+
+    # 팀 식별 (위꾹·배프 team_id, 단식='S'/복식='D' flag)
+    team_id        = models.CharField(max_length=50, blank=True, default='', db_index=True)
+    team_type_flag = models.CharField(max_length=10, blank=True, default='', help_text="S=단식 D=복식 M=혼합복식")
 
     # ==================================================
     # [SE Architecture] Draft & Publish 상태 제어 필드
@@ -126,7 +140,8 @@ class Tournament(models.Model):
     
     external_id = models.CharField(max_length=100, db_index=True, null=True, blank=True)
     external_url = models.URLField(blank=True, max_length=500)
-    stats_collected = models.BooleanField(default=False, help_text="선수 전적 수집 완료 여부")
+    is_stats_fetched = models.BooleanField(default=False, db_index=True, help_text="전적 수집 완료 여부")
+    stats_fetched_at = models.DateTimeField(null=True, blank=True, help_text="전적 수집 완료 시각")
 
     created_at = models.DateTimeField(auto_now_add=True)
 

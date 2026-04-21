@@ -1,0 +1,17 @@
+# setpoint.kr 자동 수집 crontab 설정 예시
+# 적용: crontab -e 후 아래 내용 붙여넣기
+# 경로는 실제 서버 환경에 맞게 수정
+
+VENV=/path/to/.venv/bin/python
+MANAGE=/path/to/manage.py
+LOG=/var/log/setpoint
+
+# [1] 매일 새벽 3시 — 전체 대회 + 선수 수집 (NEARMINTON, FACECOK, WEEKUK, SPONET, BAEF 순)
+0 3 * * * $VENV $MANAGE collect_schedule >> $LOG/collect_daily.log 2>&1
+
+# [2] 매시간 — NEARMINTON 신규 대회만 빠르게 감지 (가볍고 빠름)
+0 * * * * $VENV $MANAGE collect_schedule --source NEARMINTON >> $LOG/collect_nearminton.log 2>&1
+
+# [3] 주 1회 일요일 새벽 2시 — 전체 retry (누락 데이터 보완)
+# 주의: 오래 걸릴 수 있음
+# 0 2 * * 0 $VENV $MANAGE collect_player_stats --retry-failed >> $LOG/collect_retry.log 2>&1

@@ -9,12 +9,15 @@
 #
 
 from django.shortcuts import render
-from django.urls import reverse_lazy 
-from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DetailView 
-from django.contrib.auth.mixins import UserPassesTestMixin 
+from django.urls import reverse_lazy
+from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DetailView, View
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import JsonResponse, Http404
-from django.db.models import Q
+from django.db.models import Q, Prefetch, Count, Sum, FloatField, ExpressionWrapper
+from django.db.models.functions import Coalesce
+from django.core.paginator import Paginator
 from django.utils.dateparse import parse_date
+import datetime
 
 # 모델 임포트
 from .models import PlayerDailyStats, Player, Notice, Tournament, News, FeaturedItem
@@ -170,39 +173,80 @@ class PlayerSearchView(ListView):
     context_object_name = 'results'
     paginate_by = 20
 
+    # 급수 표기는 정규화된 값과 UI 표시값이 다르므로 (value, label) 튜플 사용
+    # 강한 순: S조 > 자강 > 준자강 > A조 > B조 > C조 > D조 > E조 > F조
     FILTER_OPTIONS = {
-        'ages': ['20', '20대', '30', '30대', '40', '40대', '50', '50대', '오픈', '준장년', '초등', '중등', '대학부'],
-        'levels': ['왕초심', '초심', '입문', 'D', 'C', 'B', 'A', 'S'],
-        'genders': [('M', '남성'), ('F', '여성')]
+        'ages': [
+            '20대', '30대', '40대', '50대',
+            '오픈', '준장년', '초등', '중등', '대학부',
+        ],
+        'levels': [
+            ('S조',   'S조'),
+            ('자강',  '자강'),
+            ('준자강','준자강'),
+            ('A조',   'A조'),
+            ('B조',   'B조'),
+            ('C조',   'C조'),
+            ('D조',   'D조'),
+            ('E조',   'E조 (초심)'),
+            ('F조',   'F조 (왕초심)'),
+            ('1부', '1부'), ('2부', '2부'), ('3부', '3부'), ('4부', '4부'),
+        ],
+        'genders': [('남성', '남성'), ('여성', '여성'), ('혼합', '혼합')],
     }
 
     def get_queryset(self):
-        query = self.request.GET.get('q', '').strip()
-        age = self.request.GET.get('age')
-        level = self.request.GET.get('level')
-        gender = self.request.GET.get('gender')
+        query  = self.request.GET.get('q', '').strip()      # 이름 검색
+        club   = self.request.GET.get('club', '').strip()   # 동호회 검색 (별도)
+        age    = self.request.GET.get('age', '').strip()
+        level  = self.request.GET.get('level', '').strip()
+        gender = self.request.GET.get('gender', '').strip()
 
-        if not any([query, age, level, gender]):
+        if not any([query, club, age, level, gender]):
             return Player.objects.none()
 
-        queryset = Player.objects.all()
+        qs = Player.objects.all()
 
         if query:
-            queryset = queryset.filter(Q(name__icontains=query) | Q(club__icontains=query))
-        
-        if age:
-            queryset = queryset.filter(daily_stats__category_age_band__icontains=age)
-        if level:
-            queryset = queryset.filter(daily_stats__category_level__icontains=level)
-        if gender:
-            queryset = queryset.filter(daily_stats__gender=gender)
+            qs = qs.filter(name__icontains=query)
+        if club:
+            qs = qs.filter(club__icontains=club)
 
-        return queryset.distinct().order_by('name')
+        # stat 필터 — 정규화된 값이므로 exact 매칭
+        stat_q = Q()
+        if age:
+            stat_q &= Q(daily_stats__category_age_band__icontains=age)
+        if level:
+            stat_q &= Q(daily_stats__category_level=level)
+        if gender:
+            stat_q &= Q(daily_stats__gender=gender)
+        if stat_q:
+            qs = qs.filter(stat_q)
+
+        # 검색 조건에 맞는 stat만 Prefetch → 템플릿에서 matched_stats.0으로 접근
+        stat_filter = Q()
+        if age:
+            stat_filter &= Q(category_age_band__icontains=age)
+        if level:
+            stat_filter &= Q(category_level=level)
+        if gender:
+            stat_filter &= Q(gender=gender)
+
+        matched_qs = PlayerDailyStats.objects.select_related('tournament').order_by('-date')
+        if stat_filter:
+            matched_qs = matched_qs.filter(stat_filter)
+
+        qs = qs.distinct().prefetch_related(
+            Prefetch('daily_stats', queryset=matched_qs, to_attr='matched_stats')
+        ).order_by('name')
+
+        return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['filters'] = self.FILTER_OPTIONS
-        context['query'] = self.request.GET.get('q', '')
+        context['query']   = self.request.GET.get('q', '')
+        context['club_q']  = self.request.GET.get('club', '')
         return context
     
 class NoticeDetailView(DetailView):
@@ -218,6 +262,254 @@ class NoticeDetailView(DetailView):
         # 일반 유저는 공개된 공지만 볼 수 있습니다.
         return Notice.objects.filter(is_published=True)
     
+
+# ==========================================
+# 5. 대회 목록 / 대회 상세 (Tournament)
+# ==========================================
+SOURCE_META = {
+    'BAEF':       {'label': '배프',   'color': 'violet'},
+    'WEEKUK':     {'label': '위꾹',   'color': 'orange'},
+    'SPONET':     {'label': '스포넷', 'color': 'red'},
+    'FACECOK':    {'label': '페이스콕','color': 'blue'},
+    'NEARMINTON': {'label': '우동배', 'color': 'green'},
+}
+
+class TournamentListView(ListView):
+    model = Tournament
+    template_name = 'core/tournament_list.html'
+    context_object_name = 'tournaments'
+    paginate_by = 20
+
+    def get_queryset(self):
+        today = datetime.date.today()
+        q      = self.request.GET.get('q', '').strip()
+        source = self.request.GET.get('source', '').strip()
+        status = self.request.GET.get('status', '').strip()
+
+        qs = Tournament.objects.filter(start_date__isnull=False).order_by('-start_date')
+
+        if q:
+            qs = qs.filter(name__icontains=q)
+        if source:
+            qs = qs.filter(source=source)
+        if status == 'upcoming':
+            qs = qs.filter(start_date__gte=today)
+        elif status == 'ongoing':
+            qs = qs.filter(start_date__lte=today, end_date__gte=today)
+        elif status == 'finished':
+            qs = qs.filter(end_date__lt=today)
+
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query']        = self.request.GET.get('q', '')
+        context['source_q']     = self.request.GET.get('source', '')
+        context['status_q']     = self.request.GET.get('status', '')
+        context['sources']      = list(SOURCE_META.items())
+        context['status_choices'] = [
+            ('upcoming', '예정'),
+            ('ongoing',  '진행중'),
+            ('finished', '종료'),
+        ]
+        return context
+
+
+class TournamentDetailView(DetailView):
+    model = Tournament
+    template_name = 'core/tournament_detail.html'
+    context_object_name = 'tournament'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        t = self.object
+
+        stats = (
+            PlayerDailyStats.objects
+            .filter(tournament=t)
+            .select_related('player')
+            .order_by('category_age_band', 'category_level', 'gender', 'rank', 'player__name')
+        )
+
+        # 카테고리별 그룹핑
+        from collections import defaultdict, OrderedDict
+        raw = defaultdict(list)
+        for s in stats:
+            gender_label = s.gender or ''
+            age_label    = s.category_age_band or ''
+            level_label  = s.category_level or ''
+            key = f"{gender_label} {age_label} {level_label}".strip() or '기타'
+            raw[key].append(s)
+
+        context['categories']         = dict(raw)
+        context['total_participants'] = stats.count()
+        context['source_meta']        = SOURCE_META.get(t.source, {'label': t.source, 'color': 'gray'})
+        return context
+
+
+# ==========================================
+# 6. 선수 랭킹 (Player Ranking)
+# ==========================================
+class PlayerRankingView(ListView):
+    model = Player
+    template_name = 'core/player_ranking.html'
+    context_object_name = 'players'
+    paginate_by = 50
+
+    LEVEL_OPTIONS = [
+        ('S조',    'S조'),
+        ('자강',   '자강'),
+        ('준자강', '준자강'),
+        ('A조',    'A조'),
+        ('B조',    'B조'),
+        ('C조',    'C조'),
+        ('D조',    'D조'),
+        ('E조',    'E조 (초심)'),
+        ('F조',    'F조 (왕초심)'),
+        ('1부', '1부'), ('2부', '2부'), ('3부', '3부'), ('4부', '4부'),
+    ]
+
+    def get_queryset(self):
+        source = self.request.GET.get('source', '').strip()
+        level  = self.request.GET.get('level', '').strip()
+        sort   = self.request.GET.get('sort', 'tournaments')
+
+        qs = Player.objects.annotate(
+            total_tournaments=Count('daily_stats', distinct=True),
+            total_wins=Coalesce(Sum('daily_stats__win_count'), 0),
+            total_losses=Coalesce(Sum('daily_stats__loss_count'), 0),
+            medal_count=Count(
+                'daily_stats',
+                filter=Q(daily_stats__final_status__in=['우승', '준우승', '3위'])
+            ),
+        ).filter(total_tournaments__gt=0)
+
+        if source:
+            qs = qs.filter(source=source)
+        if level:
+            qs = qs.filter(level=level)
+
+        if sort == 'medals':
+            qs = qs.order_by('-medal_count', '-total_tournaments')
+        elif sort == 'wins':
+            qs = qs.order_by('-total_wins', '-total_tournaments')
+        else:  # tournaments (기본)
+            qs = qs.order_by('-total_tournaments', '-total_wins')
+
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['source_q']    = self.request.GET.get('source', '')
+        context['level_q']     = self.request.GET.get('level', '')
+        context['sort_q']      = self.request.GET.get('sort', 'tournaments')
+        context['sources']     = list(SOURCE_META.items())
+        context['levels']      = self.LEVEL_OPTIONS
+        context['sort_options'] = [
+            ('tournaments', '출전 많은 순'),
+            ('medals',      '입상 많은 순'),
+            ('wins',        '승리 많은 순'),
+        ]
+        # 랭킹 오프셋 (페이지네이션 고려)
+        page = self.request.GET.get('page', 1)
+        try:
+            page = int(page)
+        except (ValueError, TypeError):
+            page = 1
+        context['rank_offset'] = (page - 1) * self.paginate_by
+        return context
+
+
+# ==========================================
+# 7. 동호회 랭킹 (Club Ranking)
+# ==========================================
+class ClubRankingView(View):
+    template_name = 'core/club_ranking.html'
+    paginate_by = 50
+
+    AGE_OPTIONS   = ['20대', '30대', '40대', '50대', '오픈', '준장년', '초등', '중등', '대학부']
+    # 강한 순 정렬
+    LEVEL_OPTIONS = [
+        ('S조',    'S조'),
+        ('자강',   '자강'),
+        ('준자강', '준자강'),
+        ('A조',    'A조'),
+        ('B조',    'B조'),
+        ('C조',    'C조'),
+        ('D조',    'D조'),
+        ('E조',    'E조 (초심)'),
+        ('F조',    'F조 (왕초심)'),
+        ('1부', '1부'), ('2부', '2부'), ('3부', '3부'), ('4부', '4부'),
+    ]
+    SORT_OPTIONS  = [
+        ('medals',  '입상 많은 순'),
+        ('gold',    '우승 많은 순'),
+        ('entries', '출전 많은 순'),
+        ('players', '선수 많은 순'),
+    ]
+
+    def get(self, request):
+        source = request.GET.get('source', '').strip()
+        age    = request.GET.get('age', '').strip()
+        level  = request.GET.get('level', '').strip()
+        sort   = request.GET.get('sort', 'medals')
+
+        qs = PlayerDailyStats.objects.exclude(player__club='')
+
+        if source:
+            qs = qs.filter(player__source=source)
+        if age:
+            qs = qs.filter(category_age_band__icontains=age)
+        if level:
+            qs = qs.filter(category_level=level)
+
+        clubs = (
+            qs.values('player__club', 'player__source')
+            .annotate(
+                player_count = Count('player', distinct=True),
+                entry_count  = Count('id'),
+                gold_count   = Count('id', filter=Q(final_status='우승')),
+                medal_count  = Count('id', filter=Q(
+                    final_status__in=['우승', '준우승', '3위']
+                )),
+            )
+            .filter(entry_count__gte=1)
+        )
+
+        if sort == 'gold':
+            clubs = clubs.order_by('-gold_count', '-medal_count', '-entry_count')
+        elif sort == 'entries':
+            clubs = clubs.order_by('-entry_count', '-medal_count')
+        elif sort == 'players':
+            clubs = clubs.order_by('-player_count', '-medal_count')
+        else:  # medals (기본)
+            clubs = clubs.order_by('-medal_count', '-gold_count', '-entry_count')
+
+        page_number = request.GET.get('page', 1)
+        try:
+            page_number = int(page_number)
+        except (ValueError, TypeError):
+            page_number = 1
+
+        paginator = Paginator(clubs, self.paginate_by)
+        page_obj  = paginator.get_page(page_number)
+
+        return render(request, self.template_name, {
+            'page_obj':     page_obj,
+            'clubs':        page_obj.object_list,
+            'paginator':    paginator,
+            'is_paginated': paginator.num_pages > 1,
+            'source_q':     source,
+            'age_q':        age,
+            'level_q':      level,
+            'sort_q':       sort,
+            'sources':      list(SOURCE_META.items()),
+            'ages':         self.AGE_OPTIONS,
+            'levels':       self.LEVEL_OPTIONS,
+            'sort_options': self.SORT_OPTIONS,
+            'rank_offset':  (page_number - 1) * self.paginate_by,
+        })
+
 
 class PlayerDetailView(DetailView):
     """선수 상세 전적 페이지 (조별 상세 매치 데이터 포함)"""
@@ -240,7 +532,12 @@ class PlayerDetailView(DetailView):
             # 1. 누적 데이터 합산
             total_wins += stat.win_count
             total_losses += stat.loss_count
-            if stat.rank and stat.rank <= 3:
+            # rank는 CharField — int 변환 후 비교
+            try:
+                rank_int = int(stat.rank) if stat.rank else None
+            except (ValueError, TypeError):
+                rank_int = None
+            if rank_int and rank_int <= 3:
                 total_medals += 1
                 
             # 2. 파이프라인에서 수집한 데이터 가공 (프론트엔드 포맷팅)
@@ -266,16 +563,17 @@ class PlayerDetailView(DetailView):
             
             # [핵심] final_status 계산 로직
             # DB에 명시적 필드가 없다면 득실과 랭크를 기반으로 자동 추론
-            if not hasattr(stat, 'final_status') or not stat.final_status:
-                if stat.rank == 1:
+            if not stat.final_status:
+                if rank_int == 1:
                     stat.final_status = '우승'
-                elif stat.rank and stat.rank > 0:
+                elif rank_int and rank_int <= 4:
+                    stat.final_status = '입상'
+                elif rank_int:
                     stat.final_status = '본선 진출'
                 elif stat.win_count > 0 or stat.loss_count > 0:
-                    # 경기는 뛰었는데 랭크(입상)가 없다면 예선 탈락이거나 본선 초반 탈락
-                    stat.final_status = '예선 탈락' 
+                    stat.final_status = '예선 탈락'
                 else:
-                    stat.final_status = '출전 예정 / 기록 없음'
+                    stat.final_status = '기록 없음'
             
             processed_stats.append(stat)
             

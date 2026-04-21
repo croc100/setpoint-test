@@ -199,6 +199,10 @@ def collect_tournaments(max_pages: int = 1, known_ids: set = None):
             "source": t.source
         })
 
+    if not final_list:
+        print("[!] 모두 이미 수집된 위꾹 대회입니다 (증분 모드).")
+        return []
+
     print(f"\n[+] 수집된 첫 번째 대회 샘플: {final_list[0]['name']} | {final_list[0]['start_date']} | {final_list[0]['venue'][:15]}")
 
     # [핵심 변경 사항] 개별 JSON 파일 저장 로직을 제거하고, base.py로 데이터를 반환합니다.

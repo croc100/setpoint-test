@@ -1,0 +1,156 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}대회 검색{% endblock %}
+
+{% block content %}
+<section class="py-4 space-y-2">
+    <h1 class="toss-title">대회 검색</h1>
+    <p class="text-sm font-medium text-tossGray-500">전국 배드민턴 대회를 검색하고 결과를 확인하세요.</p>
+</section>
+
+{# ── 검색 폼 ── #}
+<form method="get" class="space-y-3">
+    <div class="relative">
+        <input type="text" name="q" value="{{ query }}"
+               placeholder="대회명으로 검색 (예: 전국 동호인, 우동배...)"
+               class="w-full h-12 px-5 pr-12 bg-white dark:bg-zinc-800 rounded-2xl border border-transparent focus:border-tossBlue outline-none shadow-sm transition-all text-sm font-medium">
+        <button type="submit" class="absolute right-4 top-3 text-tossGray-400 hover:text-tossBlue transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+        </button>
+    </div>
+
+    {# 상태 필터 #}
+    <div class="flex gap-2 flex-wrap">
+        {% for val, label in status_choices %}
+        <a href="?{% if query %}q={{ query|urlencode }}&{% endif %}{% if source_q %}source={{ source_q }}&{% endif %}status={{ val }}"
+           class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all
+           {% if status_q == val %}bg-tossBlue text-white shadow-lg shadow-tossBlue/20
+           {% else %}bg-white dark:bg-zinc-800 text-tossGray-500 hover:bg-tossGray-100 dark:hover:bg-white/10{% endif %}">
+            {{ label }}
+        </a>
+        {% endfor %}
+    </div>
+
+    {# 플랫폼 필터 #}
+    <div class="flex gap-2 flex-wrap">
+        <a href="?{% if query %}q={{ query|urlencode }}&{% endif %}{% if status_q %}status={{ status_q }}{% endif %}"
+           class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all
+           {% if not source_q %}bg-tossGray-800 text-white dark:bg-white dark:text-tossGray-900
+           {% else %}bg-white dark:bg-zinc-800 text-tossGray-500 hover:bg-tossGray-100 dark:hover:bg-white/10{% endif %}">
+            전체
+        </a>
+        {% for src, meta in sources %}
+        <a href="?{% if query %}q={{ query|urlencode }}&{% endif %}{% if status_q %}status={{ status_q }}&{% endif %}source={{ src }}"
+           class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all
+           {% if source_q == src %}
+               {% if src == 'BAEF' %}bg-violet-500 text-white
+               {% elif src == 'WEEKUK' %}bg-orange-500 text-white
+               {% elif src == 'SPONET' %}bg-red-500 text-white
+               {% elif src == 'FACECOK' %}bg-blue-600 text-white
+               {% elif src == 'NEARMINTON' %}bg-green-600 text-white
+               {% endif %}
+           {% else %}bg-white dark:bg-zinc-800 text-tossGray-500 hover:bg-tossGray-100 dark:hover:bg-white/10{% endif %}">
+            <span class="inline-block w-1.5 h-1.5 rounded-full mr-1
+                {% if src == 'BAEF' %}bg-violet-500
+                {% elif src == 'WEEKUK' %}bg-orange-500
+                {% elif src == 'SPONET' %}bg-red-500
+                {% elif src == 'FACECOK' %}bg-blue-600
+                {% elif src == 'NEARMINTON' %}bg-green-600
+                {% else %}bg-tossGray-400{% endif %}
+                {% if source_q == src %}!bg-white{% endif %}"></span>
+            {{ meta.label }}
+        </a>
+        {% endfor %}
+    </div>
+</form>
+
+{# ── 결과 목록 ── #}
+<div class="space-y-3 pt-2">
+    {% if tournaments %}
+        <p class="text-xs font-bold text-tossGray-400 px-1">총 {{ paginator.count }}개 대회</p>
+
+        {% for t in tournaments %}
+        <div class="toss-card group hover:shadow-md transition-all">
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex items-start gap-4 min-w-0">
+                    {# 플랫폼 뱃지 #}
+                    <div class="w-11 h-11 rounded-xl flex items-center justify-center text-[9px] font-black shrink-0
+                        {% if t.source == 'BAEF' %}bg-violet-50 text-violet-600 dark:bg-violet-900/20 dark:text-violet-400
+                        {% elif t.source == 'WEEKUK' %}bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400
+                        {% elif t.source == 'SPONET' %}bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400
+                        {% elif t.source == 'FACECOK' %}bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400
+                        {% elif t.source == 'NEARMINTON' %}bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400
+                        {% else %}bg-tossGray-100 text-tossGray-500{% endif %}">
+                        {% if t.source == 'BAEF' %}배프
+                        {% elif t.source == 'WEEKUK' %}위꾹
+                        {% elif t.source == 'SPONET' %}스포넷
+                        {% elif t.source == 'FACECOK' %}페이스콕
+                        {% elif t.source == 'NEARMINTON' %}우동배
+                        {% else %}{{ t.source }}{% endif %}
+                    </div>
+
+                    <div class="min-w-0">
+                        <a href="{% url 'core:tournament_detail' t.pk %}"
+                           class="text-[15px] font-bold text-tossGray-900 dark:text-white group-hover:text-tossBlue transition-colors leading-snug block truncate">
+                            {{ t.name }}
+                        </a>
+                        <div class="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium text-tossGray-500">
+                            <span>
+                                {{ t.start_date|date:"Y.m.d" }}
+                                {% if t.end_date and t.start_date != t.end_date %} ~ {{ t.end_date|date:"m.d" }}{% endif %}
+                            </span>
+                            {% if t.region %}
+                            <span class="w-1 h-1 rounded-full bg-tossGray-300 inline-block"></span>
+                            <span>{{ t.region }}</span>
+                            {% endif %}
+                            {% if t.is_stats_fetched %}
+                            <span class="w-1 h-1 rounded-full bg-tossGray-300 inline-block"></span>
+                            <span class="text-tossBlue font-bold">전적 수집 완료</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0">
+                    <a href="{% url 'core:tournament_detail' t.pk %}"
+                       class="px-3 py-1.5 bg-tossBlue/10 text-tossBlue hover:bg-tossBlue hover:text-white rounded-xl text-xs font-bold transition-colors">
+                        상세보기
+                    </a>
+                    {% if t.external_url %}
+                    <a href="{{ t.external_url }}" target="_blank" rel="noopener noreferrer"
+                       class="px-3 py-1.5 bg-tossGray-100 dark:bg-white/10 text-tossGray-600 dark:text-tossGray-300 hover:bg-tossGray-200 dark:hover:bg-white/20 rounded-xl text-xs font-bold transition-colors">
+                        원문
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {# 페이지네이션 #}
+        {% if is_paginated %}
+        <nav class="flex justify-center items-center gap-4 py-8">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query|urlencode }}{% endif %}{% if source_q %}&source={{ source_q }}{% endif %}{% if status_q %}&status={{ status_q }}{% endif %}"
+               class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-zinc-800 shadow-sm text-tossGray-500 hover:text-tossBlue transition-colors">←</a>
+            {% endif %}
+            <span class="text-sm font-bold text-tossGray-900 dark:text-white">{{ page_obj.number }} / {{ paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query|urlencode }}{% endif %}{% if source_q %}&source={{ source_q }}{% endif %}{% if status_q %}&status={{ status_q }}{% endif %}"
+               class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-zinc-800 shadow-sm text-tossGray-500 hover:text-tossBlue transition-colors">→</a>
+            {% endif %}
+        </nav>
+        {% endif %}
+
+    {% else %}
+        <div class="toss-card text-center py-20">
+            <div class="text-4xl mb-3">🏸</div>
+            <p class="text-tossGray-500 font-bold">검색 결과가 없습니다.</p>
+            <p class="text-xs text-tossGray-400 mt-2">다른 검색어나 필터를 사용해보세요.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

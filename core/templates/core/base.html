@@ -112,6 +112,8 @@
                 
                 <nav class="hidden md:flex items-center gap-1 ml-4">
                     <a href="{% url 'core:player_search' %}" class="px-4 py-2 text-sm font-semibold hover:text-tossBlue">선수검색</a>
+                    <a href="{% url 'core:player_ranking' %}" class="px-4 py-2 text-sm font-semibold hover:text-tossBlue">동호회 랭킹</a>
+                    <a href="{% url 'core:tournament_list' %}" class="px-4 py-2 text-sm font-semibold hover:text-tossBlue">대회</a>
                     <a href="{% url 'core:calendar' %}" class="px-4 py-2 text-sm font-semibold hover:text-tossBlue">캘린더</a>
                     {% if user.is_authenticated %}
                         <form action="{% url 'core:logout' %}" method="post" class="inline ml-2">
@@ -155,11 +157,14 @@
             <a href="{% url 'core:player_search' %}" class="flex flex-col items-center gap-1">
                 <span class="text-[10px] font-bold text-tossGray-500">선수검색</span>
             </a>
+            <a href="{% url 'core:tournament_list' %}" class="flex flex-col items-center gap-1">
+                <span class="text-[10px] font-bold text-tossGray-500">대회</span>
+            </a>
+            <a href="{% url 'core:player_ranking' %}" class="flex flex-col items-center gap-1">
+                <span class="text-[10px] font-bold text-tossGray-500">동호회</span>
+            </a>
             <a href="{% url 'core:calendar' %}" class="flex flex-col items-center gap-1">
                 <span class="text-[10px] font-bold text-tossGray-500">캘린더</span>
-            </a>
-            <a href="{% url 'core:notice_list' %}" class="flex flex-col items-center gap-1">
-                <span class="text-[10px] font-bold text-tossGray-500">공지</span>
             </a>
         </div>
     </nav>

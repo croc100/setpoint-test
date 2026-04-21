@@ -1,0 +1,195 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}선수 랭킹{% endblock %}
+
+{% block content %}
+<section class="py-4 space-y-2">
+    <h1 class="toss-title">선수 랭킹</h1>
+    <p class="text-sm font-medium text-tossGray-500">대회 전적 기반 실시간 랭킹입니다.</p>
+</section>
+
+{# ── 필터 ── #}
+<form method="get" class="space-y-3">
+    {# 정렬 기준 #}
+    <div class="flex gap-2 flex-wrap">
+        {% for val, label in sort_options %}
+        <a href="?sort={{ val }}{% if source_q %}&source={{ source_q }}{% endif %}{% if level_q %}&level={{ level_q }}{% endif %}"
+           class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all
+           {% if sort_q == val %}bg-tossBlue text-white shadow-lg shadow-tossBlue/20
+           {% else %}bg-white dark:bg-zinc-800 text-tossGray-500 hover:bg-tossGray-100 dark:hover:bg-white/10{% endif %}">
+            {{ label }}
+        </a>
+        {% endfor %}
+    </div>
+
+    {# 플랫폼 필터 #}
+    <div class="flex gap-2 flex-wrap">
+        <a href="?sort={{ sort_q }}{% if level_q %}&level={{ level_q }}{% endif %}"
+           class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all
+           {% if not source_q %}bg-tossGray-800 text-white dark:bg-white dark:text-tossGray-900
+           {% else %}bg-white dark:bg-zinc-800 text-tossGray-500 hover:bg-tossGray-100 dark:hover:bg-white/10{% endif %}">
+            전체 플랫폼
+        </a>
+        {% for src, meta in sources %}
+        <a href="?sort={{ sort_q }}&source={{ src }}{% if level_q %}&level={{ level_q }}{% endif %}"
+           class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all
+           {% if source_q == src %}
+               {% if src == 'BAEF' %}bg-violet-500 text-white
+               {% elif src == 'WEEKUK' %}bg-orange-500 text-white
+               {% elif src == 'SPONET' %}bg-red-500 text-white
+               {% elif src == 'FACECOK' %}bg-blue-600 text-white
+               {% elif src == 'NEARMINTON' %}bg-green-600 text-white
+               {% endif %}
+           {% else %}bg-white dark:bg-zinc-800 text-tossGray-500 hover:bg-tossGray-100 dark:hover:bg-white/10{% endif %}">
+            <span class="inline-block w-1.5 h-1.5 rounded-full mr-1 align-middle
+                {% if src == 'BAEF' %}bg-violet-500
+                {% elif src == 'WEEKUK' %}bg-orange-500
+                {% elif src == 'SPONET' %}bg-red-500
+                {% elif src == 'FACECOK' %}bg-blue-600
+                {% elif src == 'NEARMINTON' %}bg-green-600
+                {% else %}bg-tossGray-400{% endif %}
+                {% if source_q == src %}!bg-white{% endif %}"></span>
+            {{ meta.label }}
+        </a>
+        {% endfor %}
+    </div>
+
+    {# 급수 필터 #}
+    <div class="flex gap-2 flex-wrap">
+        <a href="?sort={{ sort_q }}{% if source_q %}&source={{ source_q }}{% endif %}"
+           class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all
+           {% if not level_q %}bg-tossGray-800 text-white dark:bg-white dark:text-tossGray-900
+           {% else %}bg-white dark:bg-zinc-800 text-tossGray-500 hover:bg-tossGray-100 dark:hover:bg-white/10{% endif %}">
+            전체 급수
+        </a>
+        {% for val, label in levels %}
+        <a href="?sort={{ sort_q }}{% if source_q %}&source={{ source_q }}{% endif %}&level={{ val }}"
+           class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all
+           {% if level_q == val %}bg-tossGray-700 text-white dark:bg-white dark:text-tossGray-900
+           {% else %}bg-white dark:bg-zinc-800 text-tossGray-500 hover:bg-tossGray-100 dark:hover:bg-white/10{% endif %}">
+            {{ label }}
+        </a>
+        {% endfor %}
+    </div>
+</form>
+
+{# ── 랭킹 테이블 ── #}
+{% if players %}
+<div class="toss-card !p-0 overflow-hidden overflow-x-auto no-scrollbar mt-2">
+    <table class="w-full text-left border-collapse min-w-[600px]">
+        <thead class="bg-tossGray-50 dark:bg-white/5 border-b border-tossGray-100 dark:border-white/5">
+            <tr>
+                <th class="px-5 py-4 text-xs font-bold text-tossGray-400 w-14">순위</th>
+                <th class="px-5 py-4 text-xs font-bold text-tossGray-400">선수</th>
+                <th class="px-5 py-4 text-xs font-bold text-tossGray-400 text-center">출전</th>
+                <th class="px-5 py-4 text-xs font-bold text-tossGray-400 text-center">입상</th>
+                <th class="px-5 py-4 text-xs font-bold text-tossGray-400 text-center">승 / 패</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-tossGray-50 dark:divide-white/[0.03]">
+            {% for player in players %}
+            {% with rank=forloop.counter|add:rank_offset %}
+            <tr class="hover:bg-tossGray-50 dark:hover:bg-white/[0.02] transition-colors">
+                {# 순위 #}
+                <td class="px-5 py-4 text-center">
+                    {% if rank == 1 %}
+                        <span class="text-xl">🥇</span>
+                    {% elif rank == 2 %}
+                        <span class="text-xl">🥈</span>
+                    {% elif rank == 3 %}
+                        <span class="text-xl">🥉</span>
+                    {% else %}
+                        <span class="text-sm font-black text-tossGray-400">{{ rank }}</span>
+                    {% endif %}
+                </td>
+
+                {# 선수 정보 #}
+                <td class="px-5 py-4">
+                    <a href="{% url 'core:player_detail' player.pk %}" class="group block">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-[15px] font-bold text-tossGray-900 dark:text-white group-hover:text-tossBlue transition-colors">
+                                {{ player.name }}
+                            </span>
+                            {% if player.level %}
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-black bg-tossGray-100 dark:bg-white/10 text-tossGray-500 dark:text-tossGray-400">
+                                {{ player.level }}
+                            </span>
+                            {% endif %}
+                            {# 플랫폼 뱃지 #}
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-black
+                                {% if player.source == 'BAEF' %}bg-violet-50 text-violet-600 dark:bg-violet-900/20 dark:text-violet-400
+                                {% elif player.source == 'WEEKUK' %}bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400
+                                {% elif player.source == 'SPONET' %}bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400
+                                {% elif player.source == 'FACECOK' %}bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400
+                                {% elif player.source == 'NEARMINTON' %}bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400
+                                {% else %}bg-tossGray-100 text-tossGray-500{% endif %}">
+                                {% if player.source == 'BAEF' %}배프
+                                {% elif player.source == 'WEEKUK' %}위꾹
+                                {% elif player.source == 'SPONET' %}스포넷
+                                {% elif player.source == 'FACECOK' %}페이스콕
+                                {% elif player.source == 'NEARMINTON' %}우동배
+                                {% else %}{{ player.source }}{% endif %}
+                            </span>
+                        </div>
+                        {% if player.club %}
+                        <div class="text-xs text-tossGray-400 mt-0.5 font-medium">{{ player.club }}</div>
+                        {% endif %}
+                    </a>
+                </td>
+
+                {# 출전 횟수 #}
+                <td class="px-5 py-4 text-center">
+                    <span class="text-sm font-black text-tossGray-800 dark:text-tossGray-200">{{ player.total_tournaments }}</span>
+                    <span class="text-xs text-tossGray-400">회</span>
+                </td>
+
+                {# 입상 #}
+                <td class="px-5 py-4 text-center">
+                    {% if player.medal_count > 0 %}
+                    <span class="text-sm font-black text-yellow-500">{{ player.medal_count }}</span>
+                    <span class="text-xs text-tossGray-400">회</span>
+                    {% else %}
+                    <span class="text-xs text-tossGray-300">-</span>
+                    {% endif %}
+                </td>
+
+                {# 승/패 #}
+                <td class="px-5 py-4 text-center">
+                    <span class="text-sm font-black">
+                        <span class="text-red-500">{{ player.total_wins }}</span>
+                        <span class="text-tossGray-300 mx-0.5">/</span>
+                        <span class="text-tossBlue">{{ player.total_losses }}</span>
+                    </span>
+                </td>
+            </tr>
+            {% endwith %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{# 페이지네이션 #}
+{% if is_paginated %}
+<nav class="flex justify-center items-center gap-4 py-8">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}&sort={{ sort_q }}{% if source_q %}&source={{ source_q }}{% endif %}{% if level_q %}&level={{ level_q }}{% endif %}"
+       class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-zinc-800 shadow-sm text-tossGray-500 hover:text-tossBlue transition-colors">←</a>
+    {% endif %}
+    <span class="text-sm font-bold text-tossGray-900 dark:text-white">{{ page_obj.number }} / {{ paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}&sort={{ sort_q }}{% if source_q %}&source={{ source_q }}{% endif %}{% if level_q %}&level={{ level_q }}{% endif %}"
+       class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-zinc-800 shadow-sm text-tossGray-500 hover:text-tossBlue transition-colors">→</a>
+    {% endif %}
+</nav>
+{% endif %}
+
+{% else %}
+<div class="toss-card text-center py-20 mt-2">
+    <div class="text-4xl mb-3">🏸</div>
+    <p class="text-tossGray-500 font-bold">랭킹 데이터가 없습니다.</p>
+    <p class="text-xs text-tossGray-400 mt-2">필터 조건을 바꿔보세요.</p>
+</div>
+{% endif %}
+
+{% endblock %}

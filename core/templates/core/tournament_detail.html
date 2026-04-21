@@ -1,0 +1,167 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ tournament.name }}{% endblock %}
+
+{% block content %}
+<section class="py-4 space-y-6 max-w-4xl mx-auto">
+
+    {# 뒤로가기 #}
+    <a href="javascript:history.back()" class="inline-flex items-center text-sm font-bold text-tossGray-500 hover:text-tossBlue transition-colors">
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        대회 목록
+    </a>
+
+    {# ── 대회 헤더 ── #}
+    <div class="toss-card space-y-4">
+        <div class="flex items-start justify-between gap-4 flex-wrap">
+            <div class="space-y-2">
+                {# 플랫폼 뱃지 #}
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black
+                    {% if tournament.source == 'BAEF' %}bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300
+                    {% elif tournament.source == 'WEEKUK' %}bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300
+                    {% elif tournament.source == 'SPONET' %}bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300
+                    {% elif tournament.source == 'FACECOK' %}bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300
+                    {% elif tournament.source == 'NEARMINTON' %}bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300
+                    {% else %}bg-tossGray-100 text-tossGray-500{% endif %}">
+                    <span class="w-1.5 h-1.5 rounded-full
+                        {% if tournament.source == 'BAEF' %}bg-violet-500
+                        {% elif tournament.source == 'WEEKUK' %}bg-orange-500
+                        {% elif tournament.source == 'SPONET' %}bg-red-500
+                        {% elif tournament.source == 'FACECOK' %}bg-blue-600
+                        {% elif tournament.source == 'NEARMINTON' %}bg-green-600
+                        {% else %}bg-tossGray-400{% endif %}"></span>
+                    {{ source_meta.label }}
+                </span>
+
+                <h1 class="text-2xl font-black text-tossGray-900 dark:text-white tracking-tight leading-tight">
+                    {{ tournament.name }}
+                </h1>
+
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium text-tossGray-500">
+                    {% if tournament.start_date %}
+                    <span>📅 {{ tournament.start_date|date:"Y.m.d" }}
+                        {% if tournament.end_date and tournament.start_date != tournament.end_date %}
+                        ~ {{ tournament.end_date|date:"m.d" }}
+                        {% endif %}
+                    </span>
+                    {% endif %}
+                    {% if tournament.region %}
+                    <span>📍 {{ tournament.region }}</span>
+                    {% endif %}
+                    {% if tournament.venue %}
+                    <span>🏟️ {{ tournament.venue }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if tournament.external_url %}
+            <a href="{{ tournament.external_url }}" target="_blank" rel="noopener noreferrer"
+               class="shrink-0 inline-flex items-center gap-1.5 px-5 py-2.5 bg-tossBlue text-white rounded-xl text-sm font-bold hover:bg-tossBlue/90 transition-colors shadow-sm">
+                원문 보기
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                </svg>
+            </a>
+            {% endif %}
+        </div>
+
+        {# 요약 통계 #}
+        {% if total_participants > 0 %}
+        <div class="pt-3 border-t border-tossGray-100 dark:border-white/5 flex items-center gap-6 text-sm">
+            <div>
+                <span class="text-tossGray-400 font-medium">참가 선수</span>
+                <span class="ml-2 font-black text-tossGray-900 dark:text-white">{{ total_participants }}명</span>
+            </div>
+            <div>
+                <span class="text-tossGray-400 font-medium">카테고리</span>
+                <span class="ml-2 font-black text-tossGray-900 dark:text-white">{{ categories|length }}개</span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    {# ── 카테고리별 결과 ── #}
+    {% if categories %}
+    <div class="space-y-4">
+        <h2 class="text-lg font-black text-tossGray-900 dark:text-white">카테고리별 결과</h2>
+
+        {% for category_name, stat_list in categories.items %}
+        <div class="toss-card !p-0 overflow-hidden">
+            {# 카테고리 헤더 #}
+            <div class="px-5 py-3 bg-tossGray-50 dark:bg-white/5 border-b border-tossGray-100 dark:border-white/5 flex items-center justify-between">
+                <h3 class="text-sm font-black text-tossGray-800 dark:text-tossGray-200">{{ category_name }}</h3>
+                <span class="text-xs font-bold text-tossGray-400">{{ stat_list|length }}명</span>
+            </div>
+
+            {# 선수 목록 #}
+            <div class="divide-y divide-tossGray-50 dark:divide-white/[0.03]">
+                {% for stat in stat_list %}
+                <div class="px-5 py-3 flex items-center justify-between gap-4 hover:bg-tossGray-50 dark:hover:bg-white/[0.02] transition-colors">
+                    <div class="flex items-center gap-3 min-w-0">
+                        {# 순위 뱃지 #}
+                        <div class="w-8 text-center shrink-0">
+                            {% if stat.final_status == '우승' %}
+                                <span class="text-base">🏆</span>
+                            {% elif stat.final_status == '준우승' %}
+                                <span class="text-base">🥈</span>
+                            {% elif stat.final_status == '3위' %}
+                                <span class="text-base">🥉</span>
+                            {% elif stat.rank %}
+                                <span class="text-xs font-black text-tossGray-400">{{ stat.rank }}</span>
+                            {% else %}
+                                <span class="text-xs text-tossGray-300">-</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="min-w-0">
+                            <a href="{% url 'core:player_detail' stat.player.pk %}"
+                               class="text-sm font-bold text-tossGray-900 dark:text-white hover:text-tossBlue transition-colors">
+                                {{ stat.player.name }}
+                            </a>
+                            {% if stat.player.club %}
+                            <span class="ml-1.5 text-xs text-tossGray-400">{{ stat.player.club }}</span>
+                            {% endif %}
+                            {% if stat.partner_name %}
+                            <div class="text-xs text-tossGray-400 mt-0.5">
+                                파트너: <span class="font-medium text-tossGray-600 dark:text-tossGray-300">{{ stat.partner_name }}</span>
+                                {% if stat.partner_club %}<span class="text-tossGray-400">({{ stat.partner_club }})</span>{% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3 shrink-0 text-xs font-bold">
+                        {% if stat.final_status %}
+                        <span class="
+                            {% if stat.final_status == '우승' %}text-yellow-600
+                            {% elif stat.final_status == '준우승' %}text-tossGray-500
+                            {% elif stat.final_status == '3위' %}text-orange-500
+                            {% elif stat.final_status == '본선 진출' or stat.final_status == '본선진출' %}text-tossBlue
+                            {% else %}text-tossGray-400{% endif %}">
+                            {{ stat.final_status }}
+                        </span>
+                        {% endif %}
+                        <span class="text-tossGray-400">
+                            <span class="text-red-500">{{ stat.win_count }}승</span>/<span class="text-tossBlue">{{ stat.loss_count }}패</span>
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="toss-card text-center py-20">
+        <div class="text-4xl mb-3">🏸</div>
+        <p class="text-tossGray-500 font-bold">아직 수집된 전적 데이터가 없습니다.</p>
+        <p class="text-xs text-tossGray-400 mt-2">대회 종료 후 자동으로 수집됩니다.</p>
+    </div>
+    {% endif %}
+
+</section>
+{% endblock %}

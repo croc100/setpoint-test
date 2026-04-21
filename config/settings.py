@@ -176,6 +176,9 @@ SOCIALACCOUNT_PROVIDERS = {
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 
+# GET 요청으로 바로 카카오로 이동 (중간 확인 페이지 스킵)
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
 # 커스텀 어댑터
 ACCOUNT_ADAPTER = 'core.adapters.AccountAdapter'
 SOCIALACCOUNT_ADAPTER = 'core.adapters.SocialAccountAdapter'

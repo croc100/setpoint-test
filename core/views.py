@@ -511,6 +511,77 @@ class ClubRankingView(View):
         })
 
 
+# ==========================================
+# 8. 동호회 상세 (Club Detail)
+# ==========================================
+class ClubDetailView(View):
+    template_name = 'core/club_detail.html'
+
+    def get(self, request):
+        source = request.GET.get('source', '').strip()
+        club   = request.GET.get('club',   '').strip()
+
+        if not source or not club:
+            raise Http404("동호회 정보가 없습니다.")
+
+        # ── 소속 선수 목록 (입상 > 출전 순) ──
+        members = (
+            Player.objects.filter(source=source, club=club)
+            .annotate(
+                entry_count  = Count('daily_stats'),
+                gold_count   = Count('daily_stats', filter=Q(daily_stats__final_status='우승')),
+                medal_count  = Count('daily_stats', filter=Q(
+                    daily_stats__final_status__in=['우승', '준우승', '3위']
+                )),
+            )
+            .order_by('-medal_count', '-entry_count')
+        )
+
+        # ── 최근 참가 대회 (최신 대회 10개) ──
+        recent_raw = (
+            PlayerDailyStats.objects
+            .filter(player__source=source, player__club=club)
+            .select_related('tournament', 'player')
+            .order_by('-date')[:60]
+        )
+
+        from collections import OrderedDict
+        recent_tournaments = OrderedDict()
+        for s in recent_raw:
+            tid = s.tournament_id
+            if tid not in recent_tournaments:
+                if len(recent_tournaments) >= 10:
+                    break
+                recent_tournaments[tid] = {
+                    'tournament': s.tournament,
+                    'results':   [],
+                }
+            recent_tournaments[tid]['results'].append(s)
+
+        # ── 전체 집계 ──
+        totals = (
+            PlayerDailyStats.objects
+            .filter(player__source=source, player__club=club)
+            .aggregate(
+                total_entries = Count('id'),
+                total_players = Count('player', distinct=True),
+                gold_count    = Count('id', filter=Q(final_status='우승')),
+                medal_count   = Count('id', filter=Q(
+                    final_status__in=['우승', '준우승', '3위']
+                )),
+            )
+        )
+
+        return render(request, self.template_name, {
+            'club':               club,
+            'source':             source,
+            'source_meta':        SOURCE_META.get(source, {'label': source, 'color': 'gray'}),
+            'members':            members,
+            'recent_tournaments': list(recent_tournaments.values()),
+            'totals':             totals,
+        })
+
+
 class PlayerDetailView(DetailView):
     """선수 상세 전적 페이지 (조별 상세 매치 데이터 포함)"""
     model = Player

@@ -8,7 +8,7 @@ from .views import (
     NoticeListView, NoticeCreateView, NoticeUpdateView, NoticeDetailView,
     PlayerSearchView, PlayerDetailView,
     TournamentListView, TournamentDetailView,
-    ClubRankingView,
+    ClubRankingView, ClubDetailView,
 )
 
 app_name = 'core'
@@ -31,6 +31,7 @@ urlpatterns = [
     path('players/', PlayerSearchView.as_view(), name='player_search'),
     path('player/<int:pk>/', PlayerDetailView.as_view(), name='player_detail'),
     path('ranking/', ClubRankingView.as_view(), name='player_ranking'),
+    path('club/', ClubDetailView.as_view(), name='club_detail'),
 
     # 대회 목록 / 상세
     path('tournaments/', TournamentListView.as_view(), name='tournament_list'),

@@ -126,9 +126,10 @@
                 {# 동호회명 + 플랫폼 뱃지 #}
                 <td class="px-5 py-4">
                     <div class="flex items-center gap-2 flex-wrap">
-                        <span class="text-[15px] font-bold text-tossGray-900 dark:text-white">
+                        <a href="{% url 'core:club_detail' %}?source={{ club.player__source }}&club={{ club.player__club|urlencode }}"
+                           class="text-[15px] font-bold text-tossGray-900 dark:text-white hover:text-tossBlue transition-colors">
                             {{ club.player__club }}
-                        </span>
+                        </a>
                         <span class="px-2 py-0.5 rounded-md text-[10px] font-black
                             {% if club.player__source == 'BAEF' %}bg-violet-50 text-violet-600 dark:bg-violet-900/20 dark:text-violet-400
                             {% elif club.player__source == 'WEEKUK' %}bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400

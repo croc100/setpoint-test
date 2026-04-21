@@ -196,5 +196,50 @@
         });
     </script>
     {% block extra_scripts %}{% endblock %}
+
+    {# ── 후원 플로팅 버튼 ── #}
+    <button onclick="document.getElementById('donationModal').classList.remove('hidden')"
+            class="fixed bottom-24 right-5 md:bottom-8 z-40 flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-[#1c1c1e] border border-tossGray-200 dark:border-white/10 rounded-full shadow-lg text-sm font-bold text-tossGray-700 dark:text-tossGray-200 hover:shadow-xl hover:scale-105 transition-all">
+        ☕ <span>후원하기</span>
+    </button>
+
+    {# ── 후원 모달 ── #}
+    <div id="donationModal"
+         class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+         onclick="if(event.target===this)this.classList.add('hidden')">
+
+        {# 배경 딤 #}
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+
+        {# 모달 카드 #}
+        <div class="relative bg-white dark:bg-[#1c1c1e] rounded-3xl shadow-2xl p-7 w-full max-w-xs text-center space-y-4">
+
+            {# 닫기 #}
+            <button onclick="document.getElementById('donationModal').classList.add('hidden')"
+                    class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-tossGray-100 dark:bg-white/10 text-tossGray-500 hover:bg-tossGray-200 dark:hover:bg-white/20 transition-colors text-sm font-bold">
+                ✕
+            </button>
+
+            <div class="text-3xl">☕</div>
+            <div>
+                <h3 class="text-lg font-black text-tossGray-900 dark:text-white">커피 한 잔 후원</h3>
+                <p class="mt-1.5 text-xs text-tossGray-500 leading-relaxed">
+                    setpoint는 광고 없이 운영되는 무료 서비스예요.<br>
+                    서버 유지비에 힘을 보태주시면 감사해요 🙏
+                </p>
+            </div>
+
+            {# QR 코드 #}
+            <div class="flex justify-center">
+                <img src="{% static 'qr_donation.png' %}"
+                     alt="후원 QR코드"
+                     class="w-48 h-48 rounded-2xl border border-tossGray-100 dark:border-white/10">
+            </div>
+
+            <p class="text-[11px] text-tossGray-400">
+                카메라 또는 은행 앱으로 QR을 스캔해주세요
+            </p>
+        </div>
+    </div>
 </body>
 </html>

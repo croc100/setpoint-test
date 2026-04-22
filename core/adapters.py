@@ -21,14 +21,13 @@ class AccountAdapter(DefaultAccountAdapter):
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
     """소셜 계정 어댑터 - 카카오 프로필에서 닉네임 추출"""
 
-    def authentication_error(self, request, provider_id, error=None, exception=None, extra_context=None):
-        """소셜 로그인 에러 발생 시 상세 로그 출력"""
+    def on_authentication_error(self, request, provider_id, error=None, exception=None, extra_context=None):
+        """소셜 로그인 에러 발생 시 상세 로그 출력 (allauth 65.x)"""
         logger.error(
-            "🔴 카카오 로그인 에러: provider=%s | error=%s | exception=%r | extra=%s",
-            provider_id, error, exception, extra_context,
-            exc_info=True,
+            "🔴 카카오 로그인 에러: provider=%s | error=%s | exception=%r",
+            provider_id, error, exception,
         )
-        return super().authentication_error(
+        return super().on_authentication_error(
             request, provider_id,
             error=error, exception=exception, extra_context=extra_context
         )

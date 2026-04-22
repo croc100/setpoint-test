@@ -2,9 +2,12 @@
 django-allauth 커스텀 어댑터
 - 카카오 소셜 로그인 시 User 필드 자동 처리
 """
+import logging
 import re
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from allauth.account.adapter import DefaultAccountAdapter
+
+logger = logging.getLogger(__name__)
 
 
 class AccountAdapter(DefaultAccountAdapter):
@@ -17,6 +20,18 @@ class AccountAdapter(DefaultAccountAdapter):
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
     """소셜 계정 어댑터 - 카카오 프로필에서 닉네임 추출"""
+
+    def authentication_error(self, request, provider_id, error=None, exception=None, extra_context=None):
+        """소셜 로그인 에러 발생 시 상세 로그 출력"""
+        logger.error(
+            "🔴 카카오 로그인 에러: provider=%s | error=%s | exception=%r | extra=%s",
+            provider_id, error, exception, extra_context,
+            exc_info=True,
+        )
+        return super().authentication_error(
+            request, provider_id,
+            error=error, exception=exception, extra_context=extra_context
+        )
 
     def populate_user(self, request, sociallogin, data):
         user = super().populate_user(request, sociallogin, data)

@@ -178,13 +178,13 @@ ACCOUNT_ADAPTER = 'core.adapters.AccountAdapter'
 SOCIALACCOUNT_ADAPTER = 'core.adapters.SocialAccountAdapter'
 
 # ==========================================
-# 로깅 설정 (카카오 로그인 디버깅용)
+# 로깅 설정
 # ==========================================
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'verbose': {
+        'simple': {
             'format': '[{levelname}] {name}: {message}',
             'style': '{',
         },
@@ -192,23 +192,18 @@ LOGGING = {
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
+            'formatter': 'simple',
         },
     },
     'loggers': {
-        'allauth': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': False,
-        },
         'core': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'propagate': False,
         },
         'django.request': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'propagate': False,
         },
     },

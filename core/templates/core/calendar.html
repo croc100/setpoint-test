@@ -12,63 +12,49 @@
 
     <style type="text/tailwindcss">
         /* 1. 기본 Toss 스타일 및 FullCalendar 연동 */
-        .fc { @apply border-none font-sans; --fc-border-color: #333d4b; }
+        .fc { @apply border-none font-sans; --fc-border-color: #e5e8eb; }
         .dark .fc { --fc-border-color: #333d4b; }
-        
+
         .fc-toolbar-title { @apply text-xl font-bold !text-tossGray-900 dark:!text-white; }
         .fc-button { @apply !bg-tossGray-100 !border-none !text-tossGray-700 !font-bold !rounded-xl transition-all hover:!bg-tossGray-200 active:!scale-95; }
         .dark .fc-button { @apply !bg-white/5 !text-tossGray-400 hover:!bg-white/10; }
-        
+
         /* 2. 날짜 숫자 및 배경 스타일 */
         .fc-daygrid-day-number { @apply p-2 text-sm font-medium text-tossGray-600 dark:text-tossGray-400; }
+        .fc-col-header-cell-cushion { @apply font-bold text-tossGray-500 dark:text-tossGray-400; }
         .fc-day-today { @apply !bg-tossBlue/5; }
-        
+
         .fc-event { @apply cursor-pointer transition-colors; }
         .fc-daygrid-event { @apply overflow-hidden whitespace-nowrap text-ellipsis; }
         .fc-daygrid-event-harness { @apply mb-[2px]; }
-        
+
         /* 3. 목록 뷰 최적화 */
         .fc-list-event-time { display: none !important; }
         .fc-list-table { @apply !border-none; }
         .fc-list-day-cushion { @apply bg-tossGray-100 dark:bg-zinc-800 !py-3; }
-        
-        /* 4. [핵심] 다크모드 시 헤더(월화수...) 및 셀 배경 하얀색 제거 */
-        .dark .fc-theme-standard th, 
+        .fc-list-day-cushion .fc-list-day-text,
+        .fc-list-day-cushion .fc-list-day-side-text { @apply !text-tossGray-700 dark:!text-tossGray-300 font-bold; }
+
+        /* 4. 라이트모드 셀/헤더 배경 명시 */
+        .fc-theme-standard th,
+        .fc-theme-standard td { @apply !bg-white dark:!bg-transparent; }
+        .fc-list { @apply !bg-white dark:!bg-transparent; }
+
+        /* 5. 다크모드 시 헤더 및 셀 배경 투명 처리 */
+        .dark .fc-theme-standard th,
         .dark .fc-theme-standard td,
-        .dark .fc-list {
-            @apply !bg-transparent border-[#333d4b];
-        }
-    
-        /* 월간 뷰 상단 요일 헤더 가독성 확보 */
-        .dark .fc-col-header-cell-cushion {
-            @apply !text-tossGray-400 font-bold;
-        }
-    
-        /* 🔥 5. 다크모드 전용 저자극 호버 시스템 🔥 */
-        
-        /* 월간 뷰 이벤트 호버: 진회색 톤업 */
-        .dark .fc-daygrid-event:hover {
-            background-color: rgba(255, 255, 255, 0.08) !important;
-            @apply !text-white;
-        }
-    
-        /* 목록 뷰 호버: 배경은 어둡게, 글자는 밝게 */
-        .dark .fc-list-event:hover td {
-            background-color: rgba(255, 255, 255, 0.05) !important;
-        }
-        
+        .dark .fc-list { @apply !bg-transparent border-[#333d4b]; }
+
+        /* 6. 호버 시스템 */
+        .fc-daygrid-event:hover { background-color: rgba(49,130,246,0.06) !important; }
+        .dark .fc-daygrid-event:hover { background-color: rgba(255,255,255,0.08) !important; @apply !text-white; }
+        .dark .fc-list-event:hover td { background-color: rgba(255,255,255,0.05) !important; }
         .dark .fc-list-event:hover .fc-list-event-title,
-        .dark .fc-list-event:hover .fc-list-event-title * {
-            @apply !text-white;
-        }
-    
-        /* 공통: 호버 시 내부 요소 컬러 상속 */
-        .dark .fc-event:hover * {
-            color: inherit !important;
-        }
-    
-        /* 모바일 리스트 아이템 레이아웃 */
-        .sp-item { @apply mb-1 p-4 rounded-xl bg-tossGray-50 dark:bg-white/5 border border-black/[0.03] dark:border-white/[0.05]; }
+        .dark .fc-list-event:hover .fc-list-event-title * { @apply !text-white; }
+        .dark .fc-event:hover * { color: inherit !important; }
+
+        /* 7. 모바일 리스트 아이템 */
+        .sp-item { @apply mb-1 p-4 rounded-xl bg-tossGray-50 dark:bg-white/5 border border-tossGray-200 dark:border-white/[0.05]; }
     </style>
 {% endblock %}
 
@@ -82,24 +68,24 @@
 </section>
 
 <section class="flex flex-wrap gap-2 mb-4">
-    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-800 rounded-full text-[11px] font-bold shadow-sm border border-black/5 dark:border-white/5">
+    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-800 rounded-full text-[11px] font-bold shadow-sm border border-tossGray-200 dark:border-white/5">
         <span class="w-2 h-2 rounded-full bg-[#2563eb]"></span> 페이스콕
     </div>
-    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-800 rounded-full text-[11px] font-bold shadow-sm border border-black/5 dark:border-white/5">
+    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-800 rounded-full text-[11px] font-bold shadow-sm border border-tossGray-200 dark:border-white/5">
         <span class="w-2 h-2 rounded-full bg-[#16a34a]"></span> 우동배
     </div>
-    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-800 rounded-full text-[11px] font-bold shadow-sm border border-black/5 dark:border-white/5">
+    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-800 rounded-full text-[11px] font-bold shadow-sm border border-tossGray-200 dark:border-white/5">
         <span class="w-2 h-2 rounded-full bg-[#ef4444]"></span> 스포넷
     </div>
-    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-800 rounded-full text-[11px] font-bold shadow-sm border border-black/5 dark:border-white/5">
+    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-800 rounded-full text-[11px] font-bold shadow-sm border border-tossGray-200 dark:border-white/5">
         <span class="w-2 h-2 rounded-full bg-[#f97316]"></span> 위꾹
     </div>
-    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-800 rounded-full text-[11px] font-bold shadow-sm border border-black/5 dark:border-white/5">
+    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-800 rounded-full text-[11px] font-bold shadow-sm border border-tossGray-200 dark:border-white/5">
         <span class="w-2 h-2 rounded-full bg-[#8b5cf6]"></span> 배프
     </div>
 </section>
 
-<div class="toss-card !p-4 overflow-hidden bg-white dark:bg-zinc-900 shadow-sm border border-black/5 dark:border-white/5 rounded-2xl">
+<div class="toss-card !p-4 overflow-hidden bg-white dark:bg-zinc-900 shadow-sm border border-tossGray-200 dark:border-white/5 rounded-2xl" id="calendar-wrap">
     <div id="calendar"></div>
 </div>
 {% endblock %}

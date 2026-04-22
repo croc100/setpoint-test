@@ -176,7 +176,8 @@
             <div class="pt-4 border-t border-tossGray-300 dark:border-white/5 flex flex-wrap gap-4 text-xs font-bold text-tossGray-600">
                 <a href="{% url 'core:terms' %}" class="hover:text-tossBlue">이용약관</a>
                 <a href="{% url 'core:privacy' %}" class="hover:text-tossBlue font-black">개인정보처리방침</a>
-                <a href="mailto:dl_setpoint@crode.net" class="hover:text-tossBlue">문의하기</a>
+                <button onclick="document.getElementById('contactModal').classList.remove('hidden')"
+                        class="hover:text-tossBlue transition-colors">문의하기</button>
             </div>
         </div>
     </footer>
@@ -192,6 +193,38 @@
         });
     </script>
     {% block extra_scripts %}{% endblock %}
+
+    {# ── 문의 모달 ── #}
+    <div id="contactModal"
+         class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+         onclick="if(event.target===this)this.classList.add('hidden')">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+        <div class="relative bg-white dark:bg-[#1c1c1e] rounded-3xl shadow-2xl p-7 w-full max-w-xs text-center space-y-5">
+            <button onclick="document.getElementById('contactModal').classList.add('hidden')"
+                    class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-tossGray-100 dark:bg-white/10 text-tossGray-500 hover:bg-tossGray-200 dark:hover:bg-white/20 transition-colors text-sm font-bold">
+                ✕
+            </button>
+            <div class="text-3xl">✉️</div>
+            <div>
+                <h3 class="text-lg font-black text-tossGray-900 dark:text-white">문의하기</h3>
+                <p class="mt-1.5 text-xs text-tossGray-500">아래 이메일로 문의해주세요.</p>
+            </div>
+            <div class="bg-tossGray-50 dark:bg-white/5 rounded-2xl px-5 py-4 space-y-1">
+                <p class="text-sm font-black text-tossGray-800 dark:text-tossGray-100 break-all">dl_setpoint@crode.net</p>
+                <p class="text-[11px] text-tossGray-400">클릭하면 메일 앱이 열려요</p>
+            </div>
+            <div class="flex flex-col gap-2.5">
+                <a href="mailto:dl_setpoint@crode.net"
+                   class="w-full py-2.5 bg-tossBlue text-white rounded-xl text-sm font-bold hover:bg-blue-600 transition-colors">
+                    이메일 보내기
+                </a>
+                <a href="https://crode.net" target="_blank" rel="noopener noreferrer"
+                   class="w-full py-2.5 bg-tossGray-100 dark:bg-white/10 text-tossGray-700 dark:text-tossGray-200 rounded-xl text-sm font-bold hover:bg-tossGray-200 dark:hover:bg-white/20 transition-colors">
+                    crode.net 바로가기 ↗
+                </a>
+            </div>
+        </div>
+    </div>
 
     {# ── 후원 플로팅 버튼 ── #}
     <button onclick="document.getElementById('donationModal').classList.remove('hidden')"

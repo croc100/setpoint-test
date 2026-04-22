@@ -10,7 +10,7 @@ from .views import (
     TournamentListView, TournamentDetailView,
     ClubRankingView, ClubDetailView,
     TermsView, PrivacyView,
-    MyPageView,
+    MyPageView, PlayerClaimSearchView, PlayerClaimCreateView, PlayerClaimDeleteView,
     ManageDashboardView, ManageTournamentListView,
     TournamentCreateView, TournamentUpdateView, TournamentDeleteView,
     NoticeDeleteView,
@@ -43,8 +43,11 @@ urlpatterns = [
     path('tournaments/', TournamentListView.as_view(), name='tournament_list'),
     path('tournament/<int:pk>/', TournamentDetailView.as_view(), name='tournament_detail'),
 
-    # 마이페이지
+    # 마이페이지 + 내 전적 찾기
     path('mypage/', MyPageView.as_view(), name='mypage'),
+    path('mypage/claim/search/', PlayerClaimSearchView.as_view(), name='claim_search'),
+    path('mypage/claim/<int:player_pk>/create/', PlayerClaimCreateView.as_view(), name='claim_create'),
+    path('mypage/claim/<int:pk>/delete/', PlayerClaimDeleteView.as_view(), name='claim_delete'),
 
     # 관리자 대시보드
     path('manage/', ManageDashboardView.as_view(), name='manage_dashboard'),

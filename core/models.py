@@ -208,6 +208,26 @@ class News(models.Model):
 #  ==========================================
 
 
+# ==========================================
+# 5. 내 전적 찾기 (PlayerClaim)
+# ==========================================
+
+class PlayerClaim(models.Model):
+    """사용자가 자신의 전적으로 클레임한 선수 매핑"""
+    user   = models.ForeignKey(User, on_delete=models.CASCADE, related_name='claims')
+    player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='claims')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'player')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} → {self.player}"
+
+
+# ==========================================
+
 class MatchRecord(models.Model):
     """개별 매치(조별리그/본선) 스코어 및 승패 기록 테이블"""
     daily_stat = models.ForeignKey(

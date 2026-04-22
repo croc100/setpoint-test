@@ -4,60 +4,227 @@
 {% block title %}마이페이지{% endblock %}
 
 {% block content %}
-<div class="space-y-6 max-w-2xl mx-auto">
+<div class="space-y-6">
 
-  {# 프로필 헤더 #}
-  <div class="toss-card flex items-center gap-5">
-    <div class="w-16 h-16 rounded-full bg-tossBlue/10 flex items-center justify-center text-2xl font-black text-tossBlue shrink-0">
-      {{ request.user.username|first|upper }}
-    </div>
+  {# ── 헤더 ── #}
+  <div class="flex items-center justify-between flex-wrap gap-3">
     <div>
-      <h1 class="text-xl font-black text-tossGray-900 dark:text-white">
-        {{ request.user.nickname|default:request.user.username }}
-      </h1>
-      <p class="text-sm text-tossGray-400 font-medium mt-0.5">{{ request.user.email|default:"이메일 없음" }}</p>
+      <h1 class="toss-title text-tossGray-900 dark:text-white">마이페이지</h1>
+      <p class="mt-1 text-sm text-tossGray-500">
+        {{ request.user.nickname|default:request.user.username }}님의 전적
+      </p>
     </div>
+    <button onclick="document.getElementById('claimModal').classList.remove('hidden')"
+            class="px-5 py-2.5 bg-tossBlue text-white rounded-xl text-sm font-bold hover:bg-blue-600 transition-colors">
+      + 내 전적 찾기
+    </button>
   </div>
 
-  {# 팔로우 중인 선수 #}
-  <div class="space-y-3">
-    <h2 class="text-lg font-black text-tossGray-900 dark:text-white">팔로우 중인 선수</h2>
+  {# ── 클레임한 선수 없을 때 ── #}
+  {% if not claimed_data %}
+  <div class="toss-card text-center py-16 space-y-4">
+    <div class="text-5xl">🏸</div>
+    <div>
+      <p class="font-bold text-tossGray-800 dark:text-tossGray-200">아직 등록된 전적이 없어요</p>
+      <p class="text-sm text-tossGray-400 mt-1">「내 전적 찾기」로 본인의 대회 기록을 연결해보세요</p>
+    </div>
+    <button onclick="document.getElementById('claimModal').classList.remove('hidden')"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-tossBlue text-white rounded-xl text-sm font-bold hover:bg-blue-600 transition-colors">
+      내 이름으로 선수 검색하기
+    </button>
+  </div>
+  {% endif %}
 
-    {% if following %}
-    <div class="space-y-2">
-      {% for player in following %}
-      <a href="{% url 'core:player_detail' player.pk %}"
-         class="toss-card !p-4 flex items-center justify-between hover:shadow-md transition-shadow block">
-        <div>
-          <span class="text-sm font-bold text-tossGray-900 dark:text-white">{{ player.name }}</span>
-          <span class="ml-2 text-xs text-tossGray-400">{{ player.club }}</span>
+  {# ── 클레임한 선수 카드 ── #}
+  {% for d in claimed_data %}
+  <div class="toss-card space-y-5">
+
+    <div class="flex items-start justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-tossBlue/10 flex items-center justify-center text-xl font-black text-tossBlue">
+          {{ d.player.name|first }}
         </div>
-        {% if player.level %}
-        <span class="px-2 py-0.5 rounded-md text-xs font-bold bg-tossGray-100 dark:bg-white/10 text-tossGray-600 dark:text-tossGray-300">
-          {{ player.level }}
-        </span>
-        {% endif %}
-      </a>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-base font-black text-tossGray-900 dark:text-white">{{ d.player.name }}</span>
+            <span class="text-xs font-bold px-2 py-0.5 rounded-lg {{ d.badge_class }}">{{ d.badge_label }}</span>
+            {% if d.player.level %}
+            <span class="text-xs font-bold px-2 py-0.5 rounded-lg bg-tossGray-100 dark:bg-white/10 text-tossGray-600 dark:text-tossGray-300">{{ d.player.level }}</span>
+            {% endif %}
+          </div>
+          <p class="text-xs text-tossGray-400 mt-0.5">{{ d.player.club }}</p>
+        </div>
+      </div>
+      <button onclick="deleteClaim({{ d.claim.pk }}, this)"
+              class="shrink-0 px-3 py-1.5 text-xs font-bold text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+        연결 해제
+      </button>
+    </div>
+
+    <div class="grid grid-cols-4 gap-2">
+      <div class="bg-tossGray-50 dark:bg-white/5 rounded-2xl p-3 text-center">
+        <div class="text-xl font-black text-tossGray-900 dark:text-white">{{ d.total }}</div>
+        <div class="text-[10px] font-bold text-tossGray-400 mt-0.5">참가 대회</div>
+      </div>
+      <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-2xl p-3 text-center">
+        <div class="text-xl font-black text-yellow-600">{{ d.gold }}</div>
+        <div class="text-[10px] font-bold text-tossGray-400 mt-0.5">🥇 우승</div>
+      </div>
+      <div class="bg-tossGray-50 dark:bg-white/5 rounded-2xl p-3 text-center">
+        <div class="text-xl font-black text-tossGray-900 dark:text-white">{{ d.wins }}</div>
+        <div class="text-[10px] font-bold text-tossGray-400 mt-0.5">총 승</div>
+      </div>
+      <div class="bg-tossGray-50 dark:bg-white/5 rounded-2xl p-3 text-center">
+        <div class="text-xl font-black text-tossGray-900 dark:text-white">{{ d.losses }}</div>
+        <div class="text-[10px] font-bold text-tossGray-400 mt-0.5">총 패</div>
+      </div>
+    </div>
+
+    {% if d.recent %}
+    <div>
+      <p class="text-xs font-black text-tossGray-500 uppercase tracking-wide mb-3">최근 대회</p>
+      {% for stat in d.recent %}
+      <div class="flex items-center justify-between gap-2 py-2.5 border-b border-tossGray-50 dark:border-white/[0.03] last:border-0">
+        <div class="min-w-0">
+          <p class="text-sm font-bold text-tossGray-800 dark:text-tossGray-200 truncate">
+            {% if stat.tournament %}{{ stat.tournament.name|truncatechars:28 }}{% else %}대회 정보 없음{% endif %}
+          </p>
+          <p class="text-xs text-tossGray-400 mt-0.5">{{ stat.date|date:"Y.m.d" }}{% if stat.category_level %} · {{ stat.category_level }}{% endif %}</p>
+        </div>
+        <div class="shrink-0 text-right space-y-0.5">
+          {% if stat.rank %}
+          <div>
+            <span class="text-xs font-black px-2 py-0.5 rounded-lg
+              {% if stat.rank == '1' or stat.rank == '우승' %}bg-yellow-100 text-yellow-700
+              {% elif stat.rank == '2' %}bg-gray-200 text-gray-600
+              {% elif stat.rank == '3' %}bg-orange-100 text-orange-600
+              {% else %}bg-tossGray-100 dark:bg-white/10 text-tossGray-600 dark:text-tossGray-300{% endif %}">
+              {{ stat.rank }}위
+            </span>
+          </div>
+          {% endif %}
+          <p class="text-[10px] text-tossGray-400">{{ stat.win_count }}승 {{ stat.loss_count }}패</p>
+        </div>
+      </div>
       {% endfor %}
     </div>
+    <a href="{% url 'core:player_detail' d.player.pk %}"
+       class="flex items-center justify-center gap-1.5 w-full py-2.5 text-sm font-bold text-tossBlue hover:bg-tossBlue/5 rounded-xl transition-colors border border-tossBlue/20">
+      전체 전적 보기 →
+    </a>
     {% else %}
-    <div class="toss-card text-center py-12">
-      <div class="text-3xl mb-2">🏸</div>
-      <p class="text-sm text-tossGray-400 font-medium">팔로우 중인 선수가 없어요</p>
-      <a href="{% url 'core:player_search' %}"
-         class="mt-3 inline-block text-sm text-tossBlue font-bold hover:underline">선수 검색하기</a>
-    </div>
+    <p class="text-sm text-tossGray-400 text-center py-4">아직 수집된 전적이 없어요</p>
     {% endif %}
-  </div>
 
-  {# 로그아웃 #}
-  <form action="{% url 'core:logout' %}" method="post">
-    {% csrf_token %}
-    <button type="submit"
-            class="w-full py-3 bg-tossGray-100 dark:bg-white/10 text-tossGray-600 dark:text-tossGray-300 rounded-xl text-sm font-bold hover:bg-tossGray-200 transition-colors">
-      로그아웃
-    </button>
-  </form>
+  </div>
+  {% endfor %}
 
 </div>
+
+{# ── 내 전적 찾기 모달 ── #}
+<div id="claimModal"
+     class="hidden fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4"
+     onclick="if(event.target===this)this.classList.add('hidden')">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+  <div class="relative bg-white dark:bg-[#1c1c1e] w-full md:max-w-lg rounded-t-3xl md:rounded-3xl shadow-2xl flex flex-col max-h-[85vh]">
+
+    <div class="flex items-center justify-between px-6 pt-6 pb-4 border-b border-tossGray-100 dark:border-white/5 shrink-0">
+      <div>
+        <h2 class="text-lg font-black text-tossGray-900 dark:text-white">내 전적 찾기</h2>
+        <p class="text-xs text-tossGray-400 mt-0.5">이름으로 선수를 검색해 연결하세요</p>
+      </div>
+      <button onclick="document.getElementById('claimModal').classList.add('hidden')"
+              class="w-8 h-8 flex items-center justify-center rounded-full bg-tossGray-100 dark:bg-white/10 text-tossGray-500 hover:bg-tossGray-200 dark:hover:bg-white/20 transition-colors font-bold text-sm">✕</button>
+    </div>
+
+    <div class="px-6 py-4 shrink-0">
+      <input id="claimSearchInput" type="text" placeholder="이름 입력 (예: 홍길동)"
+             class="w-full px-4 py-3 rounded-xl border border-tossGray-200 dark:border-white/10 bg-tossGray-50 dark:bg-white/5 text-sm font-medium text-tossGray-900 dark:text-white placeholder-tossGray-400 focus:outline-none focus:ring-2 focus:ring-tossBlue/40">
+    </div>
+
+    <div id="claimResults" class="overflow-y-auto flex-1 px-6 pb-6 space-y-2">
+      <p class="text-sm text-tossGray-400 text-center py-8">이름을 입력하면 선수 목록이 나타나요</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const searchInput = document.getElementById('claimSearchInput');
+const resultsEl   = document.getElementById('claimResults');
+let searchTimer;
+
+searchInput.addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  const q = searchInput.value.trim();
+  if (!q) {
+    resultsEl.innerHTML = '<p class="text-sm text-tossGray-400 text-center py-8">이름을 입력하면 선수 목록이 나타나요</p>';
+    return;
+  }
+  searchTimer = setTimeout(() => fetchResults(q), 300);
+});
+
+async function fetchResults(q) {
+  resultsEl.innerHTML = '<p class="text-sm text-tossGray-400 text-center py-8 animate-pulse">검색 중...</p>';
+  try {
+    const res  = await fetch(`{% url 'core:claim_search' %}?q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+    if (!data.results.length) {
+      resultsEl.innerHTML = '<p class="text-sm text-tossGray-400 text-center py-8">검색 결과가 없어요</p>';
+      return;
+    }
+    resultsEl.innerHTML = data.results.map(p => `
+      <div class="flex items-center justify-between gap-3 p-3 rounded-2xl border border-tossGray-100 dark:border-white/[0.05] hover:bg-tossGray-50 dark:hover:bg-white/[0.03] transition-colors">
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span class="text-sm font-black text-tossGray-900 dark:text-white">${esc(p.name)}</span>
+            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md ${esc(p.badge_class)}">${esc(p.badge_label)}</span>
+            ${p.level ? `<span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-tossGray-100 text-tossGray-500">${esc(p.level)}</span>` : ''}
+          </div>
+          <p class="text-xs text-tossGray-400 mt-0.5">${esc(p.club)} · 대회 ${p.stat_count}회</p>
+        </div>
+        <button onclick="claimPlayer(${p.id}, this)"
+                class="shrink-0 px-3 py-1.5 bg-tossBlue text-white rounded-lg text-xs font-bold hover:bg-blue-600 transition-colors">
+          내 전적
+        </button>
+      </div>
+    `).join('');
+  } catch(e) {
+    resultsEl.innerHTML = '<p class="text-sm text-red-400 text-center py-8">오류가 발생했어요</p>';
+  }
+}
+
+function esc(s) {
+  return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function claimPlayer(playerId, btn) {
+  btn.disabled = true; btn.textContent = '처리중...';
+  try {
+    const res  = await fetch(`/mypage/claim/${playerId}/create/`, {
+      method: 'POST', headers: {'X-CSRFToken': getCookie('csrftoken')},
+    });
+    const data = await res.json();
+    if (data.ok) {
+      btn.textContent = '✓ 연결됨';
+      btn.className = 'shrink-0 px-3 py-1.5 bg-green-500 text-white rounded-lg text-xs font-bold cursor-default';
+      setTimeout(() => location.reload(), 700);
+    } else { btn.textContent = '오류'; btn.disabled = false; }
+  } catch(e) { btn.textContent = '오류'; btn.disabled = false; }
+}
+
+async function deleteClaim(claimId, btn) {
+  if (!confirm('이 선수와의 전적 연결을 해제할까요?')) return;
+  btn.textContent = '처리중...';
+  const res = await fetch(`/mypage/claim/${claimId}/delete/`, {
+    method: 'POST', headers: {'X-CSRFToken': getCookie('csrftoken')},
+  });
+  const data = await res.json();
+  if (data.ok) location.reload();
+}
+
+function getCookie(name) {
+  const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+  return v ? v.pop() : '';
+}
+</script>
 {% endblock %}

@@ -20,7 +20,7 @@ from django.utils.dateparse import parse_date
 import datetime
 
 # 모델 임포트
-from .models import PlayerDailyStats, Player, Notice, Tournament, News, FeaturedItem
+from .models import PlayerDailyStats, Player, Notice, Tournament, News, FeaturedItem, PlayerClaim
 
 
 # ==========================================
@@ -672,20 +672,114 @@ class PrivacyView(TemplateView):
 # ==========================================
 # 10. 마이페이지 (My Page)
 # ==========================================
-class MyPageView(LoginRequiredMixin, TemplateView):
+
+SOURCE_COLORS = {
+    'BAEF': ('bg-violet-100 text-violet-700', '배프'),
+    'WEEKUK': ('bg-orange-100 text-orange-700', '위꾹'),
+    'SPONET': ('bg-red-100 text-red-700', '스포넷'),
+    'FACECOK': ('bg-blue-100 text-blue-700', '페이스콕'),
+    'NEARMINTON': ('bg-green-100 text-green-700', '우동배'),
+}
+
+class MyPageView(LoginRequiredMixin, View):
     template_name = 'core/mypage.html'
     login_url = '/login/'
 
     def get(self, request, *args, **kwargs):
-        # 관리자는 어드민 대시보드로 리다이렉트
         if request.user.is_staff or request.user.is_superuser:
             return redirect('core:manage_dashboard')
-        return super().get(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['following'] = self.request.user.following_players.all()[:10]
-        return context
+        claims = (
+            PlayerClaim.objects
+            .filter(user=request.user)
+            .select_related('player')
+            .prefetch_related('player__daily_stats__tournament')
+        )
+
+        claimed_data = []
+        for claim in claims:
+            player = claim.player
+            stats_qs = player.daily_stats.filter(is_verified=True)
+            agg = stats_qs.aggregate(
+                total=Count('id'),
+                wins=Sum('win_count'),
+                losses=Sum('loss_count'),
+            )
+            gold = stats_qs.filter(rank__in=['1', '1위', '우승']).count()
+            recent = stats_qs.select_related('tournament').order_by('-date')[:5]
+            badge_class, badge_label = SOURCE_COLORS.get(player.source, ('bg-gray-100 text-gray-600', player.source))
+            claimed_data.append({
+                'claim': claim,
+                'player': player,
+                'total': agg['total'] or 0,
+                'wins': agg['wins'] or 0,
+                'losses': agg['losses'] or 0,
+                'gold': gold,
+                'recent': recent,
+                'badge_class': badge_class,
+                'badge_label': badge_label,
+            })
+
+        return render(request, self.template_name, {
+            'claimed_data': claimed_data,
+        })
+
+
+class PlayerClaimSearchView(LoginRequiredMixin, View):
+    """내 전적 찾기 — 이름으로 선수 검색 (AJAX)"""
+    login_url = '/login/'
+
+    def get(self, request):
+        q = request.GET.get('q', '').strip()
+        if len(q) < 1:
+            return JsonResponse({'results': []})
+
+        players = (
+            Player.objects
+            .filter(name__icontains=q)
+            .exclude(claims__user=request.user)   # 이미 클레임한 선수 제외
+            .annotate(stat_count=Count('daily_stats'))
+            .order_by('-stat_count')[:30]
+        )
+
+        results = []
+        for p in players:
+            badge_class, badge_label = SOURCE_COLORS.get(p.source, ('bg-gray-100 text-gray-600', p.source))
+            results.append({
+                'id': p.id,
+                'name': p.name,
+                'club': p.club,
+                'level': p.level or '',
+                'source': p.source,
+                'badge_label': badge_label,
+                'badge_class': badge_class,
+                'stat_count': p.stat_count,
+            })
+
+        return JsonResponse({'results': results})
+
+
+class PlayerClaimCreateView(LoginRequiredMixin, View):
+    """선수 클레임 생성"""
+    login_url = '/login/'
+
+    def post(self, request, player_pk):
+        if request.user.is_staff or request.user.is_superuser:
+            return JsonResponse({'ok': False, 'error': '관리자 계정은 클레임을 사용할 수 없어요.'}, status=403)
+
+        player = get_object_or_404(Player, pk=player_pk)
+        claim, created = PlayerClaim.objects.get_or_create(user=request.user, player=player)
+        return JsonResponse({'ok': True, 'created': created, 'player_name': player.name})
+
+
+class PlayerClaimDeleteView(LoginRequiredMixin, View):
+    """선수 클레임 해제"""
+    login_url = '/login/'
+
+    def post(self, request, pk):
+        claim = get_object_or_404(PlayerClaim, pk=pk, user=request.user)
+        claim.delete()
+        return JsonResponse({'ok': True})
 
 
 # ==========================================

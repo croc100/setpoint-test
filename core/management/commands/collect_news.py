@@ -15,17 +15,15 @@ NAVER_CLIENT_ID     = os.environ.get('NAVER_CLIENT_ID', '')
 NAVER_CLIENT_SECRET = os.environ.get('NAVER_CLIENT_SECRET', '')
 API_URL             = 'https://openapi.naver.com/v1/search/news.json'
 
-# 키워드별 (검색어, 가져올 개수)
+# 키워드별 (검색어, API display 개수)
+# 구체적인 키워드로 관련 없는 기사 자연 차단
 KEYWORD_PLAN = [
-    ('BWF 배드민턴 대회',   3),
-    ('배드민턴 국가대표',   3),
-    ('배드민턴 건강 운동',  3),
-    ('배드민턴 동호인 대회', 3),
+    ('안세영 배드민턴',        2),   # 한국 에이스
+    ('BWF 배드민턴',           2),   # 세계연맹 공식 대회
+    ('배드민턴 국가대표 선수', 2),   # 국가대표 소식
+    ('배드민턴 운동 건강',     2),   # 건강/라이프
 ]
 MAX_NEWS = 4
-
-# 제목에 이 단어 중 하나가 없으면 제외
-TITLE_MUST_CONTAIN = ['배드민턴']
 
 
 def _clean(text: str) -> str:
@@ -66,9 +64,6 @@ class Command(BaseCommand):
                     url   = item.get('originallink') or item.get('link', '')
                     title = _clean(item.get('title', ''))
                     if not url or url in seen_urls:
-                        continue
-                    # 제목에 '배드민턴'이 없으면 건너뜀
-                    if not any(kw in title for kw in TITLE_MUST_CONTAIN):
                         continue
                     seen_urls.add(url)
                     collected.append({

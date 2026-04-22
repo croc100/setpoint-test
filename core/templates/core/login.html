@@ -69,6 +69,13 @@
 
             <input type="hidden" name="next" value="{{ next|default:'/' }}">
         </form>
+
+        <p class="mt-6 text-center text-[11px] text-gray-400 leading-relaxed">
+            로그인 시
+            <a href="{% url 'core:terms' %}" class="underline hover:text-tossBlue">이용약관</a> 및
+            <a href="{% url 'core:privacy' %}" class="underline hover:text-tossBlue">개인정보처리방침</a>에
+            동의하는 것으로 간주합니다.
+        </p>
     </div>
 </section>
 {% endblock %}

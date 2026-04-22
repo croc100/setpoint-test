@@ -659,7 +659,18 @@ class PlayerDetailView(DetailView):
 
 
 # ==========================================
-# 9. 마이페이지 (My Page)
+# 9. 법적 문서 (이용약관 / 개인정보처리방침)
+# ==========================================
+
+class TermsView(TemplateView):
+    template_name = 'core/terms.html'
+
+class PrivacyView(TemplateView):
+    template_name = 'core/privacy.html'
+
+
+# ==========================================
+# 10. 마이페이지 (My Page)
 # ==========================================
 class MyPageView(LoginRequiredMixin, TemplateView):
     template_name = 'core/mypage.html'

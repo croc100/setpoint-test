@@ -9,6 +9,7 @@ from .views import (
     PlayerSearchView, PlayerDetailView,
     TournamentListView, TournamentDetailView,
     ClubRankingView, ClubDetailView,
+    TermsView, PrivacyView,
     MyPageView,
     ManageDashboardView, ManageTournamentListView,
     TournamentCreateView, TournamentUpdateView, TournamentDeleteView,
@@ -51,6 +52,10 @@ urlpatterns = [
     path('manage/tournament/create/', TournamentCreateView.as_view(), name='tournament_create'),
     path('manage/tournament/<int:pk>/edit/', TournamentUpdateView.as_view(), name='tournament_edit'),
     path('manage/tournament/<int:pk>/delete/', TournamentDeleteView.as_view(), name='tournament_delete'),
+
+    # 법적 문서
+    path('terms/', TermsView.as_view(), name='terms'),
+    path('privacy/', PrivacyView.as_view(), name='privacy'),
 
     # 인증
     path('login/', LoginView.as_view(template_name='core/login.html'), name='login'),

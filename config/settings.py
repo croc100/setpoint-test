@@ -159,17 +159,9 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
 ACCOUNT_SIGNUP_FIELDS = ['username*', 'password1*', 'password2*']
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 
-# 소셜 계정 설정 (DB 없이 설정으로 앱 키 관리)
+# 소셜 계정 설정 (SocialApp은 DB에서 관리 — Django admin 또는 shell로 등록)
 SOCIALACCOUNT_PROVIDERS = {
-    'kakao': {
-        'APPS': [
-            {
-                'client_id': os.environ.get('KAKAO_CLIENT_ID', 'd08c45ee66f6acac413a41c13dc9c1fe'),
-                'secret': '',
-                'key': '',
-            }
-        ]
-    }
+    'kakao': {}
 }
 
 # 소셜 로그인 후 자동으로 기존 이메일 계정 연결

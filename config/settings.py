@@ -174,3 +174,35 @@ SOCIALACCOUNT_LOGIN_ON_GET = True
 # 커스텀 어댑터
 ACCOUNT_ADAPTER = 'core.adapters.AccountAdapter'
 SOCIALACCOUNT_ADAPTER = 'core.adapters.SocialAccountAdapter'
+
+# ==========================================
+# 로깅 설정 (카카오 로그인 디버깅용)
+# ==========================================
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{levelname}] {name}: {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'allauth': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}

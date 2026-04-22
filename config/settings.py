@@ -170,6 +170,8 @@ SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 
 # GET 요청으로 바로 카카오로 이동 (중간 확인 페이지 스킵)
 SOCIALACCOUNT_LOGIN_ON_GET = True
+# 소셜 로그인 후 추가 정보 입력 없이 자동 가입 (확인 페이지 스킵)
+SOCIALACCOUNT_AUTO_SIGNUP = True
 
 # 커스텀 어댑터
 ACCOUNT_ADAPTER = 'core.adapters.AccountAdapter'

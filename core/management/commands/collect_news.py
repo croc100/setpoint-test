@@ -17,11 +17,15 @@ API_URL             = 'https://openapi.naver.com/v1/search/news.json'
 
 # 키워드별 (검색어, 가져올 개수)
 KEYWORD_PLAN = [
-    ('배드민턴 국제대회', 2),
-    ('배드민턴 건강',     1),
-    ('배드민턴',          2),   # 중복 제거 후 4개 맞추기 위해 여유분
+    ('BWF 배드민턴 대회',   3),
+    ('배드민턴 국가대표',   3),
+    ('배드민턴 건강 운동',  3),
+    ('배드민턴 동호인 대회', 3),
 ]
 MAX_NEWS = 4
+
+# 제목에 이 단어 중 하나가 없으면 제외
+TITLE_MUST_CONTAIN = ['배드민턴']
 
 
 def _clean(text: str) -> str:
@@ -59,12 +63,16 @@ class Command(BaseCommand):
                 res.raise_for_status()
                 items = res.json().get('items', [])
                 for item in items:
-                    url = item.get('originallink') or item.get('link', '')
+                    url   = item.get('originallink') or item.get('link', '')
+                    title = _clean(item.get('title', ''))
                     if not url or url in seen_urls:
+                        continue
+                    # 제목에 '배드민턴'이 없으면 건너뜀
+                    if not any(kw in title for kw in TITLE_MUST_CONTAIN):
                         continue
                     seen_urls.add(url)
                     collected.append({
-                        'title':   _clean(item.get('title', '')),
+                        'title':   title,
                         'url':     url,
                         'summary': _clean(item.get('description', '')),
                     })

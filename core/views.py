@@ -682,13 +682,96 @@ class PlayerDetailView(DetailView):
         context['total_medals'] = total_medals
         context['total_wins'] = total_wins
         context['total_losses'] = total_losses
-        
+
         total_matches = total_wins + total_losses
         context['win_rate'] = (total_wins / total_matches * 100) if total_matches > 0 else 0.0
 
+        # 팔로우 여부
+        user = self.request.user
+        context['is_following'] = (
+            user.is_authenticated and
+            user.following_players.filter(pk=self.object.pk).exists()
+        )
+        context['follower_count'] = self.object.followers.count()
+
 
 # ==========================================
-# 9. 법적 문서 (이용약관 / 개인정보처리방침)
+# 9. 선수 팔로우 토글
+# ==========================================
+
+class FollowToggleView(LoginRequiredMixin, View):
+    """선수 팔로우/언팔로우 AJAX 토글"""
+    def post(self, request, pk):
+        player = get_object_or_404(Player, pk=pk)
+        user = request.user
+        if user.following_players.filter(pk=pk).exists():
+            user.following_players.remove(player)
+            following = False
+        else:
+            user.following_players.add(player)
+            following = True
+        return JsonResponse({
+            'following': following,
+            'count': player.followers.count(),
+        })
+
+
+# ==========================================
+# 10. 선수 비교
+# ==========================================
+
+def _player_stat_summary(player):
+    """선수 1명의 요약 통계 반환"""
+    stats = PlayerDailyStats.objects.filter(player=player)
+    agg = stats.aggregate(wins=Sum('win_count'), losses=Sum('loss_count'))
+    wins   = agg['wins'] or 0
+    losses = agg['losses'] or 0
+    total  = stats.count()
+    gold   = stats.filter(final_status='우승').count()
+    medals = stats.filter(final_status__in=['우승', '준우승', '3위']).count()
+    total_matches = wins + losses
+    win_rate = round(wins / total_matches * 100, 1) if total_matches > 0 else 0.0
+    recent = list(stats.select_related('tournament').order_by('-date')[:5])
+    return {
+        'player':    player,
+        'total':     total,
+        'wins':      wins,
+        'losses':    losses,
+        'gold':      gold,
+        'medals':    medals,
+        'win_rate':  win_rate,
+        'recent':    recent,
+    }
+
+
+class PlayerCompareView(TemplateView):
+    template_name = 'core/player_compare.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        p1_pk = self.request.GET.get('p1', '').strip()
+        p2_pk = self.request.GET.get('p2', '').strip()
+
+        p1 = _player_stat_summary(get_object_or_404(Player, pk=p1_pk)) if p1_pk else None
+        p2 = _player_stat_summary(get_object_or_404(Player, pk=p2_pk)) if p2_pk else None
+        context['p1'] = p1
+        context['p2'] = p2
+        context['p1_pk'] = p1_pk
+        context['p2_pk'] = p2_pk
+        if p1 and p2:
+            context['compare_rows'] = [
+                ('참가 대회', p1['total'],    p2['total'],    '회'),
+                ('총 승',     p1['wins'],     p2['wins'],     '승'),
+                ('총 패',     p1['losses'],   p2['losses'],   '패'),
+                ('🥇 우승',   p1['gold'],     p2['gold'],     '회'),
+                ('입상',      p1['medals'],   p2['medals'],   '회'),
+                ('승률',      p1['win_rate'], p2['win_rate'], '%'),
+            ]
+        return context
+
+
+# ==========================================
+# 11. 법적 문서 (이용약관 / 개인정보처리방침)
 # ==========================================
 
 class TermsView(TemplateView):
@@ -699,7 +782,7 @@ class PrivacyView(TemplateView):
 
 
 # ==========================================
-# 10. 마이페이지 (My Page)
+# 12. 마이페이지 (My Page)
 # ==========================================
 
 SOURCE_COLORS = {

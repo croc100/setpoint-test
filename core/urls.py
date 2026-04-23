@@ -14,6 +14,7 @@ from .views import (
     ManageDashboardView, ManageTournamentListView,
     TournamentCreateView, TournamentUpdateView, TournamentDeleteView,
     NoticeDeleteView,
+    FollowToggleView, PlayerCompareView,
 )
 
 app_name = 'core'
@@ -33,9 +34,11 @@ urlpatterns = [
     path('notice/<int:pk>/delete/', NoticeDeleteView.as_view(), name='notice_delete'),
     path('notice/<int:pk>/', NoticeDetailView.as_view(), name='notice_detail'),
 
-    # 선수 검색 / 랭킹
+    # 선수 검색 / 랭킹 / 팔로우 / 비교
     path('players/', PlayerSearchView.as_view(), name='player_search'),
     path('player/<int:pk>/', PlayerDetailView.as_view(), name='player_detail'),
+    path('player/<int:pk>/follow/', FollowToggleView.as_view(), name='player_follow'),
+    path('players/compare/', PlayerCompareView.as_view(), name='player_compare'),
     path('ranking/', ClubRankingView.as_view(), name='player_ranking'),
     path('club/', ClubDetailView.as_view(), name='club_detail'),
 

@@ -1,0 +1,202 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}선수 비교{% endblock %}
+
+{% block content %}
+<section class="py-6 space-y-1">
+    <h1 class="toss-title">선수 비교</h1>
+    <p class="text-sm text-tossGray-400">두 선수의 전적을 나란히 비교해보세요</p>
+</section>
+
+{# ── 선수 선택 폼 ── #}
+<form method="get" class="toss-card space-y-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <label class="block text-xs font-bold text-tossGray-500 mb-2">선수 A</label>
+            <input type="text" id="searchA" placeholder="이름 검색..."
+                   value="{% if p1 %}{{ p1.player.name }} · {{ p1.player.club }}{% endif %}"
+                   class="w-full px-4 py-3 rounded-xl border border-tossGray-200 dark:border-white/10 bg-tossGray-50 dark:bg-white/5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-tossBlue/40">
+            <input type="hidden" name="p1" id="p1Val" value="{{ p1_pk }}">
+            <div id="resultsA" class="mt-2 space-y-1 max-h-48 overflow-y-auto"></div>
+        </div>
+        <div>
+            <label class="block text-xs font-bold text-tossGray-500 mb-2">선수 B</label>
+            <input type="text" id="searchB" placeholder="이름 검색..."
+                   value="{% if p2 %}{{ p2.player.name }} · {{ p2.player.club }}{% endif %}"
+                   class="w-full px-4 py-3 rounded-xl border border-tossGray-200 dark:border-white/10 bg-tossGray-50 dark:bg-white/5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-tossBlue/40">
+            <input type="hidden" name="p2" id="p2Val" value="{{ p2_pk }}">
+            <div id="resultsB" class="mt-2 space-y-1 max-h-48 overflow-y-auto"></div>
+        </div>
+    </div>
+    <button type="submit"
+            class="w-full py-3 bg-tossBlue text-white rounded-xl text-sm font-bold hover:bg-blue-600 transition-colors">
+        비교하기
+    </button>
+</form>
+
+{% if p1 and p2 %}
+<div class="space-y-4">
+
+    {# ── 선수 헤더 ── #}
+    <div class="grid grid-cols-2 gap-4">
+        <div class="toss-card text-center space-y-1">
+            <div class="w-14 h-14 rounded-2xl bg-tossBlue/10 flex items-center justify-center text-2xl font-black text-tossBlue mx-auto">
+                {{ p1.player.name|first }}
+            </div>
+            <p class="font-black text-tossGray-900 dark:text-white text-lg">{{ p1.player.name }}</p>
+            <p class="text-xs text-tossGray-400">{{ p1.player.club }}</p>
+            {% if p1.player.level %}
+            <span class="inline-block text-xs font-bold px-2 py-0.5 rounded-lg bg-tossGray-100 dark:bg-white/10 text-tossGray-600 dark:text-tossGray-300">{{ p1.player.level }}</span>
+            {% endif %}
+            <div class="pt-1">
+                <a href="{% url 'core:player_detail' p1.player.pk %}" class="text-xs text-tossBlue hover:underline">전적 보기 →</a>
+            </div>
+        </div>
+        <div class="toss-card text-center space-y-1">
+            <div class="w-14 h-14 rounded-2xl bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center text-2xl font-black text-orange-500 mx-auto">
+                {{ p2.player.name|first }}
+            </div>
+            <p class="font-black text-tossGray-900 dark:text-white text-lg">{{ p2.player.name }}</p>
+            <p class="text-xs text-tossGray-400">{{ p2.player.club }}</p>
+            {% if p2.player.level %}
+            <span class="inline-block text-xs font-bold px-2 py-0.5 rounded-lg bg-tossGray-100 dark:bg-white/10 text-tossGray-600 dark:text-tossGray-300">{{ p2.player.level }}</span>
+            {% endif %}
+            <div class="pt-1">
+                <a href="{% url 'core:player_detail' p2.player.pk %}" class="text-xs text-tossBlue hover:underline">전적 보기 →</a>
+            </div>
+        </div>
+    </div>
+
+    {# ── 스탯 비교표 ── #}
+    <div class="toss-card !p-0 overflow-hidden">
+        {% for label, v1, v2, unit in compare_rows %}
+        <div class="grid grid-cols-[1fr_80px_1fr] items-center px-5 py-4 border-b border-tossGray-50 dark:border-white/[0.04] last:border-0">
+            <div class="text-right">
+                <span class="text-xl font-black
+                    {% if v1 > v2 %}text-tossBlue{% elif v1 < v2 %}text-tossGray-300 dark:text-tossGray-600{% else %}text-tossGray-700 dark:text-tossGray-200{% endif %}">
+                    {{ v1 }}{{ unit }}
+                </span>
+            </div>
+            <div class="text-center">
+                <span class="text-[11px] font-bold text-tossGray-400">{{ label }}</span>
+            </div>
+            <div class="text-left">
+                <span class="text-xl font-black
+                    {% if v2 > v1 %}text-orange-500{% elif v2 < v1 %}text-tossGray-300 dark:text-tossGray-600{% else %}text-tossGray-700 dark:text-tossGray-200{% endif %}">
+                    {{ v2 }}{{ unit }}
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {# ── 최근 대회 비교 ── #}
+    <div class="grid grid-cols-2 gap-4">
+        <div class="toss-card space-y-3">
+            <p class="text-xs font-black text-tossGray-500 uppercase tracking-wide">최근 대회 (A)</p>
+            {% for stat in p1.recent %}
+            <div class="flex items-center justify-between gap-2 py-1.5 border-b border-tossGray-50 dark:border-white/[0.03] last:border-0">
+                <div class="min-w-0">
+                    <p class="text-xs font-bold text-tossGray-800 dark:text-tossGray-200 truncate">
+                        {% if stat.tournament %}{{ stat.tournament.name|truncatechars:18 }}{% else %}대회 정보 없음{% endif %}
+                    </p>
+                    <p class="text-[10px] text-tossGray-400">{{ stat.date|date:"Y.m.d" }}</p>
+                </div>
+                <div class="text-right shrink-0">
+                    {% if stat.rank %}
+                    <span class="text-[10px] font-black px-1.5 py-0.5 rounded
+                        {% if stat.rank == '1' or stat.rank == '우승' %}bg-yellow-100 text-yellow-700
+                        {% elif stat.rank == '2' %}bg-gray-200 text-gray-600
+                        {% elif stat.rank == '3' %}bg-orange-100 text-orange-600
+                        {% else %}bg-tossGray-100 dark:bg-white/10 text-tossGray-500{% endif %}">
+                        {{ stat.rank }}위
+                    </span>
+                    {% endif %}
+                    <p class="text-[10px] text-tossGray-400 mt-0.5">{{ stat.win_count }}승 {{ stat.loss_count }}패</p>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-xs text-tossGray-400">데이터 없음</p>
+            {% endfor %}
+        </div>
+        <div class="toss-card space-y-3">
+            <p class="text-xs font-black text-tossGray-500 uppercase tracking-wide">최근 대회 (B)</p>
+            {% for stat in p2.recent %}
+            <div class="flex items-center justify-between gap-2 py-1.5 border-b border-tossGray-50 dark:border-white/[0.03] last:border-0">
+                <div class="min-w-0">
+                    <p class="text-xs font-bold text-tossGray-800 dark:text-tossGray-200 truncate">
+                        {% if stat.tournament %}{{ stat.tournament.name|truncatechars:18 }}{% else %}대회 정보 없음{% endif %}
+                    </p>
+                    <p class="text-[10px] text-tossGray-400">{{ stat.date|date:"Y.m.d" }}</p>
+                </div>
+                <div class="text-right shrink-0">
+                    {% if stat.rank %}
+                    <span class="text-[10px] font-black px-1.5 py-0.5 rounded
+                        {% if stat.rank == '1' or stat.rank == '우승' %}bg-yellow-100 text-yellow-700
+                        {% elif stat.rank == '2' %}bg-gray-200 text-gray-600
+                        {% elif stat.rank == '3' %}bg-orange-100 text-orange-600
+                        {% else %}bg-tossGray-100 dark:bg-white/10 text-tossGray-500{% endif %}">
+                        {{ stat.rank }}위
+                    </span>
+                    {% endif %}
+                    <p class="text-[10px] text-tossGray-400 mt-0.5">{{ stat.win_count }}승 {{ stat.loss_count }}패</p>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-xs text-tossGray-400">데이터 없음</p>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% elif p1_pk or p2_pk %}
+<div class="toss-card text-center py-16 text-tossGray-400">
+    <p class="text-4xl mb-3">🏸</p>
+    <p class="font-bold">선수를 두 명 모두 선택해주세요</p>
+</div>
+{% else %}
+<div class="toss-card text-center py-16 text-tossGray-400">
+    <p class="text-4xl mb-3">⚖️</p>
+    <p class="font-bold">비교할 선수 두 명을 위에서 검색해보세요</p>
+</div>
+{% endif %}
+
+<script>
+function setupSearch(inputId, resultsId, hiddenId) {
+    const input   = document.getElementById(inputId);
+    const results = document.getElementById(resultsId);
+    const hidden  = document.getElementById(hiddenId);
+    let timer;
+    input.addEventListener('input', () => {
+        clearTimeout(timer);
+        const q = input.value.trim();
+        if (!q) { results.innerHTML = ''; return; }
+        timer = setTimeout(async () => {
+            const res  = await fetch(`/mypage/claim/search/?q=${encodeURIComponent(q)}`);
+            const data = await res.json();
+            results.innerHTML = (data.results || []).map(p => `
+                <div onclick="selectPlayer('${hiddenId}','${inputId}','${resultsId}',${p.id},'${esc(p.name)}','${esc(p.club)}')"
+                     class="px-3 py-2 rounded-xl border border-tossGray-100 dark:border-white/10 cursor-pointer hover:bg-tossGray-50 dark:hover:bg-white/5 transition-colors">
+                    <span class="text-sm font-bold text-tossGray-900 dark:text-white">${esc(p.name)}</span>
+                    <span class="text-xs text-tossGray-400 ml-1">${esc(p.club)}</span>
+                </div>
+            `).join('') || '<p class="text-xs text-tossGray-400 px-2 py-1">검색 결과 없음</p>';
+        }, 300);
+    });
+}
+
+function selectPlayer(hiddenId, inputId, resultsId, id, name, club) {
+    document.getElementById(hiddenId).value = id;
+    document.getElementById(inputId).value  = name + ' · ' + club;
+    document.getElementById(resultsId).innerHTML = '';
+}
+
+function esc(s) {
+    return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+setupSearch('searchA', 'resultsA', 'p1Val');
+setupSearch('searchB', 'resultsB', 'p2Val');
+</script>
+{% endblock %}

@@ -40,19 +40,35 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['news'] = News.objects.all().order_by('-created_at')[:5]
-        
-        # [수정] is_published=True 인 공지만 노출되도록 필터링 추가
+        context['news'] = News.objects.all().order_by('-created_at')[:4]
         context['notices'] = Notice.objects.filter(is_published=True).order_by('-is_pinned', '-publish_at')[:5]
-        context['featured_items'] = FeaturedItem.objects.select_related('tournament').all()[:3]
-        
+
+        # 금주의 대회: 오늘부터 7일 이내 시작하는 대회 자동 필터
+        today = datetime.date.today()
+        week_later = today + datetime.timedelta(days=7)
+        context['this_week_tournaments'] = Tournament.objects.filter(
+            start_date__gte=today,
+            start_date__lte=week_later,
+        ).order_by('start_date')[:6]
+
+        # 동호회 랭킹 TOP 5 (입상 횟수 기준)
+        context['top_clubs'] = list(
+            PlayerDailyStats.objects
+            .exclude(player__club='')
+            .values('player__club', 'player__source')
+            .annotate(
+                gold_count=Count('id', filter=Q(final_status='우승')),
+                medal_count=Count('id', filter=Q(final_status__in=['우승', '준우승', '3위'])),
+            )
+            .filter(medal_count__gt=0)
+            .order_by('-medal_count', '-gold_count')[:5]
+        )
+
         user = self.request.user
         if user.is_authenticated:
             context['greeting_name'] = user.nickname or user.username
-            context['my_highlight'] = "오늘의 새로운 소식을 확인해보세요"
         else:
             context['greeting_name'] = "방문자"
-            context['my_highlight'] = "로그인하고 내 전적을 관리해보세요"
         return context
 
 
@@ -285,6 +301,7 @@ class TournamentListView(ListView):
         q      = self.request.GET.get('q', '').strip()
         source = self.request.GET.get('source', '').strip()
         status = self.request.GET.get('status', '').strip()
+        region = self.request.GET.get('region', '').strip()
 
         qs = Tournament.objects.filter(start_date__isnull=False).order_by('-start_date')
 
@@ -292,6 +309,8 @@ class TournamentListView(ListView):
             qs = qs.filter(name__icontains=q)
         if source:
             qs = qs.filter(source=source)
+        if region:
+            qs = qs.filter(region=region)
         if status == 'upcoming':
             qs = qs.filter(start_date__gte=today)
         elif status == 'ongoing':
@@ -303,15 +322,25 @@ class TournamentListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['query']        = self.request.GET.get('q', '')
-        context['source_q']     = self.request.GET.get('source', '')
-        context['status_q']     = self.request.GET.get('status', '')
-        context['sources']      = list(SOURCE_META.items())
+        context['query']    = self.request.GET.get('q', '')
+        context['source_q'] = self.request.GET.get('source', '')
+        context['status_q'] = self.request.GET.get('status', '')
+        context['region_q'] = self.request.GET.get('region', '')
+        context['sources']  = list(SOURCE_META.items())
         context['status_choices'] = [
             ('upcoming', '예정'),
             ('ongoing',  '진행중'),
             ('finished', '종료'),
         ]
+        # 지역 목록 (데이터가 있는 것만 추출)
+        context['regions'] = (
+            Tournament.objects
+            .filter(start_date__isnull=False)
+            .exclude(region='')
+            .values_list('region', flat=True)
+            .distinct()
+            .order_by('region')
+        )
         return context
 
 

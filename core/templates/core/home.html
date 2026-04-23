@@ -72,41 +72,58 @@
         <section class="toss-card bg-tossBlue/[0.03] border-tossBlue/10">
             <div class="flex justify-between items-center mb-5">
                 <h2 class="text-sm font-bold text-tossBlue">금주의 대회 🔥</h2>
+                <a href="{% url 'core:tournament_list' %}?status=upcoming" class="text-xs font-bold text-tossBlue/60 hover:text-tossBlue">전체보기</a>
             </div>
 
-            {% if featured_items %}
-                <div class="space-y-6">
-                    {% for ft in featured_items %}
+            {% if this_week_tournaments %}
+                <div class="space-y-4">
+                    {% for t in this_week_tournaments %}
                     <div class="relative pl-4 border-l-2 border-tossBlue/20">
                         <h3 class="text-[14px] font-bold leading-tight">
-                            {% if ft.tournament.external_url %}
-                                <a href="{{ ft.tournament.external_url }}" target="_blank" rel="noopener noreferrer" class="hover:underline">
-                                    {{ ft.tournament.name }}
-                                </a>
+                            {% if t.external_url %}
+                                <a href="{{ t.external_url }}" target="_blank" rel="noopener noreferrer" class="hover:underline">{{ t.name }}</a>
                             {% else %}
-                                {{ ft.tournament.name }}
+                                {{ t.name }}
                             {% endif %}
                         </h3>
-                        <p class="text-[11px] text-tossGray-500 mt-2 font-medium">
-                            {% if ft.tournament.start_date %}
-                                {{ ft.tournament.start_date|date:"m.d" }}
-                                {% if ft.tournament.end_date %} ~ {{ ft.tournament.end_date|date:"m.d" }}{% endif %}
-                            {% endif %}
-                            {% if ft.tournament.region %} · {{ ft.tournament.region }}{% endif %}
+                        <p class="text-[11px] text-tossGray-500 mt-1 font-medium">
+                            {{ t.start_date|date:"m.d" }}{% if t.end_date and t.start_date != t.end_date %} ~ {{ t.end_date|date:"m.d" }}{% endif %}
+                            {% if t.region %} · {{ t.region }}{% endif %}
                         </p>
                     </div>
                     {% endfor %}
                 </div>
             {% else %}
-                <p class="text-sm text-tossGray-400 py-4">이번 주 대회가 없습니다.</p>
+                <p class="text-sm text-tossGray-400 py-4">이번 주 예정된 대회가 없습니다.</p>
             {% endif %}
         </section>
 
         <section class="toss-card">
-            <h2 class="text-sm font-bold text-tossGray-500 mb-4">동호회 랭킹</h2>
-            <div class="flex items-center justify-center py-8 bg-tossGray-50 dark:bg-white/5 rounded-2xl border border-dashed border-tossGray-200 dark:border-white/10">
-                <p class="text-xs text-tossGray-400 font-bold">랭킹 시스템 집계 중</p>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-sm font-bold text-tossGray-500">동호회 랭킹</h2>
+                <a href="{% url 'core:player_ranking' %}" class="text-xs font-bold text-tossBlue">전체보기</a>
             </div>
+            {% if top_clubs %}
+                <div class="space-y-2">
+                    {% for club in top_clubs %}
+                    <div class="flex items-center gap-3 py-1.5">
+                        <span class="text-xs font-black w-5 text-center
+                            {% if forloop.counter == 1 %}text-yellow-500
+                            {% elif forloop.counter == 2 %}text-tossGray-400
+                            {% elif forloop.counter == 3 %}text-orange-400
+                            {% else %}text-tossGray-300{% endif %}">
+                            {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% elif forloop.counter == 3 %}🥉{% else %}{{ forloop.counter }}{% endif %}
+                        </span>
+                        <span class="flex-1 text-sm font-bold text-tossGray-800 dark:text-tossGray-200 truncate">{{ club.player__club }}</span>
+                        <span class="text-xs text-tossGray-400 shrink-0">우승 {{ club.gold_count }} · 입상 {{ club.medal_count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="flex items-center justify-center py-8 bg-tossGray-50 dark:bg-white/5 rounded-2xl border border-dashed border-tossGray-200 dark:border-white/10">
+                    <p class="text-xs text-tossGray-400 font-bold">집계 중</p>
+                </div>
+            {% endif %}
         </section>
     </div>
 </div>

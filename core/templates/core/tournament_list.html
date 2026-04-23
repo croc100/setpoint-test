@@ -65,6 +65,26 @@
         </a>
         {% endfor %}
     </div>
+
+    {# 지역 필터 #}
+    {% if regions %}
+    <div class="flex gap-2 flex-wrap">
+        <a href="?{% if query %}q={{ query|urlencode }}&{% endif %}{% if source_q %}source={{ source_q }}&{% endif %}{% if status_q %}status={{ status_q }}{% endif %}"
+           class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all
+           {% if not region_q %}bg-tossGray-800 text-white dark:bg-white dark:text-tossGray-900
+           {% else %}bg-white dark:bg-zinc-800 text-tossGray-500 hover:bg-tossGray-100 dark:hover:bg-white/10{% endif %}">
+            전국
+        </a>
+        {% for region in regions %}
+        <a href="?{% if query %}q={{ query|urlencode }}&{% endif %}{% if source_q %}source={{ source_q }}&{% endif %}{% if status_q %}status={{ status_q }}&{% endif %}region={{ region|urlencode }}"
+           class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all
+           {% if region_q == region %}bg-tossBlue text-white
+           {% else %}bg-white dark:bg-zinc-800 text-tossGray-500 hover:bg-tossGray-100 dark:hover:bg-white/10{% endif %}">
+            {{ region }}
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
 </form>
 
 {# ── 결과 목록 ── #}
@@ -134,12 +154,12 @@
         {% if is_paginated %}
         <nav class="flex justify-center items-center gap-4 py-8">
             {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query|urlencode }}{% endif %}{% if source_q %}&source={{ source_q }}{% endif %}{% if status_q %}&status={{ status_q }}{% endif %}"
+            <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query|urlencode }}{% endif %}{% if source_q %}&source={{ source_q }}{% endif %}{% if status_q %}&status={{ status_q }}{% endif %}{% if region_q %}&region={{ region_q|urlencode }}{% endif %}"
                class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-zinc-800 shadow-sm text-tossGray-500 hover:text-tossBlue transition-colors">←</a>
             {% endif %}
             <span class="text-sm font-bold text-tossGray-900 dark:text-white">{{ page_obj.number }} / {{ paginator.num_pages }}</span>
             {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query|urlencode }}{% endif %}{% if source_q %}&source={{ source_q }}{% endif %}{% if status_q %}&status={{ status_q }}{% endif %}"
+            <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query|urlencode }}{% endif %}{% if source_q %}&source={{ source_q }}{% endif %}{% if status_q %}&status={{ status_q }}{% endif %}{% if region_q %}&region={{ region_q|urlencode }}{% endif %}"
                class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-zinc-800 shadow-sm text-tossGray-500 hover:text-tossBlue transition-colors">→</a>
             {% endif %}
         </nav>

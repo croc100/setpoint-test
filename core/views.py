@@ -49,7 +49,7 @@ class HomeView(TemplateView):
         context['this_week_tournaments'] = Tournament.objects.filter(
             start_date__gte=today,
             start_date__lte=week_later,
-        ).order_by('start_date')[:6]
+        ).order_by('start_date')[:4]
 
         # 동호회 랭킹 TOP 5 (입상 횟수 기준)
         context['top_clubs'] = list(

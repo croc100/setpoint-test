@@ -248,7 +248,7 @@ def _extract_winners_heuristic(
 # ──────────────────────────────────────────
 # 퍼블릭 인터페이스 (collect_stats.py에서 호출)
 # ──────────────────────────────────────────
-def run_wekkuk_stats_hunter(contest_ids: List[str], sleep: float = 0.2) -> List[str]:
+def run_weekuk_stats_hunter(contest_ids: List[str], sleep: float = 0.2) -> List[str]:
     """
     지정된 대회 ID 목록의 전적 데이터를 수집하고 JSONL로 저장합니다.
 
@@ -340,7 +340,10 @@ def run_wekkuk_stats_hunter(contest_ids: List[str], sleep: float = 0.2) -> List[
 # ──────────────────────────────────────────
 # 단독 실행 (테스트용)
 # ──────────────────────────────────────────
+# 구버전 호환 alias
+run_wekkuk_stats_hunter = run_weekuk_stats_hunter
+
 if __name__ == "__main__":
     test_ids = ["653", "733"]
-    result = run_wekkuk_stats_hunter(test_ids)
+    result = run_weekuk_stats_hunter(test_ids)
     print(f"\n[Test] 성공: {result}")

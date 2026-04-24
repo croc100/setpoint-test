@@ -27,18 +27,23 @@ echo "[1/4] 대회 일정 수집..."
 $PYTHON $MANAGE collect_all --no-players
 echo "      완료"
 
-# 2. 미수집 대회 전적 수집 (최대 50개/회)
-echo "[2/4] 선수 전적 수집..."
+# 2. 대회 상태 자동 갱신 (end_date 지난 대회 → finished)
+echo "[2/5] 대회 상태 갱신..."
+$PYTHON $MANAGE update_tournament_status
+echo "      완료"
+
+# 3. 미수집 대회 전적 수집 (최대 50개/회)
+echo "[3/5] 선수 전적 수집..."
 $PYTHON $MANAGE collect_stats --limit 50
 echo "      완료"
 
-# 3. 배드민턴 뉴스 수집 (네이버 검색 API)
-echo "[3/4] 뉴스 수집..."
+# 4. 배드민턴 뉴스 수집 (네이버 검색 API)
+echo "[4/5] 뉴스 수집..."
 $PYTHON $MANAGE collect_news
 echo "      완료"
 
-# 4. sitemap.xml 재생성
-echo "[4/4] sitemap.xml 생성..."
+# 5. sitemap.xml 재생성
+echo "[5/5] sitemap.xml 생성..."
 $PYTHON $MANAGE generate_sitemap
 echo "      완료"
 

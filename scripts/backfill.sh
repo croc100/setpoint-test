@@ -26,6 +26,14 @@ echo "[STEP 1] 완료"
 
 sleep 10
 
+# ── STEP 1.5: 날짜 지난 대회 → finished 상태 갱신 ──
+echo ""
+echo "[STEP 1.5] 대회 상태 갱신 (end_date 기준)..."
+$PYTHON $MANAGE update_tournament_status
+echo "[STEP 1.5] 완료"
+
+sleep 5
+
 # ── STEP 2: 전적 배치 수집 (50개씩, 배치 사이 30초 대기) ──
 echo ""
 echo "[STEP 2] 선수 전적 배치 수집 시작..."

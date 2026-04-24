@@ -832,9 +832,36 @@ class MyPageView(LoginRequiredMixin, View):
                 'badge_label': badge_label,
             })
 
+        # 팔로잉 선수 + 최근 전적 (prefetch로 N+1 방지)
+        following_players = (
+            request.user.following_players
+            .prefetch_related(
+                Prefetch(
+                    'daily_stats',
+                    queryset=PlayerDailyStats.objects
+                        .select_related('tournament')
+                        .order_by('-date')[:3],
+                    to_attr='recent_stats',
+                )
+            )
+            .order_by('name')
+        )
+
         return render(request, self.template_name, {
             'claimed_data': claimed_data,
+            'following_players': following_players,
         })
+
+    def post(self, request, *args, **kwargs):
+        """닉네임 변경 처리"""
+        nickname = request.POST.get('nickname', '').strip()
+        if nickname:
+            if len(nickname) > 20:
+                return JsonResponse({'ok': False, 'error': '닉네임은 20자 이하여야 해요'})
+            request.user.nickname = nickname
+            request.user.save(update_fields=['nickname'])
+            return JsonResponse({'ok': True, 'nickname': nickname})
+        return JsonResponse({'ok': False, 'error': '닉네임을 입력해주세요'})
 
 
 class PlayerClaimSearchView(LoginRequiredMixin, View):

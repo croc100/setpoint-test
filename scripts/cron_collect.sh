@@ -33,8 +33,13 @@ $PYTHON $MANAGE collect_stats --limit 30
 echo "      완료"
 
 # 3. 배드민턴 뉴스 수집 (네이버 검색 API)
-echo "[3/3] 뉴스 수집..."
+echo "[3/4] 뉴스 수집..."
 $PYTHON $MANAGE collect_news
+echo "      완료"
+
+# 4. sitemap.xml 재생성
+echo "[4/4] sitemap.xml 생성..."
+$PYTHON $MANAGE generate_sitemap
 echo "      완료"
 
 echo "[$DATE] 자동 수집 완료"

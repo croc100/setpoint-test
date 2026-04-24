@@ -1,0 +1,41 @@
+{
+  "name": "setpoint — 배드민턴 전적",
+  "short_name": "setpoint",
+  "description": "전국 배드민턴 대회 일정 · 선수 전적 조회",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#3182f6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/static/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "선수 검색",
+      "url": "/players/",
+      "description": "선수 이름으로 전적 검색"
+    },
+    {
+      "name": "대회 일정",
+      "url": "/tournaments/",
+      "description": "전국 배드민턴 대회 목록"
+    },
+    {
+      "name": "캘린더",
+      "url": "/calendar/",
+      "description": "월별 대회 캘린더"
+    }
+  ]
+}

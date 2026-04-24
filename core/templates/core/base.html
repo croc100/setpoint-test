@@ -10,13 +10,18 @@
     <meta name="description" content="전국 배드민턴 대회 검색 · 일정 캘린더 · 선수 전적 조회 — 위꾹, 스포넷, 우동배, 페이스콕, 배프 통합 플랫폼">
     <meta name="keywords" content="배드민턴 대회, 배드민턴 일정, 위꾹, 스포넷, 우동배, 페이스콕, 배프, 배드민턴 전적, 배드민턴 선수 검색">
     
-    <meta property="og:title" content="Setpoint - 전국 배드민턴 대회 일정 통합">
-    <meta property="og:description" content="전국 배드민턴 대회 일정 한눈에 보기 · 선수 검색 기능 제공">
-    <meta property="og:url" content="https://setpoint.kr">
+    {# OG 태그 — 각 페이지에서 block og_* 으로 덮어쓸 수 있음 #}
+    <meta property="og:title" content="{% block og_title %}setpoint — 전국 배드민턴 대회 일정 통합{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}전국 배드민턴 대회 일정 한눈에 보기 · 선수 검색 기능 제공{% endblock %}">
+    <meta property="og:url" content="{% block og_url %}https://setpoint.kr{% endblock %}">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="https://setpoint.kr/static/og_image.png">
+    <meta property="og:image" content="{% block og_image %}https://setpoint.kr/static/og_image.png{% endblock %}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="theme-color" content="#3182f6">
+    <link rel="manifest" href="/static/manifest.json">
     <link rel="icon" href="{% static 'favicon.png' %}" type="image/png">
-    <link rel="apple-touch-icon" href="{% static 'favicon.png' %}"> <link rel="shortcut icon" href="{% static 'favicon.png' %}" type="image/png">
+    <link rel="apple-touch-icon" href="{% static 'favicon.png' %}">
+    <link rel="shortcut icon" href="{% static 'favicon.png' %}" type="image/png">
 
     <meta name="msapplication-TileImage" content="{% static 'favicon.png' %}">
     <title>setpoint - {% block title %}{% endblock %}</title>
@@ -193,6 +198,11 @@
         });
     </script>
     {% block extra_scripts %}{% endblock %}
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/static/sw.js').catch(() => {});
+      }
+    </script>
 
     {# ── 문의 모달 ── #}
     <div id="contactModal"

@@ -2,6 +2,9 @@
 {% load static %}
 
 {% block title %}{{ player.name }} 선수의 상세 전적{% endblock %}
+{% block og_title %}{{ player.name }}{% if player.club %} ({{ player.club }}){% endif %} 선수 전적 — setpoint{% endblock %}
+{% block og_description %}승률 {{ win_rate|floatformat:1 }}% · {{ total_wins }}승 {{ total_losses }}패 · 입상 {{ total_medals }}회 | setpoint.kr에서 전적을 확인하세요{% endblock %}
+{% block og_url %}https://setpoint.kr{% url 'core:player_detail' player.pk %}{% endblock %}
 
 {% block content %}
 <section class="py-6 max-w-4xl mx-auto space-y-6">

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://setpoint.kr/static/sitemap.xml

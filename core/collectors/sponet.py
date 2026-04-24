@@ -59,7 +59,7 @@ def fetch_tournaments_from_proxy(limit: int = 100) -> List[Dict[str, Any]]:
         print(f"[!] 프록시 API 통신 오류: {e}")
         return []
 
-def collect_tournaments(limit: int = 100, known_ids: set = None):
+def collect_tournaments(limit: int = 9999, known_ids: set = None):
     """스포넷 대회 목록 수집 (단일 파일 저장 로직 제거, 리스트 반환)"""
     known_ids = known_ids or set()
     os.makedirs(RAW_TOURNAMENT_DIR, exist_ok=True)
@@ -75,23 +75,16 @@ def collect_tournaments(limit: int = 100, known_ids: set = None):
     seen_ids = set()
     now = datetime.now()
     
-    # 1년 전 데이터까지만 수집 (필터링)
-    threshold = now.date() - timedelta(days=365)
-
     for raw in raw_tournaments:
         tid = raw.get("TOURNAMENT_ID")
         if not tid or tid in seen_ids or str(tid) in known_ids:
             continue
-            
+
         start_raw = raw.get("TOUR_DATE_FROM") or ""
         end_raw = raw.get("TOUR_DATE_TO") or ""
-        
+
         start_dt = _parse_yyyymmdd_str(start_raw)
         end_dt = _parse_yyyymmdd_str(end_raw)
-        
-        # 날짜가 없거나 1년이 지난 과거 데이터는 패스
-        if not start_dt or start_dt < threshold:
-            continue
 
         seen_ids.add(tid)
         

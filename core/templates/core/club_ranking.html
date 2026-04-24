@@ -99,7 +99,6 @@
             <tr>
                 <th class="px-5 py-4 text-xs font-bold text-tossGray-400 w-14">순위</th>
                 <th class="px-5 py-4 text-xs font-bold text-tossGray-400">동호회</th>
-                <th class="px-5 py-4 text-xs font-bold text-tossGray-400 text-center">선수</th>
                 <th class="px-5 py-4 text-xs font-bold text-tossGray-400 text-center">출전</th>
                 <th class="px-5 py-4 text-xs font-bold text-tossGray-400 text-center">🏆 우승</th>
                 <th class="px-5 py-4 text-xs font-bold text-tossGray-400 text-center">🏅 입상</th>
@@ -145,12 +144,6 @@
                             {% else %}{{ club.player__source }}{% endif %}
                         </span>
                     </div>
-                </td>
-
-                {# 소속 선수 수 #}
-                <td class="px-5 py-4 text-center">
-                    <span class="text-sm font-black text-tossGray-800 dark:text-tossGray-200">{{ club.player_count }}</span>
-                    <span class="text-xs text-tossGray-400">명</span>
                 </td>
 
                 {# 출전 횟수 #}

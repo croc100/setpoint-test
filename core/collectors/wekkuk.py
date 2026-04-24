@@ -152,7 +152,7 @@ def fetch_list(page: int, session: requests.Session) -> List[RawTournament]:
 
     return tournaments
 
-def collect_tournaments(max_pages: int = 1, known_ids: set = None):
+def collect_tournaments(max_pages: int = 0, known_ids: set = None):
     """위꾹 대회 목록 수집 (단일 파일 저장 로직 제거, 리스트 반환)"""
     known_ids = known_ids or set()
     os.makedirs(RAW_TOURNAMENT_DIR, exist_ok=True)

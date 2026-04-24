@@ -474,7 +474,6 @@ class ClubRankingView(View):
         ('medals',  '입상 많은 순'),
         ('gold',    '우승 많은 순'),
         ('entries', '출전 많은 순'),
-        ('players', '선수 많은 순'),
     ]
 
     def get(self, request):
@@ -495,7 +494,6 @@ class ClubRankingView(View):
         clubs = (
             qs.values('player__club', 'player__source')
             .annotate(
-                player_count = Count('player', distinct=True),
                 entry_count  = Count('id'),
                 gold_count   = Count('id', filter=Q(final_status='우승')),
                 medal_count  = Count('id', filter=Q(
@@ -509,8 +507,6 @@ class ClubRankingView(View):
             clubs = clubs.order_by('-gold_count', '-medal_count', '-entry_count')
         elif sort == 'entries':
             clubs = clubs.order_by('-entry_count', '-medal_count')
-        elif sort == 'players':
-            clubs = clubs.order_by('-player_count', '-medal_count')
         else:  # medals (기본)
             clubs = clubs.order_by('-medal_count', '-gold_count', '-entry_count')
 

@@ -22,14 +22,14 @@ echo "=========================================="
 
 cd "$PROJECT_DIR"
 
-# 1. 대회 일정 수집 (전 플랫폼)
-echo "[1/3] 대회 일정 수집..."
+# 1. 대회 일정 수집 (전 플랫폼 — incremental: 기존 ID skip, 전체 페이지 조회)
+echo "[1/4] 대회 일정 수집..."
 $PYTHON $MANAGE collect_all --no-players
 echo "      완료"
 
-# 2. 미수집 대회 전적 수집 (최근 30개만)
-echo "[2/3] 선수 전적 수집..."
-$PYTHON $MANAGE collect_stats --limit 30
+# 2. 미수집 대회 전적 수집 (최대 50개/회)
+echo "[2/4] 선수 전적 수집..."
+$PYTHON $MANAGE collect_stats --limit 50
 echo "      완료"
 
 # 3. 배드민턴 뉴스 수집 (네이버 검색 API)

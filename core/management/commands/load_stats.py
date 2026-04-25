@@ -58,9 +58,8 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        import os
-        BASE_DIR = Path(__file__).resolve().parents[3]  # 프로젝트 루트 (core/management/commands/ → 3단계 위)
-        raw_dir  = BASE_DIR / "data" / "raw"
+        from django.conf import settings
+        raw_dir = Path(settings.BASE_DIR) / "data" / "raw"
 
         source = (options.get('source') or "").upper() or None
 

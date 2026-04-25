@@ -72,6 +72,14 @@ class Command(BaseCommand):
             self.stdout.write("\n[load_stats] WEEKUK 적재 시작...")
             self._load_weekuk(raw_dir)
 
+        if source in (None, "SPONET"):
+            self.stdout.write("\n[load_stats] SPONET 적재 시작...")
+            self._load_sponet(raw_dir)
+
+        if source in (None, "FACECOK"):
+            self.stdout.write("\n[load_stats] FACECOK 적재 시작...")
+            self._load_facecok(raw_dir)
+
         self.stdout.write(self.style.SUCCESS("\n[load_stats] 완료"))
 
     # ──────────────────────────────────────────────────────────
@@ -312,3 +320,173 @@ class Command(BaseCommand):
 
             except Exception as e:
                 self.stderr.write(f"  [!] 롤백: {title} ({e})")
+
+    # ──────────────────────────────────────────────────────────
+    # SPONET 적재
+    # sponet_players + sponet_winners 두 파일 기반
+    # Tournament name은 collect_all이 이미 설정 → get()으로 조회, 덮어쓰지 않음
+    # ──────────────────────────────────────────────────────────
+    def _load_sponet(self, raw_dir: Path):
+        from core.models import Tournament, Player, PlayerDailyStats
+
+        player_files = sorted(
+            glob.glob(str(raw_dir / "players" / "sponet_players_*.jsonl"))
+        )
+        if not player_files:
+            self.stdout.write("  [-] 적재할 SPONET 파일 없음")
+            return
+
+        _rank_order = {'우승': 1, '준우승': 2, '3위': 3, '4위': 4}
+
+        for p_file in player_files:
+            # 파일명에서 tournament_id 추출: sponet_players_TM_20260215151506.jsonl
+            stem = Path(p_file).stem       # "sponet_players_TM_20260215151506"
+            cid  = stem[len("sponet_players_"):]
+            players = _read_jsonl(p_file)
+            winners = _read_jsonl(raw_dir / "winners" / f"sponet_winners_{cid}.jsonl")
+
+            if not players:
+                continue
+
+            # Tournament은 collect_all이 이미 생성 (name 덮어쓰지 않음)
+            try:
+                tournament = Tournament.objects.get(source='SPONET', external_id=cid)
+            except Tournament.DoesNotExist:
+                tournament = Tournament.objects.create(
+                    source='SPONET', external_id=cid, name=cid, status='finished'
+                )
+
+            title = tournament.name
+            self.stdout.write(f"  [-] {title} (ID:{cid})")
+
+            winner_lookup: dict = {}
+            for w in winners:
+                placement = (w.get('placement') or '').strip()
+                if not placement:
+                    continue
+                for key in ('player1_name', 'player2_name'):
+                    nm = (w.get(key) or '').strip()
+                    if nm:
+                        existing = winner_lookup.get(nm)
+                        if existing is None or \
+                                _rank_order.get(placement, 9) < _rank_order.get(existing, 9):
+                            winner_lookup[nm] = placement
+
+            try:
+                with transaction.atomic():
+                    for p_data in players:
+                        for name_key, club_key in [('player_name', 'club'),
+                                                    ('partner_name', 'partner_club')]:
+                            name = (p_data.get(name_key) or '').strip()
+                            club = (p_data.get(club_key) or '').strip()
+                            if not name:
+                                continue
+
+                            uid = f"SPONET_{name}_{club or 'NONE'}"
+                            player, _ = Player.objects.update_or_create(
+                                external_uid=uid,
+                                defaults={'name': name, 'club': club, 'source': 'SPONET'},
+                            )
+
+                            pmt          = winner_lookup.get(name)
+                            final_status = pmt if pmt else "참가"
+
+                            PlayerDailyStats.objects.update_or_create(
+                                player=player,
+                                tournament=tournament,
+                                category_age_band=p_data.get('category_age_band', ''),
+                                defaults={
+                                    'date':           timezone.now().date(),
+                                    'category_level': p_data.get('category_level', ''),
+                                    'final_status':   final_status,
+                                    'is_heuristic':   False,  # 실제 대진 데이터
+                                },
+                            )
+
+                self.stdout.write(f"  [v] SPONET 완료: {title}")
+
+            except Exception as exc:
+                self.stderr.write(f"  [!] 롤백: {title} ({exc})")
+
+    # ──────────────────────────────────────────────────────────
+    # FACECOK 적재
+    # facecok_players + facecok_winners 두 파일 기반
+    # ──────────────────────────────────────────────────────────
+    def _load_facecok(self, raw_dir: Path):
+        from core.models import Tournament, Player, PlayerDailyStats
+
+        player_files = sorted(
+            glob.glob(str(raw_dir / "players" / "facecok_players_*.jsonl"))
+        )
+        if not player_files:
+            self.stdout.write("  [-] 적재할 FACECOK 파일 없음")
+            return
+
+        _rank_order = {'우승': 1, '준우승': 2, '3위': 3, '4위': 4}
+
+        for p_file in player_files:
+            cid     = Path(p_file).stem.split('_')[-1]
+            players = _read_jsonl(p_file)
+            winners = _read_jsonl(raw_dir / "winners" / f"facecok_winners_{cid}.jsonl")
+
+            if not players:
+                continue
+
+            try:
+                tournament = Tournament.objects.get(source='FACECOK', external_id=cid)
+            except Tournament.DoesNotExist:
+                tournament = Tournament.objects.create(
+                    source='FACECOK', external_id=cid, name=cid, status='finished'
+                )
+
+            title = tournament.name
+            self.stdout.write(f"  [-] {title} (ID:{cid})")
+
+            winner_lookup: dict = {}
+            for w in winners:
+                placement = (w.get('placement') or '').strip()
+                if not placement:
+                    continue
+                for key in ('player1_name', 'player2_name'):
+                    nm = (w.get(key) or '').strip()
+                    if nm:
+                        existing = winner_lookup.get(nm)
+                        if existing is None or \
+                                _rank_order.get(placement, 9) < _rank_order.get(existing, 9):
+                            winner_lookup[nm] = placement
+
+            try:
+                with transaction.atomic():
+                    for p_data in players:
+                        for name_key, club_key in [('player_name', 'club'),
+                                                    ('partner_name', 'partner_club')]:
+                            name = (p_data.get(name_key) or '').strip()
+                            club = (p_data.get(club_key) or '').strip()
+                            if not name:
+                                continue
+
+                            uid = f"FACECOK_{name}_{club or 'NONE'}"
+                            player, _ = Player.objects.update_or_create(
+                                external_uid=uid,
+                                defaults={'name': name, 'club': club, 'source': 'FACECOK'},
+                            )
+
+                            pmt          = winner_lookup.get(name)
+                            final_status = pmt if pmt else "참가"
+
+                            PlayerDailyStats.objects.update_or_create(
+                                player=player,
+                                tournament=tournament,
+                                category_age_band=p_data.get('category_age_band', ''),
+                                defaults={
+                                    'date':           timezone.now().date(),
+                                    'category_level': p_data.get('category_level', ''),
+                                    'final_status':   final_status,
+                                    'is_heuristic':   True,  # HTML 파싱 기반
+                                },
+                            )
+
+                self.stdout.write(f"  [v] FACECOK 완료: {title}")
+
+            except Exception as exc:
+                self.stderr.write(f"  [!] 롤백: {title} ({exc})")

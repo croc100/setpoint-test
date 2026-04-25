@@ -32,6 +32,8 @@ from django.utils import timezone
 SUPPORTED_SOURCES = {
     "BAEF":   "core.collectors.status_baef",
     "WEEKUK": "core.collectors.status_wekkuk",
+    "SPONET": "core.collectors.status_sponet",
+    # "FACECOK": "core.collectors.status_facecok",  # 수집기 미완성 (HTML 파싱)
 }
 
 

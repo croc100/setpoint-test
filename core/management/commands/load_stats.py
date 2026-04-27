@@ -241,10 +241,21 @@ class Command(BaseCommand):
                                          if tournament.start_date
                                          else timezone.now().date())
 
+                            category_full = p_data.get('category_full', '')
+
+                            # old pipeline 이 category_age_band='' 로 만든 중복 레코드 삭제
+                            # (new pipeline 의 category_full 값과 다르므로 update_or_create 가 새 레코드를 만듦)
+                            if category_full:
+                                PlayerDailyStats.objects.filter(
+                                    player=player,
+                                    tournament=tournament,
+                                    category_age_band='',
+                                ).delete()
+
                             stat_obj, _ = PlayerDailyStats.objects.update_or_create(
                                 player=player,
                                 tournament=tournament,
-                                category_age_band=p_data.get('category_full', ''),
+                                category_age_band=category_full,
                                 defaults={
                                     'date':           stat_date,
                                     'category_level': level,

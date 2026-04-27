@@ -47,7 +47,10 @@ run_step 3 "미수집 대회 전적 수집 (최대 50개, sleep=0.5s)" \
 run_step 4 "배드민턴 뉴스 수집 (네이버 검색 API)" \
     $PYTHON $MANAGE collect_news
 
-run_step 5 "sitemap.xml 재생성" \
+run_step 5 "선수 급수(level) 소급 갱신" \
+    $PYTHON $MANAGE backfill_player_level
+
+run_step 6 "sitemap.xml 재생성" \
     $PYTHON $MANAGE generate_sitemap
 
 DATE_END=$(date '+%Y-%m-%d %H:%M:%S')

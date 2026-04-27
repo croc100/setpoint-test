@@ -156,15 +156,27 @@ def _find_numeric_id_from_api(comp_name: str) -> Optional[str]:
             if not comp_list:
                 continue
 
+            def _normalize(s: str) -> str:
+                """비교용 정규화: 공백·특수문자 압축, 소문자화"""
+                return re.sub(r'[\s\-_×X]+', ' ', s).strip().lower()
+
+            target_norm = _normalize(comp_name)
+
             for item in comp_list:
                 title = str(item.get("TITLE") or item.get("COMP_TITLE") or item.get("NAME") or "")
-                if title.strip() == comp_name.strip():
-                    # PK 필드 자동 탐색
-                    for pk_key in ("PK", "COMP_PK", "ID", "CONTEST_ID", "COMP_ID", "SEQ"):
-                        pk = item.get(pk_key)
-                        if pk and str(pk).isdigit():
-                            return str(pk)
-                    print(f"    [debug] 대회 찾았지만 PK 없음: {list(item.keys())[:10]}")
+                # 완전 일치 우선, 실패 시 정규화 비교
+                if title.strip() != comp_name.strip() and _normalize(title) != target_norm:
+                    continue
+                # PK 필드 자동 탐색 (알려진 키 + 숫자 값 전체 스캔)
+                for pk_key in ("PK", "COMP_PK", "ID", "CONTEST_ID", "COMP_ID", "SEQ"):
+                    pk = item.get(pk_key)
+                    if pk and str(pk).isdigit():
+                        return str(pk)
+                # 알려진 키에 없으면 모든 필드에서 숫자 스캔
+                for k, v in item.items():
+                    if isinstance(v, int) and 100 <= v <= 9999:
+                        return str(v)
+                print(f"    [debug] 대회 찾았지만 PK 없음: {list(item.keys())[:15]}")
 
         except Exception as e:
             print(f"    [!] comp/list({status}) 예외: {e}")

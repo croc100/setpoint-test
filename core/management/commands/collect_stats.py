@@ -65,6 +65,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        from django.db.models import Q
         from core.models import Tournament
 
         target_source = (options.get('source') or "").upper() or None
@@ -81,6 +82,24 @@ class Command(BaseCommand):
             sources = [target_source]
         else:
             sources = list(SUPPORTED_SOURCES.keys())
+
+        # ──────────────────────────────────────────────────────
+        # STEP 0: end_date < 오늘인 대회를 자동으로 'finished' 처리
+        #   - 새로 수집된 대회는 status='draft' 가 기본값이라
+        #     collect_stats 쿼리에서 누락됨.
+        #   - end_date 기준으로 종료가 확실한 대회는 자동 전환.
+        # ──────────────────────────────────────────────────────
+        today = timezone.now().date()
+        auto_updated = Tournament.objects.filter(
+            source__in=sources,
+            status__in=['draft', 'ongoing'],
+            end_date__lt=today,
+            end_date__isnull=False,
+        ).update(status='finished')
+        if auto_updated:
+            self.stdout.write(
+                f"[STEP 0] end_date 기반 자동 status 업데이트: {auto_updated}개 → 'finished'"
+            )
 
         self.stdout.write(f"\n{'='*55}")
         self.stdout.write(f"[*] 전적 수집 파이프라인 시작 | 대상: {sources}")

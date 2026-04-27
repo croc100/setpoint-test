@@ -41,7 +41,7 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['news'] = News.objects.all().order_by('-created_at')[:4]
-        context['notices'] = Notice.objects.filter(is_published=True).order_by('-is_pinned', '-publish_at')[:5]
+        context['notices'] = Notice.objects.filter(is_published=True, show_as_page=True).order_by('-is_pinned', '-publish_at')[:5]
 
         # 금주의 대회: 오늘부터 7일 이내 시작하는 대회 자동 필터
         today = datetime.date.today()

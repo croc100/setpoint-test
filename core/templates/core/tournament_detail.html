@@ -117,12 +117,16 @@
                         </div>
 
                         <div class="min-w-0">
+                            {% if stat.player_id %}
                             <a href="{% url 'core:player_detail' stat.player.pk %}"
                                class="text-sm font-bold text-tossGray-900 dark:text-white hover:text-tossBlue transition-colors">
                                 {{ stat.player.name }}
                             </a>
                             {% if stat.player.club %}
                             <span class="ml-1.5 text-xs text-tossGray-400">{{ stat.player.club }}</span>
+                            {% endif %}
+                            {% else %}
+                            <span class="text-sm font-bold text-tossGray-900 dark:text-white">{{ stat.partner_name|default:"(선수 정보 없음)" }}</span>
                             {% endif %}
                             {% if stat.partner_name %}
                             <div class="text-xs text-tossGray-400 mt-0.5">

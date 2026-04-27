@@ -157,10 +157,14 @@
         {% for s in item.results %}
         <div class="px-5 py-2.5 flex items-center justify-between gap-3">
           <div class="flex items-center gap-2 min-w-0">
+            {% if s.player_id %}
             <a href="{% url 'core:player_detail' s.player.pk %}"
                class="text-sm font-bold text-tossGray-800 dark:text-tossGray-200 hover:text-tossBlue transition-colors">
               {{ s.player.name }}
             </a>
+            {% else %}
+            <span class="text-sm font-bold text-tossGray-800 dark:text-tossGray-200">{{ s.partner_name|default:"(알 수 없음)" }}</span>
+            {% endif %}
             {% if s.category_level or s.category_age_band %}
             <span class="text-xs text-tossGray-400 hidden sm:inline">
               {{ s.gender }} {{ s.category_age_band }} {{ s.category_level }}

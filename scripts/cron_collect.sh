@@ -6,8 +6,7 @@
 #   crontab -e
 #   0 3 * * * /home/croc100/setpoint/scripts/cron_collect.sh >> /home/croc100/setpoint/logs/cron.log 2>&1
 
-set -e
-
+# set -e 제거: 개별 단계 실패 시 다음 단계는 계속 진행
 PROJECT_DIR="/home/croc100/setpoint"
 PYTHON="${PROJECT_DIR}/.venv/bin/python"
 MANAGE="${PROJECT_DIR}/manage.py"
@@ -16,36 +15,44 @@ DATE=$(date '+%Y-%m-%d %H:%M:%S')
 
 mkdir -p "$LOG_DIR"
 
+# 단계별 실행 함수 — 실패해도 전체 스크립트 중단 안 함
+run_step() {
+    local step="$1"
+    local desc="$2"
+    shift 2
+    echo ""
+    echo "[${step}/5] ${desc}..."
+    if "$@"; then
+        echo "      [완료]"
+    else
+        echo "      [!] 실패 (exit $?) — 다음 단계 계속"
+    fi
+}
+
 echo "=========================================="
 echo "[$DATE] setpoint 자동 수집 시작"
 echo "=========================================="
 
 cd "$PROJECT_DIR"
 
-# 1. 대회 일정 수집 (전 플랫폼 — incremental: 기존 ID skip, 전체 페이지 조회)
-echo "[1/4] 대회 일정 수집..."
-$PYTHON $MANAGE collect_all --no-players
-echo "      완료"
+run_step 1 "대회 일정 수집 (전 플랫폼, incremental)" \
+    $PYTHON $MANAGE collect_all --no-players
 
-# 2. 대회 상태 자동 갱신 (end_date 지난 대회 → finished)
-echo "[2/5] 대회 상태 갱신..."
-$PYTHON $MANAGE update_tournament_status
-echo "      완료"
+run_step 2 "대회 상태 갱신 (end_date 지난 대회 → finished)" \
+    $PYTHON $MANAGE update_tournament_status
 
-# 3. 미수집 대회 전적 수집 (최대 50개/회)
-echo "[3/5] 선수 전적 수집..."
-$PYTHON $MANAGE collect_stats --limit 50
-echo "      완료"
+run_step 3 "미수집 대회 전적 수집 (최대 50개, sleep=0.5s)" \
+    $PYTHON $MANAGE collect_stats --limit 50 --sleep 0.5
 
-# 4. 배드민턴 뉴스 수집 (네이버 검색 API)
-echo "[4/5] 뉴스 수집..."
-$PYTHON $MANAGE collect_news
-echo "      완료"
+run_step 4 "배드민턴 뉴스 수집 (네이버 검색 API)" \
+    $PYTHON $MANAGE collect_news
 
-# 5. sitemap.xml 재생성
-echo "[5/5] sitemap.xml 생성..."
-$PYTHON $MANAGE generate_sitemap
-echo "      완료"
+run_step 5 "sitemap.xml 재생성" \
+    $PYTHON $MANAGE generate_sitemap
 
-echo "[$DATE] 자동 수집 완료"
+DATE_END=$(date '+%Y-%m-%d %H:%M:%S')
+echo ""
+echo "=========================================="
+echo "[$DATE_END] 자동 수집 완료"
+echo "=========================================="
 echo ""

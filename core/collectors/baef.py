@@ -113,6 +113,7 @@ def fetch_tournament_to_dict(url: str) -> Optional[Dict]:
             "external_id": url.rstrip("/").split("/")[-1],
             "name": name,
             "start_date": start_date,
+            "end_date": start_date,   # BAEF는 단일 일정 → start = end
             "region_raw": venue,
             "external_url": url,
             "source": "BAEF"

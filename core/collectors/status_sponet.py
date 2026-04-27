@@ -156,7 +156,7 @@ def _extract_placements(
 
     # terminal_matches 가 없으면 SEQ 기준 최후 경기를 결승으로 간주
     if not terminal_matches:
-        terminal_matches = [max(finished, key=lambda m: int(m.get("SEQ") or 0))]
+        terminal_matches = [max(finished, key=lambda m: int(float(m.get("SEQ") or 0)))]
 
     results: List[Dict] = []
 
@@ -200,7 +200,7 @@ def _extract_placements(
 
     elif len(terminal_matches) >= 2:
         # SEQ가 높은 게 결승, 낮은 게 3·4위전
-        sorted_t = sorted(terminal_matches, key=lambda m: int(m.get("SEQ") or 0), reverse=True)
+        sorted_t = sorted(terminal_matches, key=lambda m: int(float(m.get("SEQ") or 0)), reverse=True)
         results += _make_rows(sorted_t[0], "우승", "준우승")
         results += _make_rows(sorted_t[1], "3위", "4위")
 

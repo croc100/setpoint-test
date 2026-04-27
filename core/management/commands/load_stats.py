@@ -97,8 +97,11 @@ class Command(BaseCommand):
             return
 
         for p_file in player_files:
-            # 파일명에서 contest_id 추출: baef_players_215.jsonl → 215
-            cid     = Path(p_file).stem.split('_')[-1]
+            # 파일명에서 contest_id 추출
+            # 숫자 ID: baef_players_215.jsonl → 215
+            # UUID  : baef_players_2807e695-4f78-....jsonl → 2807e695-4f78-...
+            stem = Path(p_file).stem               # "baef_players_2807e695-..."
+            cid  = stem[len("baef_players_"):]     # prefix 제거로 정확히 추출
             players = _read_jsonl(p_file)
             matches = _read_jsonl(raw_dir / "matches" / f"baef_matches_{cid}.jsonl")
             results = _read_jsonl(raw_dir / "results" / f"results_{cid}.jsonl")

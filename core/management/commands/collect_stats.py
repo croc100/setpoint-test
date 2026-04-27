@@ -8,18 +8,26 @@ status='finished' 이고 is_stats_fetched=False 인 대회만 골라
 [현재 지원 플랫폼]
     BAEF    → core/collectors/status_baef.py
     WEEKUK  → core/collectors/status_wekkuk.py
+    SPONET  → core/collectors/status_sponet.py
 
 [실행 방법]
-    python manage.py collect_stats                   # 전체 플랫폼
-    python manage.py collect_stats --source BAEF     # 특정 플랫폼만
-    python manage.py collect_stats --limit 10        # 한 번에 최대 10개 대회
-    python manage.py collect_stats --dry-run         # 대상 목록만 출력
+    python manage.py collect_stats                        # 전체 플랫폼
+    python manage.py collect_stats --source SPONET        # 특정 플랫폼만
+    python manage.py collect_stats --limit 20             # 한 번에 최대 20개 대회
+    python manage.py collect_stats --sleep 0.5            # 대회 간 딜레이(초), 기본 0.3
+    python manage.py collect_stats --dry-run              # 대상 목록만 출력
+
+[서버 부하 조절 권장]
+    크론에서 --limit 20 --sleep 0.5 로 실행하면 한 번에 20개씩,
+    요청 간 0.5초 딜레이로 서버/외부 API 부하를 최소화합니다.
+    과거 대회도 시간을 두고 모두 수집됩니다.
 
 [흐름]
-    ① DB 쿼리 : status='finished' AND is_stats_fetched=False
-    ② 플랫폼별 hunter 실행 → JSONL 파일 저장
-    ③ load_stats 커맨드 호출 → JSONL → DB 적재
-    ④ 성공한 대회만 is_stats_fetched=True 마킹
+    STEP 0 : end_date < 오늘인 draft/ongoing → 자동으로 'finished' 전환
+    ①  DB 쿼리 : status='finished' AND is_stats_fetched=False
+    ②  플랫폼별 hunter 실행 → JSONL 파일 저장
+    ③  load_stats 커맨드 호출 → JSONL → DB 적재
+    ④  성공한 대회만 is_stats_fetched=True 마킹
 """
 
 from django.core.management.base import BaseCommand
@@ -63,6 +71,12 @@ class Command(BaseCommand):
             action='store_true',
             help="수집 후 DB 적재(load_stats)를 건너뜁니다. 디버깅용.",
         )
+        parser.add_argument(
+            '--sleep',
+            type=float,
+            default=0.3,
+            help="대회 내 API 요청 간 딜레이(초). 기본 0.3. 서버 부하 조절용.",
+        )
 
     def handle(self, *args, **options):
         from django.db.models import Q
@@ -72,6 +86,7 @@ class Command(BaseCommand):
         limit         = options['limit']
         dry_run       = options['dry_run']
         skip_load     = options['skip_load']
+        sleep         = options['sleep']
 
         # 처리할 플랫폼 결정
         if target_source:
@@ -155,8 +170,8 @@ class Command(BaseCommand):
                 fn_name = f"run_{source.lower()}_stats_hunter"
                 hunter  = getattr(module, fn_name)
 
-                self.stdout.write(f"  [*] {fn_name} 실행 중...")
-                success_ids = hunter(external_ids)
+                self.stdout.write(f"  [*] {fn_name} 실행 중... (sleep={sleep}s)")
+                success_ids = hunter(external_ids, sleep=sleep)
 
             except Exception as e:
                 self.stderr.write(f"  [!] hunter 실행 에러: {e}")

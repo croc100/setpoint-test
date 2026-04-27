@@ -190,11 +190,33 @@ class Command(BaseCommand):
                             if not name:
                                 continue
 
-                            uid    = f"BAEF_{name}_{club or 'NONE'}"
-                            player, _ = Player.objects.update_or_create(
-                                external_uid=uid,
-                                defaults={'name': name, 'club': club, 'source': 'BAEF'},
-                            )
+                            # category_full 에 급수가 직접 들어있음 (예: "1부", "A조")
+                            from core.management.commands.backfill_player_level import _normalize_level
+                            level = _normalize_level(p_data.get('category_full', ''))
+
+                            uid = f"BAEF_{name}_{club or 'NONE'}"
+
+                            # old pipeline 이 external_uid=None 으로 만든 레코드가 있으면 재사용
+                            # (새 레코드를 만들면 동일 선수가 중복 등록되는 문제 방지)
+                            existing_old = Player.objects.filter(
+                                name=name, club=club, source='BAEF', external_uid__isnull=True
+                            ).first()
+
+                            if existing_old:
+                                # old 레코드에 external_uid, level 을 붙여서 업그레이드
+                                update_fields = ['external_uid']
+                                existing_old.external_uid = uid
+                                if level and not existing_old.level:
+                                    existing_old.level = level
+                                    update_fields.append('level')
+                                existing_old.save(update_fields=update_fields)
+                                player = existing_old
+                            else:
+                                player, _ = Player.objects.update_or_create(
+                                    external_uid=uid,
+                                    defaults={'name': name, 'club': club,
+                                              'source': 'BAEF', 'level': level},
+                                )
 
                             m_data = match_lookup.get(name, {})
                             rank   = rank_lookup.get(name)
@@ -224,12 +246,13 @@ class Command(BaseCommand):
                                 tournament=tournament,
                                 category_age_band=p_data.get('category_full', ''),
                                 defaults={
-                                    'date':         stat_date,
-                                    'rank':         rank,
-                                    'win_count':    wins,
-                                    'loss_count':   losses,
-                                    'gain_point':   m_data.get('gain', 0),
-                                    'final_status': f_status,
+                                    'date':           stat_date,
+                                    'category_level': level,
+                                    'rank':           rank,
+                                    'win_count':      wins,
+                                    'loss_count':     losses,
+                                    'gain_point':     m_data.get('gain', 0),
+                                    'final_status':   f_status,
                                 },
                             )
 

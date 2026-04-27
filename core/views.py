@@ -633,7 +633,7 @@ class PlayerDetailView(DetailView):
                 rank_int = int(stat.rank) if stat.rank else None
             except (ValueError, TypeError):
                 rank_int = None
-            if rank_int and rank_int <= 3:
+            if stat.final_status in ('우승', '준우승', '3위'):
                 total_medals += 1
                 
             # 2. 파이프라인에서 수집한 데이터 가공 (프론트엔드 포맷팅)
@@ -689,6 +689,7 @@ class PlayerDetailView(DetailView):
             user.following_players.filter(pk=self.object.pk).exists()
         )
         context['follower_count'] = self.object.followers.count()
+        return context
 
 
 # ==========================================

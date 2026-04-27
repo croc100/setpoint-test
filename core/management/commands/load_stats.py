@@ -204,6 +204,10 @@ class Command(BaseCommand):
                             # 최종 상태 자동 추론
                             if rank == 1:
                                 f_status = "우승"
+                            elif rank == 2:
+                                f_status = "준우승"
+                            elif rank == 3:
+                                f_status = "3위"
                             elif rank:
                                 f_status = "본선 진출"
                             elif wins > 0 or losses > 0:
@@ -211,12 +215,16 @@ class Command(BaseCommand):
                             else:
                                 f_status = "결과 없음"
 
+                            stat_date = (tournament.start_date
+                                         if tournament.start_date
+                                         else timezone.now().date())
+
                             stat_obj, _ = PlayerDailyStats.objects.update_or_create(
                                 player=player,
                                 tournament=tournament,
                                 category_age_band=p_data.get('category_full', ''),
                                 defaults={
-                                    'date':         timezone.now().date(),
+                                    'date':         stat_date,
                                     'rank':         rank,
                                     'win_count':    wins,
                                     'loss_count':   losses,
@@ -286,6 +294,10 @@ class Command(BaseCommand):
                         defaults={'name': title},
                     )
 
+                    stat_date = (tournament.start_date
+                                 if tournament.start_date
+                                 else timezone.now().date())
+
                     for p_data in players:
                         for name_key, club_key in [('player_name', 'affiliation'),
                                                     ('partner_name', 'partner_affiliation')]:
@@ -294,10 +306,12 @@ class Command(BaseCommand):
                             if not name:
                                 continue
 
+                            level  = p_data.get('category_level', '')
                             uid    = f"WEEKUK_{name}_{club or 'NONE'}"
                             player, _ = Player.objects.update_or_create(
                                 external_uid=uid,
-                                defaults={'name': name, 'club': club, 'source': 'WEEKUK'},
+                                defaults={'name': name, 'club': club,
+                                          'source': 'WEEKUK', 'level': level},
                             )
 
                             placement  = winner_lookup.get(name)
@@ -308,8 +322,8 @@ class Command(BaseCommand):
                                 tournament=tournament,
                                 category_age_band=p_data.get('category_age_band', ''),
                                 defaults={
-                                    'date':          timezone.now().date(),
-                                    'category_level': p_data.get('category_level', ''),
+                                    'date':          stat_date,
+                                    'category_level': level,
                                     'final_status':   final_status,
                                     'is_heuristic':   True,  # 위꾹 입상자는 휴리스틱
                                 },
@@ -371,6 +385,10 @@ class Command(BaseCommand):
                                 _rank_order.get(placement, 9) < _rank_order.get(existing, 9):
                             winner_lookup[nm] = placement
 
+            stat_date = (tournament.start_date
+                         if tournament.start_date
+                         else timezone.now().date())
+
             try:
                 with transaction.atomic():
                     for p_data in players:
@@ -381,10 +399,12 @@ class Command(BaseCommand):
                             if not name:
                                 continue
 
-                            uid = f"SPONET_{name}_{club or 'NONE'}"
+                            level = (p_data.get('category_level') or '').strip()
+                            uid   = f"SPONET_{name}_{club or 'NONE'}"
                             player, _ = Player.objects.update_or_create(
                                 external_uid=uid,
-                                defaults={'name': name, 'club': club, 'source': 'SPONET'},
+                                defaults={'name': name, 'club': club,
+                                          'source': 'SPONET', 'level': level},
                             )
 
                             pmt          = winner_lookup.get(name)
@@ -395,8 +415,8 @@ class Command(BaseCommand):
                                 tournament=tournament,
                                 category_age_band=p_data.get('category_age_band', ''),
                                 defaults={
-                                    'date':           timezone.now().date(),
-                                    'category_level': p_data.get('category_level', ''),
+                                    'date':           stat_date,
+                                    'category_level': level,
                                     'final_status':   final_status,
                                     'is_heuristic':   False,  # 실제 대진 데이터
                                 },

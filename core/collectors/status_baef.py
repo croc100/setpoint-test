@@ -117,25 +117,58 @@ def _find_numeric_id_from_page(external_url: str) -> Optional[str]:
 
 
 def _find_numeric_id_from_api(comp_name: str) -> Optional[str]:
-    """BAEF 대회 목록 API에서 대회명으로 숫자 ID 검색 (fallback)."""
-    try:
-        for status in ("end", "ing", "ready"):
+    """BAEF 대회 목록 API에서 대회명으로 숫자 ID 검색 (fallback).
+
+    가능한 status 값: end(종료), ing(진행중), ready(접수중)
+    API 응답의 실제 필드명을 동적으로 탐색하여 PK를 추출한다.
+    """
+    for status in ("end", "ing", "ready"):
+        try:
             url = "https://real.badmintonfriends.co.kr/comp/list"
             resp = requests.get(
                 url, headers=API_HEADERS,
-                params={"status": status, "pageSize": 100},
+                params={"status": status, "pageSize": 200, "orderBy": "desc"},
                 timeout=10,
             ).json()
             if resp.get("resCode") != "001":
+                print(f"    [!] comp/list({status}) resCode={resp.get('resCode')}")
                 continue
-            for item in resp.get("result", {}).get("COMP_LIST", []):
-                title = item.get("TITLE", "")
-                if title == comp_name or title.strip() == comp_name.strip():
-                    pk = item.get("PK") or item.get("COMP_PK") or item.get("ID")
-                    if pk:
-                        return str(pk)
-    except Exception as e:
-        print(f"    [!] API 목록 검색 실패: {e}")
+
+            result = resp.get("result", {})
+            # 응답 구조 파악을 위해 키 출력 (처음 한 번만)
+            if not hasattr(_find_numeric_id_from_api, "_keys_logged"):
+                _find_numeric_id_from_api._keys_logged = True
+                print(f"    [debug] comp/list result keys: {list(result.keys())[:10]}")
+                # 첫 번째 아이템 키도 출력
+                comp_list_key = next((k for k in result if isinstance(result[k], list)), None)
+                if comp_list_key:
+                    items = result[comp_list_key]
+                    if items:
+                        print(f"    [debug] 아이템 키: {list(items[0].keys())[:15]}")
+
+            # 리스트 키 자동 탐색
+            comp_list = None
+            for key in result:
+                if isinstance(result[key], list) and result[key]:
+                    comp_list = result[key]
+                    break
+
+            if not comp_list:
+                continue
+
+            for item in comp_list:
+                title = str(item.get("TITLE") or item.get("COMP_TITLE") or item.get("NAME") or "")
+                if title.strip() == comp_name.strip():
+                    # PK 필드 자동 탐색
+                    for pk_key in ("PK", "COMP_PK", "ID", "CONTEST_ID", "COMP_ID", "SEQ"):
+                        pk = item.get(pk_key)
+                        if pk and str(pk).isdigit():
+                            return str(pk)
+                    print(f"    [debug] 대회 찾았지만 PK 없음: {list(item.keys())[:10]}")
+
+        except Exception as e:
+            print(f"    [!] comp/list({status}) 예외: {e}")
+
     return None
 
 
@@ -324,43 +357,40 @@ def run_baef_stats_hunter(target_ids: list) -> list:
     print(f"=== BAEF Stats Hunter Started (타겟 {len(target_ids)}개) ===")
     success_ids = []
 
-    # Django ORM으로 external_url 일괄 조회
+    # Django ORM으로 external_url + name 일괄 조회
     try:
         from core.models import Tournament
-        url_map = {
-            t.external_id: t.external_url
+        tournament_map = {
+            t.external_id: {"url": t.external_url, "name": t.name}
             for t in Tournament.objects.filter(source="BAEF", external_id__in=target_ids)
-            if t.external_url
         }
     except Exception as e:
         print(f"  [!] Tournament 조회 실패: {e}")
-        url_map = {}
+        tournament_map = {}
 
     for contest_uuid in target_ids:
         print(f"\n── [{contest_uuid[:8]}...] 처리 시작")
 
         # ── Step 1: UUID → 숫자 ID 해석 ───────────────────────────
         numeric_id: Optional[str] = None
-        external_url = url_map.get(contest_uuid, "")
+        t_info = tournament_map.get(contest_uuid, {})
+        external_url = t_info.get("url", "")
+        t_name = t_info.get("name", "")
 
+        # 전략 A: 대회 공지 페이지 파싱
         if external_url:
-            print(f"  [*] 숫자 ID 탐색: {external_url}")
+            print(f"  [*] 숫자 ID 탐색 (페이지): {external_url}")
             numeric_id = _find_numeric_id_from_page(external_url)
+
+        # 전략 B: BAEF API 목록에서 이름으로 검색
+        if not numeric_id and t_name:
+            print(f"  [*] 숫자 ID 탐색 (API 이름 검색): {t_name[:40]}")
+            numeric_id = _find_numeric_id_from_api(t_name)
 
         if numeric_id:
             print(f"  [*] 숫자 ID 확인: {numeric_id}")
         else:
-            print(f"  [-] 페이지에서 숫자 ID 못 찾음 → API 검색 시도...")
-            # fallback: 대회명으로 API 목록 검색 (comp_name 아직 모름 → 이름 추출)
-            # 이름은 external_url 에서 Notion 파싱으로 얻거나 나중에 API 응답에서 얻음
-            # 여기서는 UUID 자체를 API에 바로 시도 후 resMsg 확인
-            probe_url = f"https://real.badmintonfriends.co.kr/comp/v2/detail/{contest_uuid}"
-            try:
-                probe = requests.get(probe_url, headers=API_HEADERS, timeout=10).json()
-                print(f"  [debug] UUID 직접 시도 → resCode={probe.get('resCode')}, resMsg={probe.get('resMsg','')}")
-            except Exception as e:
-                print(f"  [debug] UUID 직접 시도 예외: {e}")
-            print(f"  [!] 숫자 ID 없음 → 스킵: {contest_uuid}")
+            print(f"  [!] 숫자 ID 찾기 실패 → 스킵: {contest_uuid}")
             continue
 
         # ── Step 2: BAEF API로 상세 정보 및 PK 획득 ────────────────

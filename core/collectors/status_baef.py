@@ -162,17 +162,27 @@ def _find_numeric_id_from_api(comp_name: str) -> Optional[str]:
 
             target_norm = _normalize(comp_name)
 
+            # 토큰 기반 부분 매칭을 위해 핵심 키워드 추출 (3자 이상 한글 토큰)
+            key_tokens = [t for t in re.split(r'[\s\-_×X]+', comp_name) if len(t) >= 3]
+
             for item in comp_list:
                 title = str(item.get("TITLE") or item.get("COMP_TITLE") or item.get("NAME") or "")
-                # 완전 일치 우선, 실패 시 정규화 비교
-                if title.strip() != comp_name.strip() and _normalize(title) != target_norm:
+                title_norm = _normalize(title)
+
+                # 일치 판정 (완전/정규화/토큰 기반 순서)
+                exact_match     = title.strip() == comp_name.strip()
+                norm_match      = title_norm == target_norm
+                token_match     = (bool(key_tokens) and
+                                   sum(1 for t in key_tokens if t in title) >= max(1, len(key_tokens) * 0.7))
+
+                if not (exact_match or norm_match or token_match):
                     continue
-                # PK 필드 자동 탐색 (알려진 키 + 숫자 값 전체 스캔)
+
+                # PK 필드 자동 탐색 (알려진 키 → 전체 숫자 필드 스캔)
                 for pk_key in ("PK", "COMP_PK", "ID", "CONTEST_ID", "COMP_ID", "SEQ"):
                     pk = item.get(pk_key)
                     if pk and str(pk).isdigit():
                         return str(pk)
-                # 알려진 키에 없으면 모든 필드에서 숫자 스캔
                 for k, v in item.items():
                     if isinstance(v, int) and 100 <= v <= 9999:
                         return str(v)

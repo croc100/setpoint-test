@@ -29,10 +29,19 @@
                 class="px-3 py-1.5 bg-tossGray-100 dark:bg-white/10 text-tossGray-600 rounded-xl text-xs font-bold">취소</button>
       </div>
     </div>
-    <button onclick="document.getElementById('claimModal').classList.remove('hidden')"
-            class="px-5 py-2.5 bg-tossBlue text-white rounded-xl text-sm font-bold hover:bg-blue-600 transition-colors">
-      + 내 전적 찾기
-    </button>
+    <div class="flex items-center gap-2">
+      <button onclick="document.getElementById('claimModal').classList.remove('hidden')"
+              class="px-5 py-2.5 bg-tossBlue text-white rounded-xl text-sm font-bold hover:bg-blue-600 transition-colors">
+        + 내 전적 찾기
+      </button>
+      <form method="post" action="{% url 'core:logout' %}">
+        {% csrf_token %}
+        <button type="submit"
+                class="px-4 py-2.5 bg-tossGray-100 dark:bg-white/10 text-tossGray-500 hover:text-red-500 rounded-xl text-sm font-bold transition-colors">
+          로그아웃
+        </button>
+      </form>
+    </div>
   </div>
 
   {# ── 클레임한 선수 없을 때 ── #}

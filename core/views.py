@@ -20,6 +20,7 @@ from django.utils.dateparse import parse_date
 from django.utils import timezone
 from django.views.decorators.http import require_GET
 import datetime
+import subprocess
 
 # 모델 임포트
 from .models import PlayerDailyStats, Player, Notice, Tournament, News, FeaturedItem, PlayerClaim, User
@@ -1029,20 +1030,54 @@ class NoticeDeleteView(AdminRequiredMixin, DeleteView):
 # Public Stats API  (CRODE 포트폴리오 연동)
 # GET /api/stats/  —  인증 불필요, 하루 1회 fetch
 # ==========================================
+
+LOG_PATH = '/var/log/nginx/access.log'
+
+def _nginx_total(log=LOG_PATH):
+    """현재 + 직전 로그 파일의 총 요청 수"""
+    try:
+        result = subprocess.run(
+            f'cat {log} {log}.1 2>/dev/null | wc -l',
+            shell=True, capture_output=True, text=True, timeout=8
+        )
+        return int(result.stdout.strip())
+    except Exception:
+        return 0
+
+def _nginx_daily(days=7, log=LOG_PATH):
+    """최근 N일 일별 요청 수 배열 (오래된 순)"""
+    counts = []
+    for i in range(days - 1, -1, -1):
+        d = datetime.date.today() - datetime.timedelta(days=i)
+        date_str = d.strftime('%d/%b/%Y')
+        total = 0
+        for f in [log, f'{log}.1']:
+            try:
+                r = subprocess.run(
+                    ['grep', '-c', date_str, f],
+                    capture_output=True, text=True, timeout=8
+                )
+                total += int(r.stdout.strip())
+            except Exception:
+                pass
+        counts.append(total)
+    return counts
+
 @require_GET
 def public_stats(request):
     """
-    DB 카운트 4개만 조회 — 부하 없음.
-    crode.net cron이 하루 한 번 호출 → stats.json 저장.
+    cron이 하루 한 번 호출 → crode.net stats.json 저장.
+    nginx grep은 1회/day 이므로 서버 부하 없음.
     """
     data = {
-        'players':      Player.objects.count(),
-        'tournaments':  Tournament.objects.exclude(status='draft').count(),
-        'records':      PlayerDailyStats.objects.count(),
-        'users':        User.objects.filter(is_active=True).count(),
-        'last_updated': timezone.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
+        'tournaments':       Tournament.objects.exclude(status='draft').count(),
+        'records':           PlayerDailyStats.objects.count(),
+        'users':             User.objects.filter(is_active=True).count(),
+        'api_requests':      _nginx_total(),
+        'weekly_requests':   _nginx_daily(7),
+        'last_updated':      timezone.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
     }
     resp = JsonResponse(data)
     resp['Access-Control-Allow-Origin'] = 'https://crode.net'
-    resp['Cache-Control'] = 'public, max-age=43200'   # 12h 캐시
+    resp['Cache-Control'] = 'public, max-age=43200'
     return resp

@@ -15,6 +15,7 @@ from .views import (
     TournamentCreateView, TournamentUpdateView, TournamentDeleteView,
     NoticeDeleteView,
     FollowToggleView, PlayerCompareView,
+    public_stats,
 )
 
 app_name = 'core'
@@ -66,4 +67,7 @@ urlpatterns = [
     # 인증
     path('login/', LoginView.as_view(template_name='core/login.html'), name='login'),
     path('logout/', LogoutView.as_view(next_page='/'), name='logout'),
+
+    # Public stats API (CRODE 포트폴리오 연동 — 하루 1회 fetch)
+    path('api/stats/', public_stats, name='public_stats'),
 ]

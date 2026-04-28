@@ -17,10 +17,12 @@ from django.db.models import Q, Prefetch, Count, Sum, FloatField, ExpressionWrap
 from django.db.models.functions import Coalesce
 from django.core.paginator import Paginator
 from django.utils.dateparse import parse_date
+from django.utils import timezone
+from django.views.decorators.http import require_GET
 import datetime
 
 # 모델 임포트
-from .models import PlayerDailyStats, Player, Notice, Tournament, News, FeaturedItem, PlayerClaim
+from .models import PlayerDailyStats, Player, Notice, Tournament, News, FeaturedItem, PlayerClaim, User
 
 
 # ==========================================
@@ -1022,3 +1024,25 @@ class NoticeDeleteView(AdminRequiredMixin, DeleteView):
         return context
 
         return context
+
+# ==========================================
+# Public Stats API  (CRODE 포트폴리오 연동)
+# GET /api/stats/  —  인증 불필요, 하루 1회 fetch
+# ==========================================
+@require_GET
+def public_stats(request):
+    """
+    DB 카운트 4개만 조회 — 부하 없음.
+    crode.net cron이 하루 한 번 호출 → stats.json 저장.
+    """
+    data = {
+        'players':      Player.objects.count(),
+        'tournaments':  Tournament.objects.exclude(status='draft').count(),
+        'records':      PlayerDailyStats.objects.count(),
+        'users':        User.objects.filter(is_active=True).count(),
+        'last_updated': timezone.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
+    }
+    resp = JsonResponse(data)
+    resp['Access-Control-Allow-Origin'] = 'https://crode.net'
+    resp['Cache-Control'] = 'public, max-age=43200'   # 12h 캐시
+    return resp

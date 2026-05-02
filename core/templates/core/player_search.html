@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block title %}배드민턴 선수 검색{% endblock %}
+{% block max_width %}max-w-7xl{% endblock %}
 
 {% block head %}
     {{ block.super }}
@@ -83,8 +84,8 @@
     {% if results %}
 
         {# ── 데스크탑 테이블 ─────────────────────────────────────────── #}
-        <div class="hidden md:block toss-card !p-0 overflow-hidden overflow-x-auto no-scrollbar">
-            <table class="w-full text-left border-collapse min-w-[800px]">
+        <div class="hidden md:block toss-card !p-0 overflow-hidden">
+            <table class="w-full text-left border-collapse">
                 <thead class="bg-tossGray-50 dark:bg-white/5 border-b border-tossGray-100 dark:border-white/5">
                     <tr>
                         <th class="px-6 py-4 text-xs font-bold text-tossGray-400 w-44">선수</th>
@@ -158,11 +159,17 @@
                         </td>
 
                         {# 최근 대회명 #}
-                        <td class="px-6 py-5 min-w-0 max-w-[200px]">
+                        <td class="px-6 py-5 min-w-0">
                             {% if stat %}
-                                <p class="text-xs text-tossGray-500 truncate">
+                                {% if stat.tournament_id %}
+                                <a href="{% url 'core:tournament_detail' stat.tournament.pk %}"
+                                   onclick="event.stopPropagation()"
+                                   class="block text-xs text-tossBlue hover:underline truncate font-medium">
                                     {{ stat.tournament.name|default:"—" }}
-                                </p>
+                                </a>
+                                {% else %}
+                                <p class="text-xs text-tossGray-500 truncate">{{ stat.tournament.name|default:"—" }}</p>
+                                {% endif %}
                                 <p class="text-[10px] text-tossGray-300 mt-0.5">{{ stat.date|default:"" }}</p>
                             {% else %}
                                 <span class="text-tossGray-300 text-xs">—</span>
@@ -214,9 +221,15 @@
                     {% if stat.category_age_band %}<span>· {{ stat.category_age_band }}</span>{% endif %}
                     {% if stat.category_level %}<span>· {{ stat.category_level }}</span>{% endif %}
                 </div>
-                <p class="text-[11px] text-tossGray-300 mt-1 truncate">
+                {% if stat.tournament_id %}
+                <a href="{% url 'core:tournament_detail' stat.tournament.pk %}"
+                   onclick="event.stopPropagation()"
+                   class="block text-[11px] text-tossBlue hover:underline mt-1 truncate">
                     {{ stat.tournament.name|default:"—" }}
-                </p>
+                </a>
+                {% else %}
+                <p class="text-[11px] text-tossGray-300 mt-1 truncate">{{ stat.tournament.name|default:"—" }}</p>
+                {% endif %}
                 {% endif %}
             </div>
             {% endwith %}

@@ -135,7 +135,7 @@ class Command(BaseCommand):
                 status='finished',
                 is_stats_fetched=False,
                 source=source,
-            ).order_by('end_date')
+            ).order_by('-end_date')  # 최신 대회부터 처리 → 검색 UX 우선
 
             if limit:
                 qs = qs[:limit]

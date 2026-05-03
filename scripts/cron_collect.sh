@@ -41,8 +41,8 @@ run_step 1 "대회 일정 수집 (전 플랫폼, incremental)" \
 run_step 2 "대회 상태 갱신 (end_date 지난 대회 → finished)" \
     $PYTHON $MANAGE update_tournament_status
 
-run_step 3 "미수집 대회 전적 수집 (최대 50개, sleep=0.5s)" \
-    $PYTHON $MANAGE collect_stats --limit 50 --sleep 0.5
+run_step 3 "미수집 대회 전적 수집 (최대 300개, sleep=0.5s)" \
+    $PYTHON $MANAGE collect_stats --limit 300 --sleep 0.5
 
 run_step 4 "배드민턴 뉴스 수집 (네이버 검색 API)" \
     $PYTHON $MANAGE collect_news

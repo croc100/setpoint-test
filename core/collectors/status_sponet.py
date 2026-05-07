@@ -3,19 +3,10 @@
 status_sponet.py
 ================
 SPONET 플랫폼에서 특정 대회들의 전적 데이터를 수집합니다.
-status_wekkuk.py와 동일한 인터페이스를 따릅니다.
 
-[인터페이스]
-    run_sponet_stats_hunter(contest_ids: list[str]) -> list[str]
-
-    - contest_ids : Tournament.external_id 문자열 리스트 (예: "TM_20260215151506")
-    - 반환값      : 수집 성공한 external_id 리스트
-
-[API 흐름 (Vercel 프록시 경유)]
-    1. event-list      → 종목(이벤트) 목록 수집
-    2. entry-list      → 각 종목 참가자 수집 → players JSONL
-    3. draw-list       → 드로우(예선조/결승) 목록 수집
-    4. match-list      → 결승 드로우 경기 수집 → winners JSONL
+[변경사항]
+    ThreadPoolExecutor 도입으로 이벤트·대회 단위 병렬 수집.
+    Vercel 프록시 부하 감안 → max_workers=3 (보수적)
 
 [저장 경로]
     data/raw/players/sponet_players_{tournament_id}.jsonl
@@ -27,6 +18,7 @@ import json
 import time
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import requests
 
@@ -39,8 +31,11 @@ HEADERS = {
     "Accept": "application/json",
 }
 
-# 결승 드로우 판별 키워드
 FINAL_KEYWORDS = ("결승", "본선", "Final", "파이널")
+
+# 동시 요청 수 (Vercel 프록시 부하 고려)
+EVENT_WORKERS      = 3   # 이벤트 단위 병렬 수
+TOURNAMENT_WORKERS = 3   # 대회 단위 병렬 수
 
 
 # ──────────────────────────────────────────
@@ -103,7 +98,6 @@ def _get_matches(tournament_id: str, event_id: str, draw_id: str) -> List[Dict]:
 # 내부 유틸
 # ──────────────────────────────────────────
 def _split_pair(player_str: str) -> Tuple[str, str]:
-    """'이름1 / 이름2' → (이름1, 이름2). 단식이면 (이름, '')"""
     if "/" in player_str:
         parts = [p.strip() for p in player_str.split("/", 1)]
         return parts[0], parts[1]
@@ -122,16 +116,9 @@ def _extract_placements(
     contest_id: str,
     contest_title: str,
 ) -> List[Dict]:
-    """
-    완료된 경기(MATCH_STS='Y') 중 결승전과 3·4위전을 찾아 입상자 추출.
-
-    결승전 판별: NEXTPLAN_NO 가 없는(null/빈) 완료 경기 = 더 이상 진출할 경기 없음
-    3·4위전: 역시 NEXTPLAN_NO 없는 완료 경기 중 결승전이 아닌 것
-    """
     if not matches:
         return []
 
-    # 완료 + 양팀 이름 모두 있는 경기만
     finished = [
         m for m in matches
         if m.get("MATCH_STS") == "Y"
@@ -142,19 +129,11 @@ def _extract_placements(
     if not finished:
         return []
 
-    # NEXTPLAN_NO 가 없거나 비어 있는 경기 = 더 이상 올라갈 대진 없음 (결승 or 3위전)
     terminal_matches = [
         m for m in finished
         if not str(m.get("NEXTPLAN_NO") or "").strip()
     ]
 
-    # NEXTPLAN_NO 가 있는 경기들의 번호 집합 (semi-final 등)
-    non_terminal = [
-        m for m in finished
-        if str(m.get("NEXTPLAN_NO") or "").strip()
-    ]
-
-    # terminal_matches 가 없으면 SEQ 기준 최후 경기를 결승으로 간주
     if not terminal_matches:
         terminal_matches = [max(finished, key=lambda m: int(float(m.get("SEQ") or 0)))]
 
@@ -195,11 +174,8 @@ def _extract_placements(
         return rows
 
     if len(terminal_matches) == 1:
-        # 결승전 1개만 있음
         results += _make_rows(terminal_matches[0], "우승", "준우승")
-
     elif len(terminal_matches) >= 2:
-        # SEQ가 높은 게 결승, 낮은 게 3·4위전
         sorted_t = sorted(terminal_matches, key=lambda m: int(float(m.get("SEQ") or 0)), reverse=True)
         results += _make_rows(sorted_t[0], "우승", "준우승")
         results += _make_rows(sorted_t[1], "3위", "4위")
@@ -208,16 +184,137 @@ def _extract_placements(
 
 
 # ──────────────────────────────────────────
+# 이벤트 단위 처리 (병렬 실행 단위)
+# ──────────────────────────────────────────
+def _process_event(tid: str, event: Dict, contest_title: str, sleep: float) -> Tuple[List[Dict], List[Dict]]:
+    """
+    단일 이벤트의 참가자·입상자를 수집해 리스트로 반환.
+    파일 I/O 없음 → 스레드 안전.
+    """
+    event_id  = str(event.get("EVENT_ID") or "").strip()
+    event_nm  = str(event.get("EVENT_NM") or "").strip()
+    age_band  = str(event.get("AGE")      or "").strip()
+    level     = str(event.get("LEVEL")    or "").strip()
+    gender    = str(event.get("GENDER")   or "").strip()
+    game_type = str(event.get("GAME_TYPE") or "").strip()
+
+    if not event_id:
+        return [], []
+
+    player_rows: List[Dict] = []
+    winner_rows: List[Dict] = []
+
+    # ── 참가자 ──
+    entries = _get_entries(tid, event_id)
+    for entry in entries:
+        p1 = (entry.get("PLAYER_NM1") or "").strip()
+        c1 = (entry.get("CLUB_NM1")   or "").strip()
+        p2 = (entry.get("PLAYER_NM2") or "").strip()
+        c2 = (entry.get("CLUB_NM2")   or "").strip()
+        if not p1:
+            continue
+        player_rows.append({
+            "contest_id":        tid,
+            "contest_title":     contest_title,
+            "event_id":          event_id,
+            "event_nm":          event_nm,
+            "category_age_band": age_band,
+            "category_level":    level,
+            "gender":            gender,
+            "game_type":         game_type,
+            "player_name":       p1,
+            "club":              c1,
+            "partner_name":      p2,
+            "partner_club":      c2,
+            "source":            "SPONET",
+        })
+
+    # ── 입상자 ──
+    draws = _get_draws(tid, event_id)
+    if draws:
+        final_draws  = [d for d in draws if _is_final_draw(d)]
+        target_draws = final_draws if final_draws else [draws[-1]]
+        for draw in target_draws:
+            draw_id = str(draw.get("DRAW_ID") or "").strip()
+            if not draw_id:
+                continue
+            matches    = _get_matches(tid, event_id, draw_id)
+            placements = _extract_placements(matches, event_id, event_nm, tid, contest_title)
+            winner_rows.extend(placements)
+
+    return player_rows, winner_rows
+
+
+# ──────────────────────────────────────────
+# 대회 단위 처리 (병렬 실행 단위)
+# ──────────────────────────────────────────
+def _process_tournament(
+    tid: str,
+    players_dir: Path,
+    winners_dir: Path,
+    sleep: float,
+) -> bool:
+    """
+    단일 대회의 전적을 수집하고 JSONL에 저장.
+    반환값: True(성공) / False(실패·스킵)
+    """
+    print(f"  [SPONET] 수집 시작: {tid}")
+
+    try:
+        events = _get_events(tid)
+        if not events:
+            print(f"    [-] 이벤트 없음, 스킵: {tid}")
+            return False
+
+        contest_title = tid
+        all_players: List[Dict] = []
+        all_winners: List[Dict] = []
+
+        # ── 이벤트 병렬 처리 ──
+        with ThreadPoolExecutor(max_workers=EVENT_WORKERS) as ex:
+            futures = {
+                ex.submit(_process_event, tid, event, contest_title, sleep): event
+                for event in events
+            }
+            for future in as_completed(futures):
+                try:
+                    p_rows, w_rows = future.result()
+                    all_players.extend(p_rows)
+                    all_winners.extend(w_rows)
+                except Exception as e:
+                    print(f"    [!] 이벤트 처리 오류: {e}")
+
+        # ── JSONL 저장 ──
+        p_out = players_dir / f"sponet_players_{tid}.jsonl"
+        w_out = winners_dir / f"sponet_winners_{tid}.jsonl"
+
+        with open(p_out, "w", encoding="utf-8") as pf:
+            for row in all_players:
+                pf.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+        with open(w_out, "w", encoding="utf-8") as wf:
+            for row in all_winners:
+                wf.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+        print(f"    [v] 완료: 참가자 {len(all_players)}명 / 입상자 {len(all_winners)}명")
+        return True
+
+    except Exception as e:
+        print(f"    [!] 에러 (ID:{tid}): {e}")
+        return False
+
+
+# ──────────────────────────────────────────
 # 퍼블릭 인터페이스
 # ──────────────────────────────────────────
 def run_sponet_stats_hunter(contest_ids: List[str], sleep: float = 0.3) -> List[str]:
     """
-    지정된 SPONET 대회 ID 목록의 전적 데이터를 수집하고 JSONL로 저장합니다.
+    지정된 SPONET 대회 ID 목록의 전적 데이터를 병렬 수집합니다.
 
     Parameters
     ----------
     contest_ids : Tournament.external_id 문자열 리스트
-    sleep       : 요청 간 딜레이 (초)
+    sleep       : 개별 API 요청 간 딜레이 (초) — 현재 미사용(병렬화로 대체)
 
     Returns
     -------
@@ -231,96 +328,19 @@ def run_sponet_stats_hunter(contest_ids: List[str], sleep: float = 0.3) -> List[
 
     success_ids: List[str] = []
 
-    for tid in contest_ids:
-        print(f"  [SPONET] 수집 시작: {tid}")
-        player_rows = 0
-        winner_rows = 0
-
-        try:
-            events = _get_events(tid)
-
-            # 이벤트 없음 = 아직 대진 미등록 대회. 완료 처리하지 않고 스킵.
-            if not events:
-                print(f"    [-] 이벤트 없음, 스킵: {tid}")
-                continue
-
-            # contest_title: event-list에 TOURNAMENT_NM 없음 → tid 사용
-            # load_stats._load_sponet 에서 DB의 기존 name을 덮어쓰지 않도록 처리됨
-            contest_title = tid
-
-            p_out = players_dir / f"sponet_players_{tid}.jsonl"
-            w_out = winners_dir  / f"sponet_winners_{tid}.jsonl"
-
-            with open(p_out, "w", encoding="utf-8") as pf, \
-                 open(w_out, "w", encoding="utf-8") as wf:
-
-                for event in events:
-                    event_id  = str(event.get("EVENT_ID") or "").strip()
-                    event_nm  = str(event.get("EVENT_NM") or "").strip()
-                    age_band  = str(event.get("AGE")      or "").strip()
-                    level     = str(event.get("LEVEL")    or "").strip()
-                    gender    = str(event.get("GENDER")   or "").strip()
-                    game_type = str(event.get("GAME_TYPE") or "").strip()
-
-                    if not event_id:
-                        continue
-
-                    # ── 참가자 수집 ──
-                    entries = _get_entries(tid, event_id)
-                    for entry in entries:
-                        p1 = (entry.get("PLAYER_NM1") or "").strip()
-                        c1 = (entry.get("CLUB_NM1")   or "").strip()
-                        p2 = (entry.get("PLAYER_NM2") or "").strip()
-                        c2 = (entry.get("CLUB_NM2")   or "").strip()
-                        if not p1:
-                            continue
-                        pf.write(json.dumps({
-                            "contest_id":       tid,
-                            "contest_title":    contest_title,
-                            "event_id":         event_id,
-                            "event_nm":         event_nm,
-                            "category_age_band": age_band,
-                            "category_level":   level,
-                            "gender":           gender,
-                            "game_type":        game_type,
-                            "player_name":      p1,
-                            "club":             c1,
-                            "partner_name":     p2,
-                            "partner_club":     c2,
-                            "source":           "SPONET",
-                        }, ensure_ascii=False) + "\n")
-                        player_rows += 1
-                    time.sleep(sleep)
-
-                    # ── 입상자 수집 (결승 드로우) ──
-                    draws = _get_draws(tid, event_id)
-                    if not draws:
-                        continue
-
-                    # 결승 키워드 포함 드로우 우선, 없으면 마지막 드로우
-                    final_draws = [d for d in draws if _is_final_draw(d)]
-                    target_draws = final_draws if final_draws else [draws[-1]]
-
-                    for draw in target_draws:
-                        draw_id = str(draw.get("DRAW_ID") or "").strip()
-                        if not draw_id:
-                            continue
-                        matches    = _get_matches(tid, event_id, draw_id)
-                        placements = _extract_placements(
-                            matches, event_id, event_nm, tid, contest_title
-                        )
-                        for row in placements:
-                            wf.write(json.dumps(row, ensure_ascii=False) + "\n")
-                            winner_rows += 1
-                        time.sleep(sleep)
-
-            print(f"    [v] 완료: 참가자 {player_rows}명 / 입상자 {winner_rows}명")
-            success_ids.append(tid)
-
-        except Exception as e:
-            print(f"    [!] 에러 (ID:{tid}): {e}")
-
-        time.sleep(sleep)
+    # ── 대회 병렬 처리 ──
+    with ThreadPoolExecutor(max_workers=TOURNAMENT_WORKERS) as ex:
+        futures = {
+            ex.submit(_process_tournament, tid, players_dir, winners_dir, sleep): tid
+            for tid in contest_ids
+        }
+        for future in as_completed(futures):
+            tid = futures[future]
+            try:
+                if future.result():
+                    success_ids.append(tid)
+            except Exception as e:
+                print(f"  [!] 대회 처리 실패 (ID:{tid}): {e}")
 
     return success_ids
 

@@ -252,13 +252,13 @@
         </div>
     </div>
 
-    {# ── 후원 플로팅 버튼 ── #}
+    {# ── 플로팅 버튼 ── #}
     <button onclick="document.getElementById('donationModal').classList.remove('hidden')"
             class="fixed bottom-24 right-5 md:bottom-8 z-40 flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-[#1c1c1e] border border-tossGray-200 dark:border-white/10 rounded-full shadow-lg text-sm font-bold text-tossGray-700 dark:text-tossGray-200 hover:shadow-xl hover:scale-105 transition-all">
-        ☕ <span>후원하기</span>
+        💌 <span>문의 · 후원</span>
     </button>
 
-    {# ── 후원 모달 ── #}
+    {# ── 문의 · 후원 모달 ── #}
     <div id="donationModal"
          class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
          onclick="if(event.target===this)this.classList.add('hidden')">
@@ -267,7 +267,7 @@
         <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
 
         {# 모달 카드 #}
-        <div class="relative bg-white dark:bg-[#1c1c1e] rounded-3xl shadow-2xl p-7 w-full max-w-xs text-center space-y-4">
+        <div class="relative bg-white dark:bg-[#1c1c1e] rounded-3xl shadow-2xl p-7 w-full max-w-xs text-center space-y-5">
 
             {# 닫기 #}
             <button onclick="document.getElementById('donationModal').classList.add('hidden')"
@@ -275,10 +275,24 @@
                 ✕
             </button>
 
-            <div class="text-3xl">☕</div>
+            {# 비즈니스 문의 #}
+            <div class="text-left bg-tossGray-50 dark:bg-white/5 rounded-2xl p-4 space-y-1.5">
+                <p class="text-xs font-black text-tossGray-800 dark:text-white">📬 광고 · 비즈니스 문의</p>
+                <a href="mailto:dl_setpoint@crode.net"
+                   class="block text-sm font-bold text-tossBlue hover:underline">dl_setpoint@crode.net</a>
+                <p class="text-[11px] text-tossGray-400 leading-relaxed">
+                    광고 제안, 데이터 제휴, 기타 협업 문의는<br>이메일로 연락 주세요.
+                </p>
+            </div>
+
+            {# 구분선 #}
+            <div class="border-t border-tossGray-100 dark:border-white/10"></div>
+
+            {# 후원 #}
             <div>
-                <h3 class="text-lg font-black text-tossGray-900 dark:text-white">커피 한 잔 후원</h3>
-                <p class="mt-1.5 text-xs text-tossGray-500 leading-relaxed">
+                <div class="text-2xl mb-2">☕</div>
+                <h3 class="text-base font-black text-tossGray-900 dark:text-white">커피 한 잔 후원</h3>
+                <p class="mt-1 text-xs text-tossGray-500 leading-relaxed">
                     setpoint는 광고 없이 운영되는 무료 서비스예요.<br>
                     서버 유지비에 힘을 보태주시면 감사해요 🙏
                 </p>
@@ -288,7 +302,7 @@
             <div class="flex justify-center">
                 <img src="{% static 'qr_donation.png' %}"
                      alt="후원 QR코드"
-                     class="w-48 h-48 rounded-2xl border border-tossGray-100 dark:border-white/10">
+                     class="w-44 h-44 rounded-2xl border border-tossGray-100 dark:border-white/10">
             </div>
 
             <p class="text-[11px] text-tossGray-400">

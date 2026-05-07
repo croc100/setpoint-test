@@ -123,7 +123,7 @@
                         </td>
 
                         {# 출전 정보: 성별 · 나이대 · 급수 #}
-                        <td class="px-6 py-5 whitespace-nowrap">
+                        <td class="px-6 py-5" style="white-space: nowrap;">
                             {% if stat %}<span class="text-xs font-medium text-tossGray-600 dark:text-tossGray-400">{{ stat.gender|default:"" }}{% if stat.category_age_band %} · {{ stat.category_age_band }}{% endif %}{% if stat.category_level %} · {{ stat.category_level }}{% endif %}</span>{% else %}<span class="text-tossGray-300 text-xs">—</span>{% endif %}
                         </td>
 

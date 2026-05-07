@@ -123,16 +123,8 @@
                         </td>
 
                         {# 출전 정보: 성별 · 나이대 · 급수 #}
-                        <td class="px-6 py-5">
-                            {% if stat %}
-                                <span class="text-xs font-medium text-tossGray-600 dark:text-tossGray-400">
-                                    {{ stat.gender|default:"" }}
-                                    {% if stat.category_age_band %} · {{ stat.category_age_band }}{% endif %}
-                                    {% if stat.category_level %} · {{ stat.category_level }}{% endif %}
-                                </span>
-                            {% else %}
-                                <span class="text-tossGray-300 text-xs">—</span>
-                            {% endif %}
+                        <td class="px-6 py-5 whitespace-nowrap">
+                            {% if stat %}<span class="text-xs font-medium text-tossGray-600 dark:text-tossGray-400">{{ stat.gender|default:"" }}{% if stat.category_age_band %} · {{ stat.category_age_band }}{% endif %}{% if stat.category_level %} · {{ stat.category_level }}{% endif %}</span>{% else %}<span class="text-tossGray-300 text-xs">—</span>{% endif %}
                         </td>
 
                         {# 최근 성적 (순위) #}
@@ -261,4 +253,28 @@
     {% endif %}
 </section>
 {% endif %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+    const form   = document.querySelector('form[method="get"]');
+    const inputs = form ? form.querySelectorAll('input[type="text"]') : [];
+    const selects = form ? form.querySelectorAll('select') : [];
+    let timer;
+
+    // 텍스트 입력: 400ms 디바운스 후 검색
+    inputs.forEach(el => {
+        el.addEventListener('input', () => {
+            clearTimeout(timer);
+            timer = setTimeout(() => form.submit(), 400);
+        });
+    });
+
+    // 셀렉트: 변경 즉시 검색
+    selects.forEach(el => {
+        el.addEventListener('change', () => form.submit());
+    });
+})();
+</script>
+{% endblock %}
 {% endblock %}
